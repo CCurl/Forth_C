@@ -29,7 +29,10 @@ OPCODE_T opcodes[] = {
 	, { _T("GT"), GT, _T(">") }
 	, { _T("DICTP"), DICTP, _T("DICTP") }
 	, { _T("EMIT"), EMIT, _T("EMIT") }
-	, { _T("GETLINE"), GETLINE, _T("GETLINE") }
+	, { _T("FOPEN"), FOPEN, _T("FOPEN") }
+	, { _T("FREAD"), FREAD, _T("FREAD") }
+	, { _T("FWRITE"), FWRITE, _T("FWRITE") }
+	, { _T("FCLOSE"), FCLOSE, _T("FCLOSE") }
 	, { _T("BYE"), BYE, _T("BYE") }
 	, { _T(""), -1, _T("") }
 };

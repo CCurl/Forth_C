@@ -230,15 +230,45 @@ void run()
 			putchar(arg1);
 			break;
 
-		case GETLINE:
+		case FOPEN:			// ( name mode -- fp status ) - mode: 0 = read, 1 = write
+			arg2 = pop();
 			arg1 = pop();
 			{
-				char *cp = (char *)&the_mem[arg1+1];
-				fgets(cp, 250, stdin);
-				cp[strlen(cp) - 1] = NULL;
-				*(cp-1) = strlen(cp);
-				push(arg1);
+				char *fileName = (char *)&the_mem[arg1 + 1];
+				char mode[4];
+				sprintf_s(mode, sizeof(mode), "%cb", arg2 == 0 ? 'r' : 'w');
+				FILE *fp = NULL;
+				fopen_s(&fp, fileName, mode);
+				push((int)fp);
+				push(fp != NULL ? 0 : 1);
 			}
+			break;
+
+		case FREAD:			// ( addr num fp -- count ) - fp == 0 means STDIN
+			arg3 = pop();
+			arg2 = pop();
+			arg1 = pop();
+			{
+				BYTE *pBuf = (BYTE *)&the_mem[arg1 + 1];
+				int num = fread_s(pBuf, arg2, sizeof(BYTE), arg2, arg3 == 0 ? stdin : (FILE *)arg3);
+				push(num);
+			}
+			break;
+
+		case FWRITE:			// ( addr num fp -- count ) - fp == 0 means STDIN
+			arg3 = pop();
+			arg2 = pop();
+			arg1 = pop();
+			{
+				BYTE *pBuf = (BYTE *)&the_mem[arg1 + 1];
+				int num = fwrite(pBuf, sizeof(BYTE), arg2, arg3 == 0 ? stdin : (FILE *)arg3);
+				push(num);
+			}
+			break;
+
+		case FCLOSE:
+			arg1 = pop();
+			fclose((FILE *)arg1);
 			break;
 
 		case BYE:
@@ -303,7 +333,7 @@ void init_vm()
 
 	char buf[128];
 	FILE *fp = NULL;
-	fopen_s(&fp, "dis.txt", "rt");
+	fopen_s(&fp, "..\\CFComp\\dis.txt", "rt");
 	if (fp)
 	{
 		while (fgets(buf, sizeof(buf), fp) == buf)

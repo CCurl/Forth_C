@@ -69,6 +69,8 @@
 : initSys ;
 : resetState 0 STATE ! 10 BASE ! 0SP ;
 
+: ttt 2000 0 FOPEN 2000 1 0 FREAD 1110 FCLOSE ;
+
 : mainLoop resetState BEGIN OK doWork AGAIN ;
 
-: main HELLO initSys mainLoop ;
+: main ttt HELLO initSys mainLoop ;

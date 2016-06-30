@@ -1,5 +1,7 @@
 #pragma once
 
+// The VM's instruction set
+
 #define RESET    0
 #define PUSH     1
 #define FETCH    2
@@ -27,7 +29,10 @@
 #define EMIT    25
 #define OVER    26
 #define TUCK    27
-#define GETLINE 28
+#define FOPEN   28		// ( name mode -- fp status ) - mode: 0 = read, 1 = write
+#define FREAD   29		// ( addr num fp -- count ) - fp == 0 means STDIN
+#define FWRITE  30		// ( addr num fp -- ) - fp == 0 means STDIN
+#define FCLOSE  31		// ( fp -- )
 #define BYE    255
 
 typedef unsigned char BYTE;

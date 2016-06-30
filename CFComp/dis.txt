@@ -1,4 +1,4 @@
-00000000 08 0e 04 00 00 ; JMP 0000040e
+00000000 08 2b 04 00 00 ; JMP 0000042b
 00000005 00             ; RESET
 00000006 00             ; RESET
 00000007 00             ; RESET
@@ -6,11 +6,11 @@
 00000009 18 00 00 00 1c ; DICTP 1c000000 - ??
 0000000e 00             ; RESET
 0000000f 00             ; RESET
-00000010 23             ; (data)
+00000010 45             ; (data)
 00000011 04             ; SWAP
 00000012 00             ; RESET
 00000013 00             ; RESET
-00000014 ad             ; (data)
+00000014 9f             ; (data)
 00000015 14             ; DIV
 00000016 00             ; RESET
 00000017 00             ; RESET
@@ -341,61 +341,76 @@
 000003a9 0b 80 00 00 00 ; CALL 00000080 - HERE
 000003ae 0e 64          ; CPUSH 64
 000003b0 11             ; ADD
-000003b1 1c             ; GETLINE
-000003b2 0c             ; RET
-000003b3 18 07 15 00 00 ; DICTP 00001507 - executeInput
-000003b8 0b 04 03 00 00 ; CALL 00000304 - 1+
-000003bd 0b 4f 03 00 00 ; CALL 0000034f - ZTYPE
-000003c2 0c             ; RET
-000003c3 18 f6 14 00 00 ; DICTP 000014f6 - doWork
-000003c8 0b a4 03 00 00 ; CALL 000003a4 - getInput
-000003cd 0b b3 03 00 00 ; CALL 000003b3 - executeInput
-000003d2 0c             ; RET
-000003d3 18 e4 14 00 00 ; DICTP 000014e4 - initSys
-000003d8 0c             ; RET
-000003d9 18 cf 14 00 00 ; DICTP 000014cf - resetState
-000003de 0e 00          ; CPUSH 00
-000003e0 0b 50 00 00 00 ; CALL 00000050 - STATE
-000003e5 03             ; STORE
-000003e6 0e 0a          ; CPUSH 0a
-000003e8 0b 58 00 00 00 ; CALL 00000058 - BASE
-000003ed 03             ; STORE
-000003ee 0b 92 03 00 00 ; CALL 00000392 - 0SP
-000003f3 0c             ; RET
-000003f4 18 bc 14 00 00 ; DICTP 000014bc - mainLoop
-000003f9 0b d9 03 00 00 ; CALL 000003d9 - resetState
-000003fe 0b 70 03 00 00 ; CALL 00000370 - OK
-00000403 0b c3 03 00 00 ; CALL 000003c3 - doWork
-00000408 08 fe 03 00 00 ; JMP 000003fe
-0000040d 0c             ; RET
-0000040e 18 ad 14 00 00 ; DICTP 000014ad - main
-00000413 0b 86 03 00 00 ; CALL 00000386 - HELLO
-00000418 0b d3 03 00 00 ; CALL 000003d3 - initSys
-0000041d 0b f4 03 00 00 ; CALL 000003f4 - mainLoop
-00000422 0c             ; RET
+000003b1 0c             ; RET
+000003b2 18 07 15 00 00 ; DICTP 00001507 - executeInput
+000003b7 0b 04 03 00 00 ; CALL 00000304 - 1+
+000003bc 0b 4f 03 00 00 ; CALL 0000034f - ZTYPE
+000003c1 0c             ; RET
+000003c2 18 f6 14 00 00 ; DICTP 000014f6 - doWork
+000003c7 0b a4 03 00 00 ; CALL 000003a4 - getInput
+000003cc 0b b2 03 00 00 ; CALL 000003b2 - executeInput
+000003d1 0c             ; RET
+000003d2 18 e4 14 00 00 ; DICTP 000014e4 - initSys
+000003d7 0c             ; RET
+000003d8 18 cf 14 00 00 ; DICTP 000014cf - resetState
+000003dd 0e 00          ; CPUSH 00
+000003df 0b 50 00 00 00 ; CALL 00000050 - STATE
+000003e4 03             ; STORE
+000003e5 0e 0a          ; CPUSH 0a
+000003e7 0b 58 00 00 00 ; CALL 00000058 - BASE
+000003ec 03             ; STORE
+000003ed 0b 92 03 00 00 ; CALL 00000392 - 0SP
+000003f2 0c             ; RET
+000003f3 18 c1 14 00 00 ; DICTP 000014c1 - ttt
+000003f8 01 d0 07 00 00 ; PUSH 000007d0
+000003fd 0e 00          ; CPUSH 00
+000003ff 1c             ; FOPEN
+00000400 01 d0 07 00 00 ; PUSH 000007d0
+00000405 0e 01          ; CPUSH 01
+00000407 0e 00          ; CPUSH 00
+00000409 1d             ; FREAD
+0000040a 01 56 04 00 00 ; PUSH 00000456
+0000040f 1f             ; FCLOSE
+00000410 0c             ; RET
+00000411 18 ae 14 00 00 ; DICTP 000014ae - mainLoop
+00000416 0b d8 03 00 00 ; CALL 000003d8 - resetState
+0000041b 0b 70 03 00 00 ; CALL 00000370 - OK
+00000420 0b c2 03 00 00 ; CALL 000003c2 - doWork
+00000425 08 1b 04 00 00 ; JMP 0000041b
+0000042a 0c             ; RET
+0000042b 18 9f 14 00 00 ; DICTP 0000149f - main
+00000430 0b f3 03 00 00 ; CALL 000003f3 - ttt
+00000435 0b 86 03 00 00 ; CALL 00000386 - HELLO
+0000043a 0b d2 03 00 00 ; CALL 000003d2 - initSys
+0000043f 0b 11 04 00 00 ; CALL 00000411 - mainLoop
+00000444 0c             ; RET
 
-000014ad bc 14 00 00            ; Next=000014bc, main
-000014b1 0e 04 00 00 00         ; XT=0000040e, flags=00
-000014b6 04 6d 61 69 6e 00
+0000149f ae 14 00 00            ; Next=000014ae, main
+000014a3 2b 04 00 00 00         ; XT=0000042b, flags=00
+000014a8 04 6d 61 69 6e 00
 
-000014bc cf 14 00 00            ; Next=000014cf, mainLoop
-000014c0 f4 03 00 00 00         ; XT=000003f4, flags=00
-000014c5 08 6d 61 69 6e 4c 6f 6f 70 00
+000014ae c1 14 00 00            ; Next=000014c1, mainLoop
+000014b2 11 04 00 00 00         ; XT=00000411, flags=00
+000014b7 08 6d 61 69 6e 4c 6f 6f 70 00
+
+000014c1 cf 14 00 00            ; Next=000014cf, ttt
+000014c5 f3 03 00 00 00         ; XT=000003f3, flags=00
+000014ca 03 74 74 74 00
 
 000014cf e4 14 00 00            ; Next=000014e4, resetState
-000014d3 d9 03 00 00 00         ; XT=000003d9, flags=00
+000014d3 d8 03 00 00 00         ; XT=000003d8, flags=00
 000014d8 0a 72 65 73 65 74 53 74 61 74 65 00
 
 000014e4 f6 14 00 00            ; Next=000014f6, initSys
-000014e8 d3 03 00 00 00         ; XT=000003d3, flags=00
+000014e8 d2 03 00 00 00         ; XT=000003d2, flags=00
 000014ed 07 69 6e 69 74 53 79 73 00
 
 000014f6 07 15 00 00            ; Next=00001507, doWork
-000014fa c3 03 00 00 00         ; XT=000003c3, flags=00
+000014fa c2 03 00 00 00         ; XT=000003c2, flags=00
 000014ff 06 64 6f 57 6f 72 6b 00
 
 00001507 1e 15 00 00            ; Next=0000151e, executeInput
-0000150b b3 03 00 00 00         ; XT=000003b3, flags=00
+0000150b b2 03 00 00 00         ; XT=000003b2, flags=00
 00001510 0c 65 78 65 63 75 74 65 49 6e 70 75 74 00
 
 0000151e 31 15 00 00            ; Next=00001531, getInput
