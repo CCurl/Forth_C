@@ -255,6 +255,28 @@ void run()
 			}
 			break;
 
+		case FREADLINE:			// ( addr num fp -- count ) - fp == 0 means STDIN
+			arg3 = pop();
+			arg2 = pop();
+			arg1 = pop();
+			{
+				char *pBuf = (char *)&the_mem[arg1 + 1];
+				FILE *fp = arg3 ? (FILE *)arg3 : stdin;
+				if (fgets(pBuf, arg2, fp) != pBuf)
+				{
+					*pBuf = NULL;
+				}
+				arg2 = strlen(pBuf);
+				// Strip off any trailing newline
+				if ((arg2 > 0) && (pBuf[arg2-1] == '\n'))
+				{
+					pBuf[--arg2] = NULL;
+				}
+				*(--pBuf) = arg2;
+				push(arg2);
+			}
+			break;
+
 		case FWRITE:			// ( addr num fp -- count ) - fp == 0 means STDIN
 			arg3 = pop();
 			arg2 = pop();
@@ -268,12 +290,11 @@ void run()
 
 		case FCLOSE:
 			arg1 = pop();
-			fclose((FILE *)arg1);
+			if (arg1 != 0)
+				fclose((FILE *)arg1);
 			break;
 
 		case BYE:
-			fputs("BYE", stdout);
-			getchar();
 			return;
 
 		default:

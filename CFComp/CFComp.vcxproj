@@ -97,7 +97,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="dis.txt" />
-    <Text Include="ReadMe.txt" />
     <Text Include="source.txt" />
   </ItemGroup>
   <ItemGroup>

@@ -61,16 +61,22 @@
 : HELLO 72 EMIT 73 EMIT ;
 
 : 0SP (STACK) @ SP ! ; 
-: getInput HERE 100 + GETLINE ;
+: PAD LAST 200 - ;
+: getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
 
-: executeInput 1+ ZTYPE ;
+: bye 66 EMIT 89 EMIT 69 EMIT BYE ;
+\ ( addr -- addr ch )
+: executeOneWord DUP C@ DUP 126 = 
+	IF 
+		DROP DROP bye
+	THEN 
+	EMIT 46 EMIT 1+ DUP C@ ;
+: executeInput 1+ BEGIN executeOneWord WHILE DROP ;
 : doWork getInput executeInput ;
 
 : initSys ;
 : resetState 0 STATE ! 10 BASE ! 0SP ;
 
-: ttt 2000 0 FOPEN 2000 1 0 FREAD 1110 FCLOSE ;
-
 : mainLoop resetState BEGIN OK doWork AGAIN ;
 
-: main ttt HELLO initSys mainLoop ;
+: main HELLO initSys mainLoop ;

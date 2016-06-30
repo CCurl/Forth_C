@@ -31,6 +31,7 @@ OPCODE_T opcodes[] = {
 	, { _T("EMIT"), EMIT, _T("EMIT") }
 	, { _T("FOPEN"), FOPEN, _T("FOPEN") }
 	, { _T("FREAD"), FREAD, _T("FREAD") }
+	, { _T("FREADLINE"), FREADLINE, _T("FREADLINE") }
 	, { _T("FWRITE"), FWRITE, _T("FWRITE") }
 	, { _T("FCLOSE"), FCLOSE, _T("FCLOSE") }
 	, { _T("BYE"), BYE, _T("BYE") }
@@ -273,7 +274,7 @@ void CCFCompiler::Parse(CString& line)
 		}
 		parsed.AppendFormat(_T("%s"), word);
 
-		if (word == _T("//"))
+		if (word == _T("\\"))
 		{
 			return;
 		}
@@ -436,6 +437,8 @@ void CCFCompiler::Dis(FILE *fp)
 	{
 		PC = Dis1(PC, fp);
 	}
+
+	fprintf(fp, "\n%08lx ; The dictionary starts here ...\n", LAST);
 
 	PC = LAST;
 	while (PC >= LAST)
