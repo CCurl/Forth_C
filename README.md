@@ -15,4 +15,7 @@ end, and they grow towards each other. The data and return stacks are after the 
 When the VM boots, its "BIOS" start up code reads and parses the "dis.txt" file to load the initial image of 
 itself, and then starts executing at address 0, which is just a JUMP to the "main" word.
 
+The CForth2 project is the implementatino of the Forth VM.
+The CFComp project is the implementation of the simple Forth VM image assembler.
+
 The VM is written in C. The assembler is written in C++.
