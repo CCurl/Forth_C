@@ -17,49 +17,32 @@
 typedef unsigned char BYTE;
 BYTE *the_mem = NULL;
 int IP = 0;
-int RSP = MEM_SZ - (1 * ONE_KB);
-int SP  = MEM_SZ - (2 * ONE_KB);
+int *RSP = NULL; // the return stack pointer
+int *DSP = NULL; // the data stack pointer
 
+int RSP_ADDR = MEM_SZ - RSTACK_SZ;
+int DSP_ADDR = RSP_ADDR- DSTACK_SZ;
 
 #define GETAT(loc) *(int *)(&the_mem[loc])
 #define SETAT(loc, val) *(int *)(&the_mem[loc]) = val
 
-#define GETTOS() GETAT(SP)
-#define SETTOS(val) SETAT(SP, val)
+#define GETTOS() (*DSP)
+#define SETTOS(val) (*DSP) = (val)
 
-int push(int val)
-{
-	SP += sizeof(int);
-	SETAT(SP, val);
-	return val;
-}
+#define push(val) *(++DSP) = (int)(val)
+#define pop() *(DSP--)
 
-int pop()
-{
-	int ret = GETAT(SP);
-	SP -= sizeof(int);
-	return ret;
-}
-
-int rpush(int val)
-{
-	RSP += sizeof(int);
-	SETAT(RSP, val);
-	return val;
-}
-
-int rpop()
-{
-	int ret = GETAT(RSP);
-	RSP -= sizeof(int);
-	return ret;
-}
+#define rpush(val) *(++RSP) = (int)(val)
+#define rpop() *(RSP--)
 
 void run()
 {
 	int arg1, arg2, arg3;
 
 	IP = 0;
+	DSP = (int *)&the_mem[DSP_ADDR];
+	RSP = (int *)&the_mem[RSP_ADDR];
+
 	while (true)
 	{
 		BYTE opcode = the_mem[IP++];
@@ -294,6 +277,12 @@ void run()
 				fclose((FILE *)arg1);
 			break;
 
+		case RESET:
+			DSP = (int *)&the_mem[DSP_ADDR];
+			RSP = (int *)&the_mem[RSP_ADDR];
+			IP = 0;
+			break;
+
 		case BYE:
 			return;
 
@@ -370,9 +359,6 @@ void init_vm()
 		}
 		fclose(fp);
 	}
-	
-	RSP = MEM_SZ - ONE_KB;
-	SP = RSP - ONE_KB;
 }
 
 // ------------------------------------------------------------------------------------------
