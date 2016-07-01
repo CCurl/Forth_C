@@ -171,7 +171,7 @@
 ;
 
 : executeWord  \ ( addr -- )
-	91 EMIT DUP ZTYPE 93 EMIT \ DEBUG
+	\ 91 EMIT DUP ZTYPE 93 EMIT \ DEBUG
 	\ TEMP check for "~" (BYE)
 	DUP C@ 126 = 
 	IF
@@ -204,12 +204,12 @@
 					<asm> PUSH </asm>
 				THEN
 				C, ,
-			ELSE
-				65 + EMIT \ DEBUG
+			\ ELSE
+				\ 65 + EMIT \ DEBUG
 			THEN
 		ELSE
 			DROP
-			32 EMIT R@ ZTYPE 63 EMIT 63 EMIT \ RESET \ TODO: error
+			32 EMIT R@ ZTYPE 63 EMIT 63 EMIT RESET \ TODO: error
 		THEN
 		R> DROP
 	THEN
