@@ -1,4 +1,4 @@
-.ORG 50
+.ORG 64
 
 : SP        8 ;
 : RSP      12 ;
@@ -11,19 +11,17 @@
 : STDIN    40 ;
 : INPUT-FP 44 ;
 : >IN      48 ;
+: isNeg    52 ;
 
 : HERE (HERE) @ ;
 : LAST (LAST) @ ;
 
-: , HERE ! HERE 4 + (HERE) ! ;
-: C, HERE C! HERE 1 + (HERE) ! ;
-
-: HEX 16 BASE ! ;
-: DECIMAL 10 BASE ! ;
-
 : ?COMPILING STATE @ ;
 : [ 0 STATE ! ;
 : ] 1 STATE ! ;
+
+: ,  HERE TUCK  ! 4 + (HERE) ! ;
+: C, HERE TUCK C! 1+ (HERE) ! ;
 
 :! !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ;
 :! C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ;
@@ -58,22 +56,25 @@
 :! FRWITE ?COMPILING IF <asm> CPUSH FRWITE </asm> C, <asm> RET </asm> THEN FRWITE ;
 :! FCLOSE ?COMPILING IF <asm> CPUSH FCLOSE </asm> C, <asm> RET </asm> THEN FCLOSE ;
 
-: 1+ 1 + ;
+:! 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ;
+
 : 0= 0 = ; : <> = 0= ; : <= > 0= ; : >= < 0= ;
 : CRLF 13 EMIT 10 EMIT ;
 : BL 32 EMIT ;
 : ZTYPE BEGIN DUP C@ DUP IF EMIT 1+ ELSE DROP DROP LEAVE THEN AGAIN ;
 
 : OK BL 79 EMIT 75 EMIT CRLF ;
-: HELLO 72 EMIT 73 EMIT ;
+: HELLO >IN @ 0= IF 72 EMIT 73 EMIT THEN ;
 
-: 0SP (STACK) @ SP ! ; 
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
 
 : bye 66 EMIT 89 EMIT 69 EMIT BYE ;
 
 : ?DUP DUP IF DUP THEN ;
+
+: HEX 16 BASE ! ;
+: DECIMAL 10 BASE ! ;
 
 : skipWS \ ( addr1 -- addr2 )
 	BEGIN
@@ -113,23 +114,70 @@
 ;
 
 : findInDict \ ( addr -- XT IMM bool )
-	0 0 0
+	\ TODO
+	0 0 0 \ DEBUG
+;
+
+: isHexDigit? \ ch -- bool
+	BASE @ 16 = 
+	IF
+			DUP 65 < IF DROP 0 LEAVE THEN
+			DUP 70 > IF DROP 0 LEAVE THEN
+			DROP 1
+	ELSE
+		DROP 0
+	THEN
+;
+
+: isNumChar? \ ch -- val bool
+	DUP 48 < IF 0 LEAVE THEN
+	DUP 57 > 
+	IF 
+		DUP isHexDigit?
+		IF 
+			55
+		ELSE 
+			DROP 0 LEAVE
+		THEN
+	ELSE
+		48
+	THEN
+	- 1
 ;
 
 : isNumber? \ ( addr -- num bool )
-	0 0
+	\ find out if it is negative
+	DUP C@ 45 = DUP isNeg ! IF 1+ THEN
+	
+	\ accumulate the result on the return stack
+	0 >R
+	BEGIN
+		DUP C@
+		DUP 0= \ end of word?
+		IF 
+			DROP R> 
+			isNeg @ IF 0 SWAP - THEN
+			1 LEAVE
+		THEN
+
+		isNumChar? 
+		IF
+			R> BASE @ * + >R
+			1+
+		ELSE
+			DROP DROP R> 0 LEAVE
+		THEN
+	AGAIN
 ;
 
 : executeWord  \ ( addr -- )
-	70 EMIT DUP ZTYPE 70 EMIT \ debug
+	91 EMIT DUP ZTYPE 93 EMIT \ DEBUG
 	\ TEMP check for "~" (BYE)
 	DUP C@ 126 = 
 	IF
 		DROP bye
 	THEN
 	
-	\ ZTYPE LEAVE DEBUG
-
 	>R R@ findInDict \ ( addr -- XT IMM found )
 	IF
 		R> DROP
@@ -144,7 +192,8 @@
 			DROP EXECUTE
 		THEN
 	ELSE \ word not found
-		DROP DROP R> isNumber?
+		DROP DROP \ discard IMM and XT placeholders
+		R@ isNumber? \ ( addr -- num bool )
 		IF
 			?COMPILING
 			IF
@@ -155,22 +204,26 @@
 					<asm> PUSH </asm>
 				THEN
 				C, ,
+			ELSE
+				65 + EMIT \ DEBUG
 			THEN
 		ELSE
 			DROP
-			44 EMIT \ TODO: error
+			32 EMIT R@ ZTYPE 63 EMIT 63 EMIT \ RESET \ TODO: error
 		THEN
+		R> DROP
 	THEN
 ;
 
 : executeInput 
+	\ HEX \ DEBUG
 	BEGIN 
-		65 EMIT >IN @ ZTYPE 65 EMIT CRLF \ debug
+		\ 65 EMIT >IN @ ZTYPE 65 EMIT CRLF \ DEBUG
 		>IN @ skipWS
-		\ 66 EMIT CRLF >IN @ ZTYPE CRLF \ debug
+		\ 66 EMIT CRLF >IN @ ZTYPE CRLF \ DEBUG
 		>IN ! >IN @ C@ 
 		IF
-			\ 67 EMIT >IN @ ZTYPE CRLF \ debug
+			\ 67 EMIT >IN @ ZTYPE CRLF \ DEBUG
 			>IN @ getOneWord >IN ! executeWord
 		ELSE
 			DROP LEAVE
@@ -181,7 +234,7 @@
 : parseLine getInput 1+ >IN ! executeInput ;
 
 : initSys ;
-: resetState 0 STATE ! 10 BASE ! 0SP ;
+: resetState 0 STATE ! DECIMAL ;
 
 : mainLoop resetState BEGIN OK parseLine AGAIN ;
 

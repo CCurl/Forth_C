@@ -37,6 +37,7 @@ OPCODE_T opcodes[] = {
 	, { _T("DTOR"), DTOR, _T(">R") }
 	, { _T("RFETCH"), RFETCH, _T("R@") }
 	, { _T("RTOD"), RTOD, _T("R>") }
+	, { _T("ONEPLUS"), ONEPLUS, _T("1+") }
 	, { _T("BYE"), BYE, _T("BYE") }
 	, { _T(""), -1, _T("") }
 };

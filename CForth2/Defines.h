@@ -34,9 +34,10 @@
 #define FREADLINE 30	// ( addr fp -- count )
 #define FWRITE    31	// ( addr num fp -- ) - fp == 0 means STDIN
 #define FCLOSE    32	// ( fp -- )
-#define DTOR      33
-#define RFETCH    34
-#define RTOD      35
+#define DTOR      33	// >R
+#define RFETCH    34	// R@
+#define RTOD      35	// R>
+#define ONEPLUS   36
 #define BYE      255
 
 typedef unsigned char BYTE;

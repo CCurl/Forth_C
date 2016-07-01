@@ -36,7 +36,7 @@ int DSP_ADDR = RSP_ADDR- DSTACK_SZ;
 #define rpush(val) *(++RSP) = (int)(val)
 #define rpop() *(RSP--)
 
-void run()
+int run()
 {
 	int arg1, arg2, arg3;
 
@@ -278,12 +278,6 @@ void run()
 				fclose((FILE *)arg1);
 			break;
 
-		case RESET:
-			DSP = (int *)&the_mem[DSP_ADDR];
-			RSP = (int *)&the_mem[RSP_ADDR];
-			IP = 0;
-			break;
-
 		case DTOR:
 			arg1 = pop();
 			rpush(arg1);
@@ -298,13 +292,22 @@ void run()
 			push(arg1);
 			break;
 
-		case BYE:
-			return;
+		case ONEPLUS:
+			arg1 = pop();
+			push(arg1+1);
+			break;
 
+		case BYE:
+			return pop();
+
+		case RESET:
 		default:
-			return;
+			DSP = (int *)&the_mem[DSP_ADDR];
+			RSP = (int *)&the_mem[RSP_ADDR];
+			IP = 0;
 		}
 	}
+	return 0;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -394,6 +397,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	memset(the_mem, NULL, (MEM_SZ*sizeof(BYTE)));
 
 	init_vm();
-	run();
-	return 0;
+	
+	return run();
 }
