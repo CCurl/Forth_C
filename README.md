@@ -1,6 +1,6 @@
 Yes, I know ... ANOTHER Forth implementation. This one creates a "bare metal" Forth virtual machine.
 
-The goal of this project was to create an implementation of a virtual "bare metal" Forth machine. To 
+The goal of this project is to create an implementation of a virtual "bare metal" Forth machine. To 
 that end, the VM has less than 50 instructions, which make up the Forth system's primitives. See Defines.h 
 for that list of instructions.
 
