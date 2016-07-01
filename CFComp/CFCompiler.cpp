@@ -34,6 +34,9 @@ OPCODE_T opcodes[] = {
 	, { _T("FREADLINE"), FREADLINE, _T("FREADLINE") }
 	, { _T("FWRITE"), FWRITE, _T("FWRITE") }
 	, { _T("FCLOSE"), FCLOSE, _T("FCLOSE") }
+	, { _T("DTOR"), DTOR, _T(">R") }
+	, { _T("RFETCH"), RFETCH, _T("R@") }
+	, { _T("RTOD"), RTOD, _T("R>") }
 	, { _T("BYE"), BYE, _T("BYE") }
 	, { _T(""), -1, _T("") }
 };

@@ -1,4 +1,4 @@
-.ORG 48
+.ORG 50
 
 : SP        8 ;
 : RSP      12 ;
@@ -10,6 +10,7 @@
 : (RSTACK) 36 ;
 : STDIN    40 ;
 : INPUT-FP 44 ;
+: >IN      48 ;
 
 : HERE (HERE) @ ;
 : LAST (LAST) @ ;
@@ -49,7 +50,13 @@
 :! RESET ?COMPILING IF <asm> CPUSH RESET </asm> C, <asm> RET </asm> THEN RESET ;
 :! BYE   ?COMPILING IF <asm> CPUSH BYE   </asm> C, <asm> RET </asm> THEN BYE ;
 
-:! EMIT ?COMPILING IF <asm> CPUSH EMIT </asm> C, <asm> EMIT </asm> THEN SWAP ;
+:! EMIT ?COMPILING IF <asm> CPUSH EMIT </asm> C, <asm> RET </asm> THEN EMIT ;
+
+:! FOPEN ?COMPILING IF <asm> CPUSH FOPEN </asm> C, <asm> RET </asm> THEN FOPEN ;
+:! FREAD ?COMPILING IF <asm> CPUSH FREAD </asm> C, <asm> RET </asm> THEN FREAD ;
+:! FREADLINE ?COMPILING IF <asm> CPUSH FREADLINE </asm> C, <asm> RET </asm> THEN FREADLINE ;
+:! FRWITE ?COMPILING IF <asm> CPUSH FRWITE </asm> C, <asm> RET </asm> THEN FRWITE ;
+:! FCLOSE ?COMPILING IF <asm> CPUSH FCLOSE </asm> C, <asm> RET </asm> THEN FCLOSE ;
 
 : 1+ 1 + ;
 : 0= 0 = ; : <> = 0= ; : <= > 0= ; : >= < 0= ;
@@ -65,18 +72,117 @@
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
 
 : bye 66 EMIT 89 EMIT 69 EMIT BYE ;
-\ ( addr -- addr ch )
-: executeOneWord DUP C@ DUP 126 = 
-	IF 
-		DROP DROP bye
-	THEN 
-	EMIT 46 EMIT 1+ DUP C@ ;
-: executeInput 1+ BEGIN executeOneWord WHILE DROP ;
-: doWork getInput executeInput ;
+
+: ?DUP DUP IF DUP THEN ;
+
+: skipWS \ ( addr1 -- addr2 )
+	BEGIN
+		DUP C@ DUP
+		\ DUP EMIT 79 EMIT \ DEBUG
+		IF
+			\ 80 EMIT \ DEBUG
+			32 > 
+			\ 81 EMIT \ DEBUG
+			IF 
+				\ 82 EMIT \ DEBUG
+				LEAVE
+			ELSE
+				\ 83 EMIT \ DEBUG
+				1+
+			THEN
+		ELSE
+			\ 84 EMIT DUP ZTYPE CRLF \ DEBUG
+			DROP LEAVE
+		THEN
+	AGAIN
+;
+
+: getOneWord \ ( addr1 -- word-addr addr2 )
+	DUP >R >R
+	BEGIN
+		R@ C@ 32 > IF
+			R> 1+ >R
+		ELSE
+			R@ C@ 
+			IF
+				0 R@ C! R> 1+ >R
+			THEN
+			R> R> SWAP LEAVE
+		THEN
+	AGAIN
+;
+
+: findInDict \ ( addr -- XT IMM bool )
+	0 0 0
+;
+
+: isNumber? \ ( addr -- num bool )
+	0 0
+;
+
+: executeWord  \ ( addr -- )
+	70 EMIT DUP ZTYPE 70 EMIT \ debug
+	\ TEMP check for "~" (BYE)
+	DUP C@ 126 = 
+	IF
+		DROP bye
+	THEN
+	
+	\ ZTYPE LEAVE DEBUG
+
+	>R R@ findInDict \ ( addr -- XT IMM found )
+	IF
+		R> DROP
+		?COMPILING
+		IF
+			IF \ Immediate?
+				EXECUTE
+			ELSE
+				<asm> PUSH CALL </asm> C, ,
+			THEN
+		ELSE
+			DROP EXECUTE
+		THEN
+	ELSE \ word not found
+		DROP DROP R> isNumber?
+		IF
+			?COMPILING
+			IF
+				DUP 256 <
+				IF
+					<asm> CPUSH </asm>
+				ELSE
+					<asm> PUSH </asm>
+				THEN
+				C, ,
+			THEN
+		ELSE
+			DROP
+			44 EMIT \ TODO: error
+		THEN
+	THEN
+;
+
+: executeInput 
+	BEGIN 
+		65 EMIT >IN @ ZTYPE 65 EMIT CRLF \ debug
+		>IN @ skipWS
+		\ 66 EMIT CRLF >IN @ ZTYPE CRLF \ debug
+		>IN ! >IN @ C@ 
+		IF
+			\ 67 EMIT >IN @ ZTYPE CRLF \ debug
+			>IN @ getOneWord >IN ! executeWord
+		ELSE
+			DROP LEAVE
+		THEN
+	AGAIN
+;
+
+: parseLine getInput 1+ >IN ! executeInput ;
 
 : initSys ;
 : resetState 0 STATE ! 10 BASE ! 0SP ;
 
-: mainLoop resetState BEGIN OK doWork AGAIN ;
+: mainLoop resetState BEGIN OK parseLine AGAIN ;
 
 : main HELLO initSys mainLoop ;

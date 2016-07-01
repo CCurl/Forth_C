@@ -5,6 +5,7 @@
 #include <string.h>
 #include <malloc.h>
 #include "Defines.h"
+#include <stdio.h>
 
 // ------------------------------------------------------------------------------------------
 // The VM
@@ -283,6 +284,20 @@ void run()
 			IP = 0;
 			break;
 
+		case DTOR:
+			arg1 = pop();
+			rpush(arg1);
+			break;
+
+		case RFETCH:
+			push(*RSP);
+			break;
+
+		case RTOD:
+			arg1 = rpop();
+			push(arg1);
+			break;
+
 		case BYE:
 			return;
 
@@ -343,13 +358,18 @@ void init_vm()
 
 	char buf[128];
 	FILE *fp = NULL;
+#ifdef _DEBUG
 	fopen_s(&fp, "..\\CFComp\\dis.txt", "rt");
+#else
+	fopen_s(&fp, ".\\dis.txt", "rt");
+#endif
 	if (fp)
 	{
 		while (fgets(buf, sizeof(buf), fp) == buf)
 		{
 			buf[strlen(buf - 1)] = (char)NULL;
 			char *cp = GetNextNum(buf, IP);
+			// printf("%s ", cp);
 			while ((*cp) && (IP >= 0))
 			{
 				int num;
@@ -358,6 +378,10 @@ void init_vm()
 			}
 		}
 		fclose(fp);
+	}
+	else
+	{
+		printf("dis.txt - error opening");
 	}
 }
 
