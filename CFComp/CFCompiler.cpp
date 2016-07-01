@@ -283,6 +283,17 @@ void CCFCompiler::Parse(CString& line)
 			return;
 		}
 
+		if (word == ".ORG")
+		{
+			GetWord(line, word);
+			int addr = 0;
+			if (MakeNumber(word, addr))
+			{
+				HERE = addr;
+			}
+			continue;
+		}
+
 		if (word == _T(":"))
 		{
 			STATE = 1;
@@ -385,16 +396,6 @@ void CCFCompiler::Parse(CString& line)
 				CComma(opcode);
 				continue;
 			}
-		}
-
-		if (word == ".ORG")
-		{
-			GetWord(line, word);
-			if (MakeNumber(word, opcode))
-			{
-				HERE = opcode;
-			}
-			continue;
 		}
 
 		opcode = FindForthPrim(word);

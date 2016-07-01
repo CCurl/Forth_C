@@ -36,11 +36,13 @@ int DSP_ADDR = RSP_ADDR- DSTACK_SZ;
 #define rpush(val) *(++RSP) = (int)(val)
 #define rpop() *(RSP--)
 
+// ------------------------------------------------------------------------------------------
+// Where all the work is done
+// ------------------------------------------------------------------------------------------
 int run()
 {
 	int arg1, arg2, arg3;
 
-	IP = 0;
 	DSP = (int *)&the_mem[DSP_ADDR];
 	RSP = (int *)&the_mem[RSP_ADDR];
 
@@ -355,17 +357,17 @@ char *GetNextNum(char *cp, int& val)
 	return cp;
 }
 
-void init_vm()
+// ------------------------------------------------------------------------------------------
+int bios_init()
 {
 	IP = 0;
 
-	char buf[128];
+	char buf[128], *fn = ".\\dis.txt";
 	FILE *fp = NULL;
 #ifdef _DEBUG
-	fopen_s(&fp, "..\\CFComp\\dis.txt", "rt");
-#else
-	fopen_s(&fp, ".\\dis.txt", "rt");
+	fn = "..\\CFComp\\dis.txt";
 #endif
+	fopen_s(&fp, fn, "rt");
 	if (fp)
 	{
 		while (fgets(buf, sizeof(buf), fp) == buf)
@@ -381,11 +383,14 @@ void init_vm()
 			}
 		}
 		fclose(fp);
+		IP = 0;
 	}
 	else
 	{
-		printf("dis.txt - error opening");
+		printf("Error opening '%s'!", fn);
+		IP = 1;
 	}
+	return IP;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -396,7 +401,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	the_mem = (BYTE *)malloc(MEM_SZ);
 	memset(the_mem, NULL, (MEM_SZ*sizeof(BYTE)));
 
-	init_vm();
-	
+	int initOK = bios_init();
+	if (initOK != 0)
+	{
+		return initOK;
+	}
+
 	return run();
 }

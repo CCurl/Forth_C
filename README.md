@@ -1,8 +1,9 @@
 Yes, I know ... ANOTHER Forth implementation. This one creates a "bare metal" Forth virtual machine.
 
 The goal of this project is to create an implementation of a virtual "bare metal" Forth machine. To 
-that end, the VM has less than 50 instructions, which make up the Forth system's primitives. See Defines.h 
-for that list of instructions.
+that end, the VM has less than 50 instructions, which make up the VM's opcodes and the Forth system's 
+primitives. See "Defines.h" for that list of built-in functionality. The run() function in "CForth2.cpp"
+is the implementation of the virtual CPU loop.
 
 To get the initial code image into the VM, I created a simple, very Forth-like assembler. It generates an 
 in-memory image of the VM's desired initial state from the "source.txt" file. It also disassembles the VM 
