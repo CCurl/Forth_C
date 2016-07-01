@@ -1,3 +1,10 @@
+\ ------------------------------------------------------------------------------------------
+\ This is the source code for the VM's boot loader.
+\ This file is compiled by CFComp.exe and an image of the VM's initial state is created.
+\ CFComp.exe then disassembles that image, creating a listing file named dis.txt
+\ The resulting dis.txt is read by the VM when it boots.
+\ ------------------------------------------------------------------------------------------
+
 .ORG 64
 
 : SP        8 ;
@@ -231,11 +238,8 @@
 	AGAIN
 ;
 
-: parseLine getInput 1+ >IN ! executeInput ;
-
-: initSys ;
 : resetState 0 STATE ! DECIMAL ;
 
-: mainLoop resetState BEGIN OK parseLine AGAIN ;
+: mainLoop resetState BEGIN OK getInput 1+ >IN ! executeInput AGAIN ;
 
-: main HELLO initSys mainLoop ;
+: main HELLO mainLoop ;
