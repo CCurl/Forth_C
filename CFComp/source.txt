@@ -27,8 +27,8 @@
 : [ 0 STATE ! ;
 : ] 1 STATE ! ;
 
-: ,  HERE TUCK  ! 4 + (HERE) ! ;
-: C, HERE TUCK C! 1+ (HERE) ! ;
+: ,  (HERE) TUCK @ TUCK  ! 4 + SWAP ! ;
+: C, (HERE) TUCK @ TUCK C! 1+  SWAP ! ;
 
 :! !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ;
 :! C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ;
@@ -65,13 +65,16 @@
 
 :! 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ;
 
-: 0= 0 = ; : <> = 0= ; : <= > 0= ; : >= < 0= ;
+: <> = 0 = ; 
+: <= > 0 = ; 
+: >= < 0 = ;
+
 : CRLF 13 EMIT 10 EMIT ;
 : BL 32 EMIT ;
 : ZTYPE BEGIN DUP C@ DUP IF EMIT 1+ ELSE DROP DROP LEAVE THEN AGAIN ;
 
 : OK BL 79 EMIT 75 EMIT CRLF ;
-: HELLO >IN @ 0= IF 72 EMIT 73 EMIT THEN ;
+: HELLO >IN @ 0 = IF 72 EMIT 73 EMIT THEN ;
 
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
@@ -160,7 +163,7 @@
 	0 >R
 	BEGIN
 		DUP C@
-		DUP 0= \ end of word?
+		DUP 0 = \ end of word?
 		IF 
 			DROP R> 
 			isNeg @ IF 0 SWAP - THEN
@@ -242,4 +245,4 @@
 
 : mainLoop resetState BEGIN OK getInput 1+ >IN ! executeInput AGAIN ;
 
-: main HELLO mainLoop ;
+: main HELLO test mainLoop ;

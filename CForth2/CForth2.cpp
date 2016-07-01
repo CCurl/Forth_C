@@ -22,13 +22,15 @@ int *RSP = NULL; // the return stack pointer
 int *DSP = NULL; // the data stack pointer
 
 int RSP_ADDR = MEM_SZ - RSTACK_SZ;
-int DSP_ADDR = RSP_ADDR- DSTACK_SZ;
+int DSP_ADDR = RSP_ADDR - DSTACK_SZ;
 
 #define GETAT(loc) *(int *)(&the_mem[loc])
 #define SETAT(loc, val) *(int *)(&the_mem[loc]) = val
 
-#define GETTOS() (*DSP)
-#define SETTOS(val) (*DSP) = (val)
+#define GETTOS() *(DSP)
+#define GET2ND() *(DSP-1)
+#define SETTOS(val) *(DSP) = (val)
+#define SET2ND(val) *(DSP-1) = (val)
 
 #define push(val) *(++DSP) = (int)(val)
 #define pop() *(DSP--)
@@ -75,10 +77,10 @@ int run()
 			break;
 
 		case SWAP:
-			arg1 = pop();
-			arg2 = pop();
-			push(arg1);
-			push(arg2);
+			arg1 = GET2ND();
+			arg2 = GETTOS();
+			SET2ND(arg2);
+			SETTOS(arg1);
 			break;
 
 		case DROP:
@@ -100,19 +102,16 @@ int run()
 			break;
 
 		case OVER:
-			arg1 = pop();
-			arg2 = pop();
-			push(arg2);
+			arg1 = GET2ND();
 			push(arg1);
-			push(arg2);
 			break;
 
 		case TUCK:
-			arg1 = pop();
 			arg2 = pop();
-			push(arg1);
+			arg1 = pop();
 			push(arg2);
 			push(arg1);
+			push(arg2);
 			break;
 
 		case JMP:
@@ -207,7 +206,7 @@ int run()
 			break;
 
 		case DICTP:
-			arg1 = GETAT(IP);
+			// arg1 = GETAT(IP);
 			IP += sizeof(int);
 			break;
 
@@ -295,8 +294,8 @@ int run()
 			break;
 
 		case ONEPLUS:
-			arg1 = pop();
-			push(arg1+1);
+			arg1 = GETTOS();
+			SETTOS(arg1+1);
 			break;
 
 		case BYE:

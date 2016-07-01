@@ -499,6 +499,7 @@ int CCFCompiler::Dis1(int PC, FILE *fp)
 	CString line, desc = _T("(data)");
 	int op = the_memory[PC++];
 	line.Format(_T("%08lx %02x"), PC - 1, op);
+	int line_len = 32;
 	if (op == JMPZ)
 	{
 		DisRange(line, PC, 4);
@@ -530,6 +531,13 @@ int CCFCompiler::Dis1(int PC, FILE *fp)
 		desc.Format(_T("DICTP %08lx"), arg);
 		CString tmp;
 		GetWordName(arg, tmp);
+		if (tmp.Compare(_T("??")) != 0)
+		{
+			CString tmp;
+			tmp.Format(_T("\n%s"), line);
+			line = tmp;
+			++line_len;
+		}
 		desc.AppendFormat(_T(" - %s"), tmp);
 		PC += 4;
 	}
@@ -578,7 +586,7 @@ int CCFCompiler::Dis1(int PC, FILE *fp)
 
 	}
 
-	DisOut(fp, line, desc, 24);
+	DisOut(fp, line, desc, line_len);
 	return PC;
 }
 
