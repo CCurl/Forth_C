@@ -16,37 +16,38 @@
 #define MEM_SZ 8*ONE_KB
 
 typedef unsigned char BYTE;
+
 BYTE *the_mem = NULL;
-int IP = 0;
-int *RSP = NULL; // the return stack pointer
-int *DSP = NULL; // the data stack pointer
+CELL IP = 0;
+CELL *RSP = NULL; // the return stack pointer
+CELL *DSP = NULL; // the data stack pointer
 
-int RSP_ADDR = MEM_SZ - RSTACK_SZ;
-int DSP_ADDR = RSP_ADDR - DSTACK_SZ;
+CELL RSP_INIT = MEM_SZ - CELL_SZ;				// Initial value of the return stack pointer
+CELL DSP_INIT = MEM_SZ - RSTACK_SZ - DSTACK_SZ;	// Initial value of the return stack pointer
 
-#define GETAT(loc) *(int *)(&the_mem[loc])
-#define SETAT(loc, val) *(int *)(&the_mem[loc]) = val
+#define GETAT(loc) *(CELL *)(&the_mem[loc])
+#define SETAT(loc, val) *(CELL *)(&the_mem[loc]) = val
 
 #define GETTOS() *(DSP)
 #define GET2ND() *(DSP-1)
 #define SETTOS(val) *(DSP) = (val)
 #define SET2ND(val) *(DSP-1) = (val)
 
-#define push(val) *(++DSP) = (int)(val)
+#define push(val) *(++DSP) = (CELL)(val)
 #define pop() *(DSP--)
 
-#define rpush(val) *(++RSP) = (int)(val)
-#define rpop() *(RSP--)
+#define rpush(val) *(--RSP) = (CELL)(val)
+#define rpop() *(RSP++)
 
 // ------------------------------------------------------------------------------------------
 // Where all the work is done
 // ------------------------------------------------------------------------------------------
 int run()
 {
-	int arg1, arg2, arg3;
+	CELL arg1, arg2, arg3;
 
-	DSP = (int *)&the_mem[DSP_ADDR];
-	RSP = (int *)&the_mem[RSP_ADDR];
+	DSP = (CELL *)&the_mem[DSP_INIT];
+	RSP = (CELL *)&the_mem[RSP_INIT];
 
 	while (true)
 	{
@@ -55,7 +56,7 @@ int run()
 		{
 		case PUSH:
 			arg1 = GETAT(IP);
-			IP += sizeof(int);
+			IP += CELL_SZ;
 			push(arg1);
 			break;
 
@@ -125,7 +126,7 @@ int run()
 			}
 			else
 			{
-				IP += sizeof(int);
+				IP += CELL_SZ;
 			}
 			break;
 
@@ -137,13 +138,13 @@ int run()
 			}
 			else
 			{
-				IP += sizeof(int);
+				IP += CELL_SZ;
 			}
 			break;
 
 		case CALL:
 			arg1 = GETAT(IP);
-			IP += sizeof(int);
+			IP += CELL_SZ;
 			rpush(IP);
 			IP = arg1;
 			break;
@@ -207,7 +208,7 @@ int run()
 
 		case DICTP:
 			// arg1 = GETAT(IP);
-			IP += sizeof(int);
+			IP += CELL_SZ;
 			break;
 
 		case EMIT:
@@ -257,7 +258,7 @@ int run()
 				{
 					pBuf[--arg2] = NULL;
 				}
-				*(--pBuf) = arg2;
+				*(--pBuf) = (char)arg2;
 				push(arg2);
 			}
 			break;
@@ -303,8 +304,8 @@ int run()
 
 		case RESET:
 		default:
-			DSP = (int *)&the_mem[DSP_ADDR];
-			RSP = (int *)&the_mem[RSP_ADDR];
+			DSP = (CELL *)&the_mem[DSP_INIT];
+			RSP = (CELL *)&the_mem[RSP_INIT];
 			IP = 0;
 		}
 	}
@@ -314,7 +315,7 @@ int run()
 // ------------------------------------------------------------------------------------------
 // Initialize the VM
 // ------------------------------------------------------------------------------------------
-char *GetNextNum(char *cp, int& val)
+char *GetNextNum(char *cp, CELL& val)
 {
 	val = 0;
 	while ((0 < *cp) && (*cp <= ' '))
@@ -376,9 +377,9 @@ int bios_init()
 			// printf("%s ", cp);
 			while ((*cp) && (IP >= 0))
 			{
-				int num;
+				CELL num;
 				cp = GetNextNum(cp, num);
-				the_mem[IP++] = num;
+				the_mem[IP++] = (BYTE)num;
 			}
 		}
 		fclose(fp);

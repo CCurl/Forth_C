@@ -39,7 +39,7 @@ OPCODE_T opcodes[] = {
 	, { _T("RTOD"), RTOD, _T("R>") }
 	, { _T("ONEPLUS"), ONEPLUS, _T("1+") }
 	, { _T("BYE"), BYE, _T("BYE") }
-	, { _T(""), -1, _T("") }
+	, { _T(""), 0, _T("") }
 };
 
 CCFCompiler::CCFCompiler()
@@ -81,7 +81,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 		fclose(fp_in);
 	}
 
-	int start_here = FindWord(CString(_T("main")));
+	CELL start_here = FindWord(CString(_T("main")));
 	if (start_here <= 0)
 	{
 		start_here = GetAt(LAST + 4);
@@ -120,31 +120,31 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 
 }
 
-int CCFCompiler::FindAsm(CString& word)
+BYTE CCFCompiler::FindAsm(CString& word)
 {
-	for (int i = 0; opcodes[i].opcode != -1; i++)
+	for (int i = 0; opcodes[i].opcode != 0; i++)
 	{
 		if (opcodes[i].asm_instr == word)
 		{
 			return opcodes[i].opcode;
 		}
 	}
-	return -1;
+	return 0;
 }
 
-int CCFCompiler::FindForthPrim(CString& word)
+BYTE CCFCompiler::FindForthPrim(CString& word)
 {
-	for (int i = 0; opcodes[i].opcode != -1; i++)
+	for (int i = 0; opcodes[i].opcode != 0; i++)
 	{
 		if (opcodes[i].forth_prim == word)
 		{
 			return opcodes[i].opcode;
 		}
 	}
-	return -1;
+	return 0;
 }
 
-int CCFCompiler::FindWord(CString& word)
+CELL CCFCompiler::FindWord(CString& word)
 {
 	CW2A wd(word);
 	DICT_T *dp = (DICT_T *)(&the_memory[LAST]);
@@ -157,12 +157,12 @@ int CCFCompiler::FindWord(CString& word)
 		dp = (DICT_T *)(&the_memory[dp->next]);
 	}
 
-	return -1;
+	return 0;
 }
 
-OPCODE_T *CCFCompiler::FindOpcode(int opcode)
+OPCODE_T *CCFCompiler::FindOpcode(BYTE opcode)
 {
-	for (int i = 0; opcodes[i].opcode != -1; i++)
+	for (int i = 0; opcodes[i].opcode != 0; i++)
 	{
 		if (opcodes[i].opcode == opcode)
 		{
@@ -172,7 +172,7 @@ OPCODE_T *CCFCompiler::FindOpcode(int opcode)
 	return NULL;
 }
 
-int IsNumeric(char *w)
+BOOL IsNumeric(char *w)
 {
 	while (*w)
 	{
@@ -183,21 +183,21 @@ int IsNumeric(char *w)
 	return 1;
 }
 
-int CCFCompiler::MakeNumber(CString& word, int& the_num)
+BOOL CCFCompiler::MakeNumber(CString& word, CELL& the_num)
 {
 	CW2A w(word);
 	if (IsNumeric(w))
 	{
-		the_num = atol(w);
+		the_num = (CELL)atol(w);
 		return 1;
 	}
 	return 0;
 }
 
-void CCFCompiler::DefineWord(CString& word, int flags)
+void CCFCompiler::DefineWord(CString& word, BYTE flags)
 {
-	int tmp = LAST;
-	LAST -= (11 + word.GetLength());
+	CELL tmp = LAST;
+	LAST -= ((CELL_SZ*2) + 3 + word.GetLength());
 
 	DICT_T *dp = (DICT_T *)(&the_memory[LAST]);
 	dp->next = tmp;
@@ -215,17 +215,17 @@ void CCFCompiler::DefineWord(CString& word, int flags)
 	dp->name[tmp++] = NULL;
 }
 
-void CCFCompiler::SetAt(int loc, int num)
+void CCFCompiler::SetAt(CELL loc, CELL num)
 {
-	*(int *)(&the_memory[loc]) = num;
+	*(CELL *)(&the_memory[loc]) = num;
 }
 
-void CCFCompiler::Comma(int num)
+void CCFCompiler::Comma(CELL num)
 {
-	if ((HERE < LAST) && (HERE < (MEM_SZ - 4)))
+	if ((HERE < LAST) && (HERE < (MEM_SZ - CELL_SZ)))
 	{
 		SetAt(HERE, num);
-		HERE += 4;
+		HERE += CELL_SZ;
 	}
 	else
 	{
@@ -233,7 +233,7 @@ void CCFCompiler::Comma(int num)
 	}
 }
 
-void CCFCompiler::CComma(int num)
+void CCFCompiler::CComma(BYTE num)
 {
 	if (HERE < LAST)
 	{
@@ -286,7 +286,7 @@ void CCFCompiler::Parse(CString& line)
 		if (word == ".ORG")
 		{
 			GetWord(line, word);
-			int addr = 0;
+			CELL addr = 0;
 			if (MakeNumber(word, addr))
 			{
 				HERE = addr;
@@ -309,11 +309,13 @@ void CCFCompiler::Parse(CString& line)
 		{
 			Push(STATE);
 			STATE = 2;
+			continue;
 		}
 
 		if (word == _T("</asm>"))
 		{
 			STATE = Pop();
+			continue;
 		}
 
 		if (word == _T(":!"))
@@ -338,23 +340,23 @@ void CCFCompiler::Parse(CString& line)
 		{
 			CComma(JMPZ);
 			Push(HERE);
-			Comma(-1);
+			Comma(0);
 			continue;
 		}
 
 		if (word == "ELSE")
 		{
-			int tmp = Pop();
+			CELL tmp = Pop();
 			CComma(JMP);
 			Push(HERE);
-			Comma(-1);
+			Comma(0);
 			SetAt(tmp, HERE);
 			continue;
 		}
 
 		if (word == "THEN")
 		{
-			int tmp = Pop();
+			CELL tmp = Pop();
 			SetAt(tmp, HERE);
 			continue;
 		}
@@ -386,7 +388,7 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
-		int opcode = 0;
+		BYTE opcode = 0;
 
 		if ((STATE == 0) || (STATE == 2))
 		{
@@ -399,13 +401,13 @@ void CCFCompiler::Parse(CString& line)
 		}
 
 		opcode = FindForthPrim(word);
-		if (opcode >= 0)
+		if (0 < opcode)
 		{
 			CComma(opcode);
 			continue;
 		}
 
-		int XT = FindWord(word);
+		CELL XT = FindWord(word);
 		if (XT > 0)
 		{
 			CComma(CALL);
@@ -413,14 +415,14 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
-		int num = 0;
+		CELL num = 0;
 		if (MakeNumber(word, num))
 		{
 			if (num < 256)
 			{
 				if (STATE == 1)
 					CComma(CPUSH);
-				CComma(num);
+				CComma((BYTE)num);
 			}
 			else
 			{
@@ -437,13 +439,13 @@ void CCFCompiler::Parse(CString& line)
 
 void CCFCompiler::Dis(FILE *fp)
 {
-	int PC = 0;
+	CELL PC = 0;
 	while (PC < HERE)
 	{
 		PC = Dis1(PC, fp);
 	}
 
-	fprintf(fp, "\n%08lx ; The dictionary starts here ...\n", LAST);
+	fprintf(fp, "\n%0*x ; The dictionary starts here ...\n", CELL_SZ*2, LAST);
 
 	PC = LAST;
 	while (PC >= LAST)
@@ -452,9 +454,9 @@ void CCFCompiler::Dis(FILE *fp)
 	}
 }
 
-int CCFCompiler::GetAt(int loc)
+CELL CCFCompiler::GetAt(CELL loc)
 {
-	return *(int *)(&the_memory[loc]);
+	return *(CELL *)(&the_memory[loc]);
 }
 
 void DisOut(FILE *fp, CString& line, CString& desc, int wid = 24)
@@ -473,7 +475,7 @@ void DisOut(FILE *fp, CString& line, CString& desc, int wid = 24)
 	fprintf(fp, "%s\n", out);
 }
 
-void CCFCompiler::GetWordName(int loc, CString& name)
+void CCFCompiler::GetWordName(CELL loc, CString& name)
 {
 	if ((0 <= loc) && (loc < MEM_SZ))
 	{
@@ -486,7 +488,7 @@ void CCFCompiler::GetWordName(int loc, CString& name)
 	}
 }
 
-void CCFCompiler::DisRange(CString& line, int loc, int num)
+void CCFCompiler::DisRange(CString& line, CELL loc, CELL num)
 {
 	while (num-- > 0)
 	{
@@ -494,41 +496,42 @@ void CCFCompiler::DisRange(CString& line, int loc, int num)
 	}
 }
 
-int CCFCompiler::Dis1(int PC, FILE *fp)
+CELL CCFCompiler::Dis1(CELL PC, FILE *fp)
 {
+	int CELL_WD = CELL_SZ * 2;
 	CString line, desc = _T("(data)");
-	int op = the_memory[PC++];
-	line.Format(_T("%08lx %02x"), PC - 1, op);
+	BYTE op = the_memory[PC++];
+	line.Format(_T("%0*x %02x"), CELL_WD, PC - 1, op);
 	int line_len = 32;
 	if (op == JMPZ)
 	{
-		DisRange(line, PC, 4);
-		int arg = GetAt(PC);
-		PC += 4;
-		desc.Format(_T("JMPZ %08lx"), arg);
+		DisRange(line, PC, CELL_SZ);
+		CELL arg = GetAt(PC);
+		PC += CELL_SZ;
+		desc.Format(_T("JMPZ %0*x"), CELL_WD, arg);
 	}
 
 	else if (op == JMP)
 	{
-		int arg = GetAt(PC);
-		DisRange(line, PC, 4);
-		desc.Format(_T("JMP %08lx"), arg);
-		PC += 4;
+		DisRange(line, PC, CELL_SZ);
+		CELL arg = GetAt(PC);
+		desc.Format(_T("JMP %0*x"), CELL_WD, arg);
+		PC += CELL_SZ;
 	}
 
 	else if (op == JMPNZ)
 	{
-		int arg = GetAt(PC);
-		DisRange(line, PC, 4);
-		desc.Format(_T("JMPNZ %08lx"), arg);
-		PC += 4;
+		CELL arg = GetAt(PC);
+		DisRange(line, PC, CELL_SZ);
+		desc.Format(_T("JMPNZ %0*x"), CELL_WD, arg);
+		PC += CELL_SZ;
 	}
 
 	else if (op == DICTP)
 	{
-		int arg = GetAt(PC);
-		DisRange(line, PC, 4);
-		desc.Format(_T("DICTP %08lx"), arg);
+		CELL arg = GetAt(PC);
+		DisRange(line, PC, CELL_SZ);
+		desc.Format(_T("DICTP %0*x"), CELL_WD, arg);
 		CString tmp;
 		GetWordName(arg, tmp);
 		if (tmp.Compare(_T("??")) != 0)
@@ -539,14 +542,14 @@ int CCFCompiler::Dis1(int PC, FILE *fp)
 			++line_len;
 		}
 		desc.AppendFormat(_T(" - %s"), tmp);
-		PC += 4;
+		PC += CELL_SZ;
 	}
 
 	else if (op == CALL)
 	{
-		int arg = GetAt(PC);
-		DisRange(line, PC, 4);
-		desc.Format(_T("CALL %08lx"), arg);
+		CELL arg = GetAt(PC);
+		DisRange(line, PC, CELL_SZ);
+		desc.Format(_T("CALL %0*x"), CELL_WD, arg);
 		CString tmp;
 		if ((0 <= arg) && (arg < LAST) && (the_memory[arg] == DICTP))
 		{
@@ -558,20 +561,20 @@ int CCFCompiler::Dis1(int PC, FILE *fp)
 			tmp = _T("(unnamed)");
 		}
 		desc.AppendFormat(_T(" - %s"), tmp);
-		PC += 4;
+		PC += CELL_SZ;
 	}
 
 	else if (op == PUSH)
 	{
-		int arg = GetAt(PC);
-		DisRange(line, PC, 4);
-		desc.Format(_T("PUSH %08lx"), arg);
-		PC += 4;
+		CELL arg = GetAt(PC);
+		DisRange(line, PC, CELL_SZ);
+		desc.Format(_T("PUSH %0*x"), CELL_WD, arg);
+		PC += CELL_SZ;
 	}
 
 	else if (op == CPUSH)
 	{
-		int arg = the_memory[PC++];
+		BYTE arg = the_memory[PC++];
 		line.AppendFormat(_T(" %02x"), arg);
 		desc.Format(_T("CPUSH %02x"), arg);
 	}
@@ -590,33 +593,34 @@ int CCFCompiler::Dis1(int PC, FILE *fp)
 	return PC;
 }
 
-int CCFCompiler::DisDict(int PC, FILE *fp)
+CELL CCFCompiler::DisDict(CELL PC, FILE *fp)
 {
 	CString line, desc;
+	int CELL_WD = CELL_SZ * 2;
 
 	DICT_T *dp = (DICT_T *)&the_memory[PC];
 	if (dp->next == 0)
 	{
-		line.Format(_T("\n%08lx"), PC, dp->next);
-		DisRange(line, PC, 4);
+		line.Format(_T("\n%0*x"), CELL_WD, PC, dp->next);
+		DisRange(line, PC, CELL_SZ);
 		desc.Format(_T("End"));
 		DisOut(fp, line, desc, 33);
 		return 0;
 	}
 
-	line.Format(_T("\n%08lx"), PC);
-	DisRange(line, PC, 4);
-	desc.Format(_T("Next=%08lx, %S"), dp->next, dp->name);
+	line.Format(_T("\n%0*x"), CELL_WD, PC);
+	DisRange(line, PC, CELL_SZ);
+	desc.Format(_T("Next=%0*x, %S"), CELL_SZ, dp->next, dp->name);
 	DisOut(fp, line, desc, 33);
 
-	PC += 4;
-	line.Format(_T("%08lx"), PC);
+	PC += CELL_SZ;
+	line.Format(_T("%0*x"), CELL_WD, PC);
 	DisRange(line, PC, 5);
-	desc.Format(_T("XT=%08lx, flags=%02x"), dp->XT, dp->flags);
+	desc.Format(_T("XT=%0*x, flags=%02x"), CELL_WD, dp->XT, dp->flags);
 	DisOut(fp, line, desc, 32);
 
-	PC += 5;
-	line.Format(_T("%08lx"), PC);
+	PC += CELL_SZ + 1;
+	line.Format(_T("%0*x"), CELL_WD, PC);
 	DisRange(line, PC, dp->len + 2);
 	desc.Empty();
 	DisOut(fp, line, desc, 32);

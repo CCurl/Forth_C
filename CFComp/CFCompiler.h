@@ -7,7 +7,7 @@
 
 typedef struct {
 	CString asm_instr;
-	int opcode;
+	BYTE opcode;
 	CString forth_prim;
 } OPCODE_T;
 
@@ -20,27 +20,27 @@ public:
 
 	void Compile(LPCTSTR m_source, LPCTSTR m_output);
 	void GetWord(CString& line, CString& word);
-	void DefineWord(CString& word, int flags);
+	void DefineWord(CString& word, BYTE flags);
 	void Parse(CString& line);
-	int FindAsm(CString& word);
-	int FindForthPrim(CString& word);
-	int FindWord(CString& word);
-	OPCODE_T *FindOpcode(int opcode);
-	int MakeNumber(CString& word, int& the_num);
-	void SetAt(int loc, int num);
-	int GetAt(int loc);
-	void Comma(int num);
-	void CComma(int num);
-	void Push(int val) { stack[++SP] = val; }
-	int Pop() { return stack[SP--]; }
+	BYTE FindAsm(CString& word);
+	BYTE FindForthPrim(CString& word);
+	CELL FindWord(CString& word);
+	OPCODE_T *FindOpcode(BYTE opcode);
+	BOOL MakeNumber(CString& word, CELL& the_num);
+	void SetAt(CELL loc, CELL num);
+	CELL GetAt(CELL loc);
+	void Comma(CELL num);
+	void CComma(BYTE num);
+	void Push(CELL val) { stack[++SP] = val; }
+	CELL Pop() { return stack[SP--]; }
 	void Dis(FILE *fp);
-	int Dis1(int PC, FILE *fp);
-	void DisRange(CString& line, int loc, int num);
-	int DisDict(int PC, FILE *fp);
-	void GetWordName(int loc, CString& name);
+	CELL Dis1(CELL PC, FILE *fp);
+	void DisRange(CString& line, CELL loc, CELL num);
+	CELL DisDict(CELL PC, FILE *fp);
+	void GetWordName(CELL loc, CString& name);
 
 	BYTE the_memory[MEM_SZ];
-	int HERE, LAST, STATE;
-	int stack[256], SP;
-	int line_no;
+	CELL HERE, LAST, STATE;
+	CELL stack[256], SP;
+	CELL line_no;
 };

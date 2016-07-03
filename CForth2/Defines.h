@@ -2,7 +2,6 @@
 
 // The VM's instruction set
 
-#define RESET      0
 #define PUSH       1
 #define FETCH      2
 #define STORE      3
@@ -38,19 +37,22 @@
 #define RFETCH    34	// R@
 #define RTOD      35	// R>
 #define ONEPLUS   36
+#define RESET    254
 #define BYE      255
 
+typedef short CELL;				// Use long for a 32-bit implementation, short for a 16-bit
+#define CELL_SZ sizeof(CELL)
 typedef unsigned char BYTE;
 
 typedef struct {
-	int next, XT;
+	CELL next, XT;
 	BYTE flags;
 	BYTE len;
 	char name[30];
 } DICT_T;
 
-#define DSTACK_SZ 1024
-#define RSTACK_SZ 1024
+#define DSTACK_SZ CELL_SZ * 64
+#define RSTACK_SZ CELL_SZ * 64
 
 #define ADDR_SP     8
 #define ADDR_RSP   12

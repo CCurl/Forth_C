@@ -74,7 +74,6 @@
 : ZTYPE BEGIN DUP C@ DUP IF EMIT 1+ ELSE DROP DROP LEAVE THEN AGAIN ;
 
 : OK BL 79 EMIT 75 EMIT CRLF ;
-: HELLO >IN @ 0 = IF 72 EMIT 73 EMIT THEN ;
 
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
@@ -219,7 +218,7 @@
 			THEN
 		ELSE
 			DROP
-			32 EMIT R@ ZTYPE 63 EMIT 63 EMIT RESET \ TODO: error
+			BL R@ ZTYPE 63 EMIT 63 EMIT RESET \ TODO: error
 		THEN
 		R> DROP
 	THEN
@@ -245,4 +244,6 @@
 
 : mainLoop resetState BEGIN OK getInput 1+ >IN ! executeInput AGAIN ;
 
-: main HELLO test mainLoop ;
+: HELLO >IN @ 0 = IF 72 EMIT 73 EMIT THEN ;
+
+: main HELLO mainLoop ;
