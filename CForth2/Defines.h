@@ -37,6 +37,9 @@
 #define RFETCH    34	// R@
 #define RTOD      35	// R>
 #define ONEPLUS   36
+#define PICK      37
+#define DEPTH     38
+#define BREAK    253
 #define RESET    254
 #define BYE      255
 
@@ -54,6 +57,7 @@ typedef struct {
 #define DSTACK_SZ CELL_SZ * 64
 #define RSTACK_SZ CELL_SZ * 64
 
+#define ADDR_CELL   7
 #define ADDR_SP     8
 #define ADDR_RSP   12
 #define ADDR_HERE  16

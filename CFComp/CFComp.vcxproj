@@ -122,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="forth.bat" />
+    <None Include="go.bat" />
     <None Include="res\CFComp.rc2" />
   </ItemGroup>
   <ItemGroup>

@@ -18,7 +18,13 @@
 typedef unsigned char BYTE;
 
 BYTE *the_mem = NULL;
-CELL IP = 0;
+CELL PC = 0;		// The "program counter"
+BYTE IR = 0;		// The "instruction register"
+
+CELL *dsp_init = NULL;
+CELL *rsp_init = NULL;
+CELL arg1, arg2, arg3;
+
 CELL *RSP = NULL; // the return stack pointer
 CELL *DSP = NULL; // the data stack pointer
 
@@ -46,22 +52,24 @@ int run()
 {
 	CELL arg1, arg2, arg3;
 
-	DSP = (CELL *)&the_mem[DSP_INIT];
-	RSP = (CELL *)&the_mem[RSP_INIT];
+	dsp_init = (CELL *)&the_mem[DSP_INIT];
+	rsp_init = (CELL *)&the_mem[RSP_INIT];
+	DSP = dsp_init;
+	RSP = rsp_init;
 
 	while (true)
 	{
-		BYTE opcode = the_mem[IP++];
-		switch (opcode)
+		IR = the_mem[PC++];
+		switch (IR)
 		{
 		case PUSH:
-			arg1 = GETAT(IP);
-			IP += CELL_SZ;
+			arg1 = GETAT(PC);
+			PC += CELL_SZ;
 			push(arg1);
 			break;
 
 		case CPUSH:
-			arg1 = the_mem[IP++];
+			arg1 = the_mem[PC++];
 			push(arg1);
 			break;
 
@@ -116,17 +124,17 @@ int run()
 			break;
 
 		case JMP:
-			IP = GETAT(IP);
+			PC = GETAT(PC);
 			break;
 
 		case JMPZ:
 			if (pop() == 0)
 			{
-				IP = GETAT(IP);
+				PC = GETAT(PC);
 			}
 			else
 			{
-				IP += CELL_SZ;
+				PC += CELL_SZ;
 			}
 			break;
 
@@ -134,23 +142,23 @@ int run()
 			arg1 = pop();
 			if (arg1 != 0)
 			{
-				IP = GETAT(IP);
+				PC = GETAT(PC);
 			}
 			else
 			{
-				IP += CELL_SZ;
+				PC += CELL_SZ;
 			}
 			break;
 
 		case CALL:
-			arg1 = GETAT(IP);
-			IP += CELL_SZ;
-			rpush(IP);
-			IP = arg1;
+			arg1 = GETAT(PC);
+			PC += CELL_SZ;
+			rpush(PC);
+			PC = arg1;
 			break;
 
 		case RET:
-			IP = rpop();
+			PC = rpop();
 			break;
 
 		case CFETCH:
@@ -207,8 +215,8 @@ int run()
 			break;
 
 		case DICTP:
-			// arg1 = GETAT(IP);
-			IP += CELL_SZ;
+			// arg1 = GETAT(PC);
+			PC += CELL_SZ;
 			break;
 
 		case EMIT:
@@ -299,14 +307,36 @@ int run()
 			SETTOS(arg1+1);
 			break;
 
+		case PICK:
+			arg1 = pop();
+			arg2 = *(DSP-arg1);
+			push(arg2);
+			break;
+
+		case DEPTH:
+		{
+			CELL *dsp_base = (CELL *)&the_mem[DSP_INIT];
+			arg1 = DSP - dsp_base;
+			push(arg1);
+		}
+			break;
+
+		case BREAK:
+		{
+			arg1 = the_mem[ADDR_HERE];
+			arg2 = the_mem[ADDR_LAST];
+			arg3 = arg2 - arg1;
+		}
+		break;
+
 		case BYE:
 			return pop();
 
 		case RESET:
 		default:
-			DSP = (CELL *)&the_mem[DSP_INIT];
-			RSP = (CELL *)&the_mem[RSP_INIT];
-			IP = 0;
+			DSP = dsp_init;
+			RSP = rsp_init;
+			PC = 0;
 		}
 	}
 	return 0;
@@ -360,7 +390,7 @@ char *GetNextNum(char *cp, CELL& val)
 // ------------------------------------------------------------------------------------------
 int bios_init()
 {
-	IP = 0;
+	PC = 0;
 
 	char buf[128], *fn = ".\\dis.txt";
 	FILE *fp = NULL;
@@ -373,24 +403,24 @@ int bios_init()
 		while (fgets(buf, sizeof(buf), fp) == buf)
 		{
 			buf[strlen(buf - 1)] = (char)NULL;
-			char *cp = GetNextNum(buf, IP);
+			char *cp = GetNextNum(buf, PC);
 			// printf("%s ", cp);
-			while ((*cp) && (IP >= 0))
+			while ((*cp) && (PC >= 0))
 			{
 				CELL num;
 				cp = GetNextNum(cp, num);
-				the_mem[IP++] = (BYTE)num;
+				the_mem[PC++] = (BYTE)num;
 			}
 		}
 		fclose(fp);
-		IP = 0;
+		PC = 0;
 	}
 	else
 	{
 		printf("Error opening '%s'!", fn);
-		IP = 1;
+		PC = 1;
 	}
-	return IP;
+	return PC;
 }
 
 // ------------------------------------------------------------------------------------------

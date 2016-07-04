@@ -7,6 +7,7 @@
 
 .ORG 64
 
+: CELL  7  C@ ;
 : SP        8 ;
 : RSP      12 ;
 : (HERE)   16 ;
@@ -22,7 +23,6 @@
 
 : HERE (HERE) @ ;
 : LAST (LAST) @ ;
-: CELL 2 ;
 
 : ?COMPILING STATE @ ;
 : [ 0 STATE ! ;
@@ -52,8 +52,11 @@
 :! ROT  ?COMPILING IF <asm> CPUSH ROT  </asm> C, <asm> RET </asm> THEN ROT ;
 :! OVER ?COMPILING IF <asm> CPUSH OVER </asm> C, <asm> RET </asm> THEN OVER ;
 :! TUCK ?COMPILING IF <asm> CPUSH TUCK </asm> C, <asm> RET </asm> THEN TUCK ;
+:! PICK ?COMPILING IF <asm> CPUSH PICK </asm> C, <asm> RET </asm> THEN PICK ;
 
+:! DEPTH ?COMPILING IF <asm> CPUSH DEPTH </asm> C, <asm> RET </asm> THEN DEPTH ;
 :! RESET ?COMPILING IF <asm> CPUSH RESET </asm> C, <asm> RET </asm> THEN RESET ;
+:! BREAK ?COMPILING IF <asm> CPUSH BREAK </asm> C, <asm> RET </asm> THEN BREAK ;
 :! BYE   ?COMPILING IF <asm> CPUSH BYE   </asm> C, <asm> RET </asm> THEN BYE ;
 
 :! EMIT ?COMPILING IF <asm> CPUSH EMIT </asm> C, <asm> RET </asm> THEN EMIT ;
@@ -72,9 +75,17 @@
 
 : CRLF 13 EMIT 10 EMIT ;
 : BL 32 EMIT ;
-: ZTYPE BEGIN DUP C@ DUP IF EMIT 1+ ELSE DROP DROP LEAVE THEN AGAIN ;
+: ZTYPE 
+	BEGIN 
+		DUP C@ DUP 
+		IF EMIT 1+ 
+		ELSE DROP DROP LEAVE 
+		THEN 
+	AGAIN 
+;
 
-: OK BL 79 EMIT 75 EMIT CRLF ;
+: TYPE DROP ZTYPE ; ( addr num -- )
+: COUNT DUP 1+ SWAP C@ ; \ ( addr1 --  addr2 num )
 
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
@@ -137,7 +148,7 @@
 ;
 
 : findInDict \ ( addr -- XT IMM bool )
-	LAST @ >R
+	LAST >R
 	BEGIN
 		R@ DUP
 		IF
@@ -147,7 +158,7 @@
 				LEAVE
 			THEN
 		ELSE
-			DROP R> 0 0 LEAVE
+			DROP DROP R> 0 0 LEAVE
 		THEN
 		R> @ >R
 	AGAIN
@@ -180,9 +191,11 @@
 	- 1
 ;
 
+: NEGATE 0 SWAP - ; \ ( num1 -- num2 )
+
 : isNumber? \ ( addr -- num bool )
 	\ find out if it is negative
-	DUP C@ 45 = DUP isNeg ! IF 1+ THEN
+	DUP C@ 45 = DUP isNeg C! IF 1+ THEN
 	
 	\ accumulate the result on the return stack
 	0 >R
@@ -190,8 +203,8 @@
 		DUP C@
 		DUP 0 = \ end of word?
 		IF 
-			DROP R> 
-			isNeg @ IF 0 SWAP - THEN
+			DROP DROP R> 
+			isNeg C@ IF NEGATE THEN
 			1 LEAVE
 		THEN
 
@@ -200,7 +213,7 @@
 			R> BASE @ * + >R
 			1+
 		ELSE
-			DROP DROP R> 0 LEAVE
+			DROP R> 0 LEAVE
 		THEN
 	AGAIN
 ;
@@ -219,12 +232,10 @@
 	OVER OVER / >R R@ * - R> SWAP
 ;
 
-: NEGATE 0 SWAP - ; \ ( num -- -num )
-
-: .  \ ( num -- )
-	BL DUP 0 = 
+: (.)  \ ( num -- )
+	DUP 0 = 
 	IF
-		48 EMIT LEAVE
+		DROP 48 EMIT LEAVE
 	THEN
 	
 	DUP 0 < IF NEGATE 1 ELSE 0 THEN >R
@@ -238,8 +249,47 @@
 			R> IF 45 EMIT THEN
 			BEGIN ?DUP IF EMIT ELSE LEAVE THEN AGAIN
 		ELSE
-			BASE @ /MOD 48 + SWAP
+			BASE @ /MOD 
+			48 OVER 9 > IF 7 + THEN
+			+ SWAP
 		THEN
+	AGAIN
+;
+
+
+: . BL (.) ;
+
+: HEX. BASE @ SWAP HEX (.) BASE ! ;
+
+: .S 
+	DEPTH ?DUP
+	IF
+		BL 40 EMIT
+		1 - >R
+		BEGIN 
+			R@ PICK . R@ 
+			IF
+				R> 1 - >R
+			ELSE
+				R> DROP BL 41 EMIT LEAVE
+			THEN
+		AGAIN
+	ELSE
+		BL 41 237 40 EMIT EMIT EMIT
+	THEN
+;
+
+: WORDS \ ( -- )
+	LAST
+	BEGIN
+		DUP @ 0 =
+		IF
+			DROP LEAVE
+		THEN
+		\ DUP 40 EMIT HEX. 41 EMIT BL \ DEBUG
+		DUP CELL 2 * 1+ + 
+		COUNT TYPE BL
+		@
 	AGAIN
 ;
 
@@ -270,11 +320,10 @@
 			IF
 				DUP 256 <
 				IF
-					<asm> CPUSH </asm>
+					<asm> CPUSH </asm> C, C,
 				ELSE
-					<asm> PUSH </asm>
+					<asm> PUSH </asm> C, ,
 				THEN
-				C, ,
 			\ ELSE
 				\ 65 + EMIT \ DEBUG
 			THEN
@@ -297,15 +346,16 @@
 			\ 67 EMIT >IN @ ZTYPE CRLF \ DEBUG
 			>IN @ getOneWord >IN ! executeWord
 		ELSE
-			DROP LEAVE
+			LEAVE
 		THEN
 	AGAIN
 ;
 
 : resetState 0 STATE ! DECIMAL ;
 
+: OK BL 79 EMIT 75 EMIT .S CRLF ;
+
 : mainLoop resetState BEGIN OK getInput 1+ >IN ! executeInput AGAIN ;
 
 : HELLO >IN @ 0 = IF 72 EMIT 73 EMIT THEN ;
-: test 17 NEGATE . 12345 . ;
-: main HELLO test mainLoop ;
+: main HELLO mainLoop ;

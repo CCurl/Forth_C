@@ -38,6 +38,9 @@ OPCODE_T opcodes[] = {
 	, { _T("RFETCH"), RFETCH, _T("R@") }
 	, { _T("RTOD"), RTOD, _T("R>") }
 	, { _T("ONEPLUS"), ONEPLUS, _T("1+") }
+	, { _T("PICK"), PICK, _T("PICK") }
+	, { _T("DEPTH"), DEPTH, _T("DEPTH") }
+	, { _T("BREAK"), BREAK, _T("BREAK") }
 	, { _T("BYE"), BYE, _T("BYE") }
 	, { _T(""), 0, _T("") }
 };
@@ -89,6 +92,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 
 	SetAt(0, JMP);
 	SetAt(1, start_here);
+	the_memory[ADDR_CELL] = CELL_SZ;
 	SetAt(ADDR_LAST, LAST);
 	SetAt(ADDR_HERE, HERE);
 	SetAt(ADDR_BASE, 10);

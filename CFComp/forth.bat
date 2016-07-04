@@ -1,3 +1,4 @@
 @echo off
-REM ..\Release\CFComp.exe
-..\Release\CForth2.exe
+CD ..\CForth2
+..\DEBUG\CForth2.exe
+REM ..\Release\CForth2.exe
