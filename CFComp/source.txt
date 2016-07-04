@@ -22,6 +22,7 @@
 
 : HERE (HERE) @ ;
 : LAST (LAST) @ ;
+: CELL 2 ;
 
 : ?COMPILING STATE @ ;
 : [ 0 STATE ! ;
@@ -78,41 +79,54 @@
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
 
-: bye 66 EMIT 89 EMIT 69 EMIT BYE ;
+: bye 66 EMIT 89 EMIT 69 EMIT 46 EMIT BYE ;
 
 : ?DUP DUP IF DUP THEN ;
 
 : HEX 16 BASE ! ;
 : DECIMAL 10 BASE ! ;
 
+\ NB: This algorithm is designed for ZERO delimited strings. But
+\ since the counted strings in this implementation are also ZERO 
+\ delimited, this algorithm works for them too. For counted strings 
+\ with no ZERO delimiter, a different word would need to be written.
+
+: strcmp \ ( addr1 addr2 -- bool )
+	BEGIN
+		OVER C@
+		OVER C@ =
+ 		IF
+			DUP C@ 0 =
+			IF DROP DROP 1 LEAVE THEN
+			1+ SWAP 1+
+		ELSE
+			DROP DROP 0 
+			LEAVE
+		THEN
+	AGAIN 
+;
+
 : skipWS \ ( addr1 -- addr2 )
 	BEGIN
 		DUP C@ DUP
-		\ DUP EMIT 79 EMIT \ DEBUG
 		IF
-			\ 80 EMIT \ DEBUG
 			32 > 
-			\ 81 EMIT \ DEBUG
-			IF 
-				\ 82 EMIT \ DEBUG
-				LEAVE
-			ELSE
-				\ 83 EMIT \ DEBUG
-				1+
-			THEN
+			IF LEAVE ELSE 1+ THEN
 		ELSE
-			\ 84 EMIT DUP ZTYPE CRLF \ DEBUG
 			DROP LEAVE
 		THEN
 	AGAIN
 ;
 
+\ NB: this word assumes that leading WS has already been skipped.
 : getOneWord \ ( addr1 -- word-addr addr2 )
 	DUP >R >R
 	BEGIN
 		R@ C@ 32 > IF
 			R> 1+ >R
 		ELSE
+			\ If not at the end of the line, stick a 
+			\ ZERO here and go to the next char.
 			R@ C@ 
 			IF
 				0 R@ C! R> 1+ >R
@@ -123,11 +137,23 @@
 ;
 
 : findInDict \ ( addr -- XT IMM bool )
-	\ TODO
-	0 0 0 \ DEBUG
+	LAST @ >R
+	BEGIN
+		R@ DUP
+		IF
+			CELL 2 * 2 + + OVER strcmp
+			IF
+				DROP R@ CELL + @ R> CELL 2 * + C@ 1
+				LEAVE
+			THEN
+		ELSE
+			DROP R> 0 0 LEAVE
+		THEN
+		R> @ >R
+	AGAIN
 ;
 
-: isHexDigit? \ ch -- bool
+: isHexDigit? \ ( ch -- bool )
 	BASE @ 16 = 
 	IF
 			DUP 65 < IF DROP 0 LEAVE THEN
@@ -138,7 +164,7 @@
 	THEN
 ;
 
-: isNumChar? \ ch -- val bool
+: isNumChar? \ ( ch -- val bool )
 	DUP 48 < IF 0 LEAVE THEN
 	DUP 57 > 
 	IF 
@@ -179,14 +205,50 @@
 	AGAIN
 ;
 
-: executeWord  \ ( addr -- )
-	\ 91 EMIT DUP ZTYPE 93 EMIT \ DEBUG
-	\ TEMP check for "~" (BYE)
-	DUP C@ 126 = 
+: isBYE? \ ( addr -- bool )
+	PAD 5 -
+	\ (addr) is a string that is not counted.
+	96  2 + OVER C! 1+	\ b
+	96 25 + OVER C! 1+	\ y
+	96  5 + OVER C! 1+	\ e
+	 0 SWAP C!
+	PAD 5 - strcmp
+;
+
+: /MOD \ ( num1 num2 -- num3 mod )
+	OVER OVER / >R R@ * - R> SWAP
+;
+
+: NEGATE 0 SWAP - ; \ ( num -- -num )
+
+: .  \ ( num -- )
+	BL DUP 0 = 
 	IF
-		DROP bye
+		48 EMIT LEAVE
 	THEN
 	
+	DUP 0 < IF NEGATE 1 ELSE 0 THEN >R
+
+	0 SWAP
+	BEGIN
+		DUP 0 = 
+		IF
+			\ TODO spit out the string
+			DROP
+			R> IF 45 EMIT THEN
+			BEGIN ?DUP IF EMIT ELSE LEAVE THEN AGAIN
+		ELSE
+			BASE @ /MOD 48 + SWAP
+		THEN
+	AGAIN
+;
+
+: EXECUTE R> DROP >R ; \ ( addr -- )
+
+: executeWord  \ ( addr -- )
+	\ 91 EMIT DUP ZTYPE 93 EMIT \ DEBUG
+	DUP isBYE? IF DROP bye THEN
+
 	>R R@ findInDict \ ( addr -- XT IMM found )
 	IF
 		R> DROP
@@ -201,7 +263,7 @@
 			DROP EXECUTE
 		THEN
 	ELSE \ word not found
-		DROP DROP \ discard IMM and XT placeholders
+		DROP DROP \ discard IMM and XT place holders
 		R@ isNumber? \ ( addr -- num bool )
 		IF
 			?COMPILING
@@ -245,5 +307,5 @@
 : mainLoop resetState BEGIN OK getInput 1+ >IN ! executeInput AGAIN ;
 
 : HELLO >IN @ 0 = IF 72 EMIT 73 EMIT THEN ;
-
-: main HELLO mainLoop ;
+: test 17 NEGATE . 12345 . ;
+: main HELLO test mainLoop ;

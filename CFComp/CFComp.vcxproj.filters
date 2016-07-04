@@ -64,6 +64,9 @@
     <None Include="res\CFComp.rc2">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="forth.bat">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\CFComp.ico">

@@ -121,6 +121,7 @@
     <ResourceCompile Include="CFComp.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="forth.bat" />
     <None Include="res\CFComp.rc2" />
   </ItemGroup>
   <ItemGroup>
