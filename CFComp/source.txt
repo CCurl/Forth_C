@@ -87,11 +87,20 @@
 	AGAIN 
 ;
 
+: BETWEEN \ ( num min max -- bool )
+	2 PICK 
+	< IF DROP DROP 0 LEAVE THEN
+	< 0 =
+;
+
 : TYPE DROP ZTYPE ; ( addr num -- )
 : COUNT DUP 1+ SWAP C@ ; \ ( addr1 --  addr2 num )
 
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
+
+: @+!  TUCK @  + SWAP ! ;  ( num addr -- )
+: C@+! TUCK C@ + SWAP C! ; ( num addr -- )
 
 : ?DUP DUP IF DUP THEN ;
 
@@ -165,12 +174,6 @@
 		THEN
 		R> @ >R
 	AGAIN
-;
-
-: BETWEEN \ ( num min max -- bool )
-	2 PICK 
-	< IF DROP DROP 0 LEAVE THEN
-	< 0 =
 ;
 
 : isHEX? BASE @ 16 = ;
@@ -335,11 +338,52 @@
 	AGAIN
 ;
 
+
+: Pad LAST 100 - ;
+: >In 56 ;
+: getLine \ ( -- addr )
+	0 Pad DUP 1+ >In ! C!
+	BEGIN
+		0 >In @ C!
+		GETCH DUP 13 =
+		IF DROP Pad LEAVE THEN
+
+		DUP 8 = 
+		IF
+			\ .S
+			Pad C@ 0 >
+			IF 
+				\ 65 EMIT DEPTH .
+				0 1 - Pad C@+!
+				\ 69 EMIT DEPTH .
+				0 1 - >In @+!
+				\ 66 EMIT DEPTH .
+				DUP EMIT BL EMIT
+				\ 67 EMIT DEPTH .
+			ELSE
+				DROP
+			THEN
+		ELSE
+			DUP 32 127 BETWEEN
+			IF
+				DUP EMIT
+				>In @ C! 
+				1 >In @+!
+				1 Pad C@+!
+			ELSE
+				DROP
+			THEN
+		THEN
+	AGAIN
+;
+
+: bbb BYE ;
+
 : resetState 0 STATE ! DECIMAL ;
 
 : OK BL 79 EMIT 75 EMIT .S CRLF ;
 
-: mainLoop resetState BEGIN OK getInput 1+ >IN ! executeInput AGAIN ;
+: mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput AGAIN ;
 
 : HELLO >IN @
 	IF 

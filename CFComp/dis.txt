@@ -1,4 +1,4 @@
-0000 08 e7 06                   ; JMP 06e7
+0000 08 99 07                   ; JMP 0799
 0003 00                         ; (data)
 0004 00                         ; (data)
 0005 00                         ; (data)
@@ -12,11 +12,11 @@
 000d 1f                         ; FWRITE
 000e 00                         ; (data)
 000f 00                         ; (data)
-0010 f1                         ; (data)
-0011 06                         ; DUP
+0010 a3                         ; (data)
+0011 07                         ; ROT
 0012 00                         ; (data)
 0013 00                         ; (data)
-0014 dd                         ; (data)
+0014 9c                         ; (data)
 0015 1a                         ; OVER
 0016 00                         ; (data)
 0017 00                         ; (data)
@@ -374,58 +374,58 @@
 0267 19                         ; EMIT
 0268 0c                         ; RET
 
-0269 18 21 1d                   ; DICTP 1d21 - FOPEN
+0269 18 21 1d                   ; DICTP 1d21 - GETCH
 026c 0b a7 00                   ; CALL 00a7 - ?COMPILING
 026f 09 78 02                   ; JMPZ 0278
-0272 0e 1c                      ; CPUSH 1c
+0272 0e 27                      ; CPUSH 27
 0274 0b d4 00                   ; CALL 00d4 - C,
 0277 0c                         ; RET
-0278 1c                         ; FOPEN
+0278 27                         ; GETCH
 0279 0c                         ; RET
 
-027a 18 15 1d                   ; DICTP 1d15 - FREAD
+027a 18 15 1d                   ; DICTP 1d15 - FOPEN
 027d 0b a7 00                   ; CALL 00a7 - ?COMPILING
 0280 09 89 02                   ; JMPZ 0289
-0283 0e 1d                      ; CPUSH 1d
+0283 0e 1c                      ; CPUSH 1c
 0285 0b d4 00                   ; CALL 00d4 - C,
 0288 0c                         ; RET
-0289 1d                         ; FREAD
+0289 1c                         ; FOPEN
 028a 0c                         ; RET
 
-028b 18 05 1d                   ; DICTP 1d05 - FREADLINE
+028b 18 09 1d                   ; DICTP 1d09 - FREAD
 028e 0b a7 00                   ; CALL 00a7 - ?COMPILING
 0291 09 9a 02                   ; JMPZ 029a
-0294 0e 1e                      ; CPUSH 1e
+0294 0e 1d                      ; CPUSH 1d
 0296 0b d4 00                   ; CALL 00d4 - C,
 0299 0c                         ; RET
-029a 1e                         ; FREADLINE
+029a 1d                         ; FREAD
 029b 0c                         ; RET
 
-029c 18 f8 1c                   ; DICTP 1cf8 - FRWITE
+029c 18 f9 1c                   ; DICTP 1cf9 - FREADLINE
 029f 0b a7 00                   ; CALL 00a7 - ?COMPILING
 02a2 09 ab 02                   ; JMPZ 02ab
-02a5 0e 00                      ; CPUSH 00
+02a5 0e 1e                      ; CPUSH 1e
 02a7 0b d4 00                   ; CALL 00d4 - C,
 02aa 0c                         ; RET
-02ab 0b 9c 02                   ; CALL 029c - FRWITE
-02ae 0c                         ; RET
+02ab 1e                         ; FREADLINE
+02ac 0c                         ; RET
 
-02af 18 eb 1c                   ; DICTP 1ceb - FCLOSE
-02b2 0b a7 00                   ; CALL 00a7 - ?COMPILING
-02b5 09 be 02                   ; JMPZ 02be
-02b8 0e 20                      ; CPUSH 20
-02ba 0b d4 00                   ; CALL 00d4 - C,
-02bd 0c                         ; RET
-02be 20                         ; FCLOSE
+02ad 18 ec 1c                   ; DICTP 1cec - FRWITE
+02b0 0b a7 00                   ; CALL 00a7 - ?COMPILING
+02b3 09 bc 02                   ; JMPZ 02bc
+02b6 0e 00                      ; CPUSH 00
+02b8 0b d4 00                   ; CALL 00d4 - C,
+02bb 0c                         ; RET
+02bc 0b ad 02                   ; CALL 02ad - FRWITE
 02bf 0c                         ; RET
 
-02c0 18 df 1c                   ; DICTP 1cdf - GETCH
+02c0 18 df 1c                   ; DICTP 1cdf - FCLOSE
 02c3 0b a7 00                   ; CALL 00a7 - ?COMPILING
 02c6 09 cf 02                   ; JMPZ 02cf
-02c9 0e 27                      ; CPUSH 27
+02c9 0e 20                      ; CPUSH 20
 02cb 0b d4 00                   ; CALL 00d4 - C,
 02ce 0c                         ; RET
-02cf 27                         ; GETCH
+02cf 20                         ; FCLOSE
 02d0 0c                         ; RET
 
 02d1 18 d6 1c                   ; DICTP 1cd6 - 1+
@@ -481,709 +481,840 @@
 031c 08 0e 03                   ; JMP 030e
 031f 0c                         ; RET
 
-0320 18 90 1c                   ; DICTP 1c90 - TYPE
-0323 05                         ; DROP
-0324 0b 0b 03                   ; CALL 030b - ZTYPE
-0327 0c                         ; RET
-0328 00                         ; (data)
-0329 00                         ; (data)
-032a 00                         ; (data)
-032b 00                         ; (data)
-032c 00                         ; (data)
+0320 18 8d 1c                   ; DICTP 1c8d - BETWEEN
+0323 0e 02                      ; CPUSH 02
+0325 25                         ; PICK
+0326 15                         ; LT
+0327 09 2f 03                   ; JMPZ 032f
+032a 05                         ; DROP
+032b 05                         ; DROP
+032c 0e 00                      ; CPUSH 00
+032e 0c                         ; RET
+032f 15                         ; LT
+0330 0e 00                      ; CPUSH 00
+0332 16                         ; EQ
+0333 0c                         ; RET
 
-032d 18 84 1c                   ; DICTP 1c84 - COUNT
-0330 06                         ; DUP
-0331 24                         ; ONEPLUS
-0332 04                         ; SWAP
-0333 0f                         ; CFETCH
-0334 0c                         ; RET
+0334 18 82 1c                   ; DICTP 1c82 - TYPE
+0337 05                         ; DROP
+0338 0b 0b 03                   ; CALL 030b - ZTYPE
+033b 0c                         ; RET
+033c 00                         ; (data)
+033d 00                         ; (data)
+033e 00                         ; (data)
+033f 00                         ; (data)
+0340 00                         ; (data)
 
-0335 18 7a 1c                   ; DICTP 1c7a - PAD
-0338 0b 97 00                   ; CALL 0097 - LAST
-033b 0e c8                      ; CPUSH c8
-033d 12                         ; SUB
-033e 0c                         ; RET
+0341 18 76 1c                   ; DICTP 1c76 - COUNT
+0344 06                         ; DUP
+0345 24                         ; ONEPLUS
+0346 04                         ; SWAP
+0347 0f                         ; CFETCH
+0348 0c                         ; RET
 
-033f 18 6b 1c                   ; DICTP 1c6b - getInput
-0342 0b 35 03                   ; CALL 0335 - PAD
-0345 0e 80                      ; CPUSH 80
-0347 0e 00                      ; CPUSH 00
-0349 1e                         ; FREADLINE
-034a 05                         ; DROP
-034b 0b 35 03                   ; CALL 0335 - PAD
-034e 0c                         ; RET
+0349 18 6c 1c                   ; DICTP 1c6c - PAD
+034c 0b 97 00                   ; CALL 0097 - LAST
+034f 0e c8                      ; CPUSH c8
+0351 12                         ; SUB
+0352 0c                         ; RET
 
-034f 18 60 1c                   ; DICTP 1c60 - ?DUP
-0352 06                         ; DUP
-0353 09 57 03                   ; JMPZ 0357
-0356 06                         ; DUP
-0357 0c                         ; RET
+0353 18 5d 1c                   ; DICTP 1c5d - getInput
+0356 0b 49 03                   ; CALL 0349 - PAD
+0359 0e 80                      ; CPUSH 80
+035b 0e 00                      ; CPUSH 00
+035d 1e                         ; FREADLINE
+035e 05                         ; DROP
+035f 0b 49 03                   ; CALL 0349 - PAD
+0362 0c                         ; RET
 
-0358 18 56 1c                   ; DICTP 1c56 - HEX
-035b 0e 10                      ; CPUSH 10
-035d 0b 65 00                   ; CALL 0065 - BASE
-0360 03                         ; STORE
-0361 0c                         ; RET
-
-0362 18 48 1c                   ; DICTP 1c48 - DECIMAL
-0365 0e 0a                      ; CPUSH 0a
-0367 0b 65 00                   ; CALL 0065 - BASE
+0363 18 53 1c                   ; DICTP 1c53 - @+!
+0366 1b                         ; TUCK
+0367 02                         ; FETCH
+0368 11                         ; ADD
+0369 04                         ; SWAP
 036a 03                         ; STORE
 036b 0c                         ; RET
+036c 00                         ; (data)
+036d 00                         ; (data)
+036e 00                         ; (data)
+036f 00                         ; (data)
+0370 00                         ; (data)
 
-036c 18 3c 1c                   ; DICTP 1c3c - OCTAL
-036f 0e 08                      ; CPUSH 08
-0371 0b 65 00                   ; CALL 0065 - BASE
-0374 03                         ; STORE
-0375 0c                         ; RET
+0371 18 48 1c                   ; DICTP 1c48 - C@+!
+0374 1b                         ; TUCK
+0375 0f                         ; CFETCH
+0376 11                         ; ADD
+0377 04                         ; SWAP
+0378 10                         ; CSTORE
+0379 0c                         ; RET
+037a 00                         ; (data)
+037b 00                         ; (data)
+037c 00                         ; (data)
+037d 00                         ; (data)
+037e 00                         ; (data)
 
-0376 18 2f 1c                   ; DICTP 1c2f - BINARY
-0379 0e 02                      ; CPUSH 02
-037b 0b 65 00                   ; CALL 0065 - BASE
-037e 03                         ; STORE
-037f 0c                         ; RET
+037f 18 3d 1c                   ; DICTP 1c3d - ?DUP
+0382 06                         ; DUP
+0383 09 87 03                   ; JMPZ 0387
+0386 06                         ; DUP
+0387 0c                         ; RET
 
-0380 18 22 1c                   ; DICTP 1c22 - strcmp
-0383 1a                         ; OVER
-0384 0f                         ; CFETCH
-0385 1a                         ; OVER
-0386 0f                         ; CFETCH
-0387 16                         ; EQ
-0388 09 9e 03                   ; JMPZ 039e
-038b 06                         ; DUP
-038c 0f                         ; CFETCH
-038d 0e 00                      ; CPUSH 00
-038f 16                         ; EQ
-0390 09 98 03                   ; JMPZ 0398
-0393 05                         ; DROP
-0394 05                         ; DROP
-0395 0e 01                      ; CPUSH 01
-0397 0c                         ; RET
-0398 24                         ; ONEPLUS
-0399 04                         ; SWAP
-039a 24                         ; ONEPLUS
-039b 08 a3 03                   ; JMP 03a3
-039e 05                         ; DROP
-039f 05                         ; DROP
-03a0 0e 00                      ; CPUSH 00
-03a2 0c                         ; RET
-03a3 08 83 03                   ; JMP 0383
-03a6 0c                         ; RET
+0388 18 33 1c                   ; DICTP 1c33 - HEX
+038b 0e 10                      ; CPUSH 10
+038d 0b 65 00                   ; CALL 0065 - BASE
+0390 03                         ; STORE
+0391 0c                         ; RET
 
-03a7 18 15 1c                   ; DICTP 1c15 - skipWS
-03aa 06                         ; DUP
-03ab 0f                         ; CFETCH
-03ac 06                         ; DUP
-03ad 09 be 03                   ; JMPZ 03be
-03b0 0e 20                      ; CPUSH 20
-03b2 17                         ; GT
-03b3 09 ba 03                   ; JMPZ 03ba
-03b6 0c                         ; RET
-03b7 08 bb 03                   ; JMP 03bb
-03ba 24                         ; ONEPLUS
-03bb 08 c0 03                   ; JMP 03c0
-03be 05                         ; DROP
-03bf 0c                         ; RET
-03c0 08 aa 03                   ; JMP 03aa
-03c3 0c                         ; RET
+0392 18 25 1c                   ; DICTP 1c25 - DECIMAL
+0395 0e 0a                      ; CPUSH 0a
+0397 0b 65 00                   ; CALL 0065 - BASE
+039a 03                         ; STORE
+039b 0c                         ; RET
 
-03c4 18 04 1c                   ; DICTP 1c04 - getOneWord
-03c7 06                         ; DUP
-03c8 21                         ; DTOR
-03c9 21                         ; DTOR
-03ca 22                         ; RFETCH
-03cb 0f                         ; CFETCH
-03cc 0e 20                      ; CPUSH 20
-03ce 17                         ; GT
-03cf 09 d8 03                   ; JMPZ 03d8
-03d2 23                         ; RTOD
-03d3 24                         ; ONEPLUS
-03d4 21                         ; DTOR
-03d5 08 e8 03                   ; JMP 03e8
-03d8 22                         ; RFETCH
-03d9 0f                         ; CFETCH
-03da 09 e4 03                   ; JMPZ 03e4
-03dd 0e 00                      ; CPUSH 00
-03df 22                         ; RFETCH
-03e0 10                         ; CSTORE
-03e1 23                         ; RTOD
-03e2 24                         ; ONEPLUS
-03e3 21                         ; DTOR
-03e4 23                         ; RTOD
-03e5 23                         ; RTOD
-03e6 04                         ; SWAP
-03e7 0c                         ; RET
-03e8 08 ca 03                   ; JMP 03ca
-03eb 0c                         ; RET
+039c 18 19 1c                   ; DICTP 1c19 - OCTAL
+039f 0e 08                      ; CPUSH 08
+03a1 0b 65 00                   ; CALL 0065 - BASE
+03a4 03                         ; STORE
+03a5 0c                         ; RET
 
-03ec 18 f3 1b                   ; DICTP 1bf3 - findInDict
-03ef 0b 97 00                   ; CALL 0097 - LAST
-03f2 21                         ; DTOR
-03f3 22                         ; RFETCH
-03f4 06                         ; DUP
-03f5 09 1d 04                   ; JMPZ 041d
-03f8 0e 02                      ; CPUSH 02
-03fa 0b 9f 00                   ; CALL 009f - CELLS
-03fd 0e 02                      ; CPUSH 02
-03ff 11                         ; ADD
-0400 11                         ; ADD
-0401 1a                         ; OVER
-0402 0b 80 03                   ; CALL 0380 - strcmp
-0405 09 1a 04                   ; JMPZ 041a
-0408 05                         ; DROP
-0409 22                         ; RFETCH
-040a 0b 40 00                   ; CALL 0040 - CELL
-040d 11                         ; ADD
-040e 02                         ; FETCH
-040f 23                         ; RTOD
-0410 0e 02                      ; CPUSH 02
-0412 0b 9f 00                   ; CALL 009f - CELLS
-0415 11                         ; ADD
-0416 0f                         ; CFETCH
-0417 0e 01                      ; CPUSH 01
-0419 0c                         ; RET
-041a 08 25 04                   ; JMP 0425
-041d 05                         ; DROP
-041e 05                         ; DROP
-041f 23                         ; RTOD
-0420 0e 00                      ; CPUSH 00
-0422 0e 00                      ; CPUSH 00
-0424 0c                         ; RET
-0425 23                         ; RTOD
-0426 02                         ; FETCH
-0427 21                         ; DTOR
-0428 08 f3 03                   ; JMP 03f3
-042b 0c                         ; RET
+03a6 18 0c 1c                   ; DICTP 1c0c - BINARY
+03a9 0e 02                      ; CPUSH 02
+03ab 0b 65 00                   ; CALL 0065 - BASE
+03ae 03                         ; STORE
+03af 0c                         ; RET
 
-042c 18 e5 1b                   ; DICTP 1be5 - BETWEEN
-042f 0e 02                      ; CPUSH 02
-0431 25                         ; PICK
-0432 15                         ; LT
-0433 09 3b 04                   ; JMPZ 043b
-0436 05                         ; DROP
-0437 05                         ; DROP
-0438 0e 00                      ; CPUSH 00
-043a 0c                         ; RET
-043b 15                         ; LT
-043c 0e 00                      ; CPUSH 00
-043e 16                         ; EQ
-043f 0c                         ; RET
+03b0 18 ff 1b                   ; DICTP 1bff - strcmp
+03b3 1a                         ; OVER
+03b4 0f                         ; CFETCH
+03b5 1a                         ; OVER
+03b6 0f                         ; CFETCH
+03b7 16                         ; EQ
+03b8 09 ce 03                   ; JMPZ 03ce
+03bb 06                         ; DUP
+03bc 0f                         ; CFETCH
+03bd 0e 00                      ; CPUSH 00
+03bf 16                         ; EQ
+03c0 09 c8 03                   ; JMPZ 03c8
+03c3 05                         ; DROP
+03c4 05                         ; DROP
+03c5 0e 01                      ; CPUSH 01
+03c7 0c                         ; RET
+03c8 24                         ; ONEPLUS
+03c9 04                         ; SWAP
+03ca 24                         ; ONEPLUS
+03cb 08 d3 03                   ; JMP 03d3
+03ce 05                         ; DROP
+03cf 05                         ; DROP
+03d0 0e 00                      ; CPUSH 00
+03d2 0c                         ; RET
+03d3 08 b3 03                   ; JMP 03b3
+03d6 0c                         ; RET
 
-0440 18 d8 1b                   ; DICTP 1bd8 - isHEX?
-0443 0b 65 00                   ; CALL 0065 - BASE
-0446 02                         ; FETCH
-0447 0e 10                      ; CPUSH 10
-0449 16                         ; EQ
-044a 0c                         ; RET
+03d7 18 f2 1b                   ; DICTP 1bf2 - skipWS
+03da 06                         ; DUP
+03db 0f                         ; CFETCH
+03dc 06                         ; DUP
+03dd 09 ee 03                   ; JMPZ 03ee
+03e0 0e 20                      ; CPUSH 20
+03e2 17                         ; GT
+03e3 09 ea 03                   ; JMPZ 03ea
+03e6 0c                         ; RET
+03e7 08 eb 03                   ; JMP 03eb
+03ea 24                         ; ONEPLUS
+03eb 08 f0 03                   ; JMP 03f0
+03ee 05                         ; DROP
+03ef 0c                         ; RET
+03f0 08 da 03                   ; JMP 03da
+03f3 0c                         ; RET
 
-044b 18 c7 1b                   ; DICTP 1bc7 - isNumChar?
-044e 06                         ; DUP
-044f 0e 30                      ; CPUSH 30
-0451 0e 39                      ; CPUSH 39
-0453 0b 2c 04                   ; CALL 042c - BETWEEN
-0456 09 5f 04                   ; JMPZ 045f
-0459 0e 30                      ; CPUSH 30
-045b 12                         ; SUB
-045c 0e 01                      ; CPUSH 01
-045e 0c                         ; RET
-045f 0b 40 04                   ; CALL 0440 - isHEX?
-0462 09 87 04                   ; JMPZ 0487
-0465 06                         ; DUP
-0466 0e 41                      ; CPUSH 41
-0468 0e 46                      ; CPUSH 46
-046a 0b 2c 04                   ; CALL 042c - BETWEEN
-046d 09 76 04                   ; JMPZ 0476
-0470 0e 37                      ; CPUSH 37
-0472 12                         ; SUB
-0473 0e 01                      ; CPUSH 01
-0475 0c                         ; RET
-0476 06                         ; DUP
-0477 0e 61                      ; CPUSH 61
-0479 0e 66                      ; CPUSH 66
-047b 0b 2c 04                   ; CALL 042c - BETWEEN
-047e 09 87 04                   ; JMPZ 0487
-0481 0e 57                      ; CPUSH 57
-0483 12                         ; SUB
-0484 0e 01                      ; CPUSH 01
-0486 0c                         ; RET
-0487 0e 00                      ; CPUSH 00
-0489 0c                         ; RET
+03f4 18 e1 1b                   ; DICTP 1be1 - getOneWord
+03f7 06                         ; DUP
+03f8 21                         ; DTOR
+03f9 21                         ; DTOR
+03fa 22                         ; RFETCH
+03fb 0f                         ; CFETCH
+03fc 0e 20                      ; CPUSH 20
+03fe 17                         ; GT
+03ff 09 08 04                   ; JMPZ 0408
+0402 23                         ; RTOD
+0403 24                         ; ONEPLUS
+0404 21                         ; DTOR
+0405 08 18 04                   ; JMP 0418
+0408 22                         ; RFETCH
+0409 0f                         ; CFETCH
+040a 09 14 04                   ; JMPZ 0414
+040d 0e 00                      ; CPUSH 00
+040f 22                         ; RFETCH
+0410 10                         ; CSTORE
+0411 23                         ; RTOD
+0412 24                         ; ONEPLUS
+0413 21                         ; DTOR
+0414 23                         ; RTOD
+0415 23                         ; RTOD
+0416 04                         ; SWAP
+0417 0c                         ; RET
+0418 08 fa 03                   ; JMP 03fa
+041b 0c                         ; RET
 
-048a 18 ba 1b                   ; DICTP 1bba - NEGATE
-048d 0e 00                      ; CPUSH 00
-048f 04                         ; SWAP
-0490 12                         ; SUB
+041c 18 d0 1b                   ; DICTP 1bd0 - findInDict
+041f 0b 97 00                   ; CALL 0097 - LAST
+0422 21                         ; DTOR
+0423 22                         ; RFETCH
+0424 06                         ; DUP
+0425 09 4d 04                   ; JMPZ 044d
+0428 0e 02                      ; CPUSH 02
+042a 0b 9f 00                   ; CALL 009f - CELLS
+042d 0e 02                      ; CPUSH 02
+042f 11                         ; ADD
+0430 11                         ; ADD
+0431 1a                         ; OVER
+0432 0b b0 03                   ; CALL 03b0 - strcmp
+0435 09 4a 04                   ; JMPZ 044a
+0438 05                         ; DROP
+0439 22                         ; RFETCH
+043a 0b 40 00                   ; CALL 0040 - CELL
+043d 11                         ; ADD
+043e 02                         ; FETCH
+043f 23                         ; RTOD
+0440 0e 02                      ; CPUSH 02
+0442 0b 9f 00                   ; CALL 009f - CELLS
+0445 11                         ; ADD
+0446 0f                         ; CFETCH
+0447 0e 01                      ; CPUSH 01
+0449 0c                         ; RET
+044a 08 55 04                   ; JMP 0455
+044d 05                         ; DROP
+044e 05                         ; DROP
+044f 23                         ; RTOD
+0450 0e 00                      ; CPUSH 00
+0452 0e 00                      ; CPUSH 00
+0454 0c                         ; RET
+0455 23                         ; RTOD
+0456 02                         ; FETCH
+0457 21                         ; DTOR
+0458 08 23 04                   ; JMP 0423
+045b 0c                         ; RET
+
+045c 18 c3 1b                   ; DICTP 1bc3 - isHEX?
+045f 0b 65 00                   ; CALL 0065 - BASE
+0462 02                         ; FETCH
+0463 0e 10                      ; CPUSH 10
+0465 16                         ; EQ
+0466 0c                         ; RET
+
+0467 18 b2 1b                   ; DICTP 1bb2 - isNumChar?
+046a 06                         ; DUP
+046b 0e 30                      ; CPUSH 30
+046d 0e 39                      ; CPUSH 39
+046f 0b 20 03                   ; CALL 0320 - BETWEEN
+0472 09 7b 04                   ; JMPZ 047b
+0475 0e 30                      ; CPUSH 30
+0477 12                         ; SUB
+0478 0e 01                      ; CPUSH 01
+047a 0c                         ; RET
+047b 0b 5c 04                   ; CALL 045c - isHEX?
+047e 09 a3 04                   ; JMPZ 04a3
+0481 06                         ; DUP
+0482 0e 41                      ; CPUSH 41
+0484 0e 46                      ; CPUSH 46
+0486 0b 20 03                   ; CALL 0320 - BETWEEN
+0489 09 92 04                   ; JMPZ 0492
+048c 0e 37                      ; CPUSH 37
+048e 12                         ; SUB
+048f 0e 01                      ; CPUSH 01
 0491 0c                         ; RET
-
-0492 18 aa 1b                   ; DICTP 1baa - isNumber?
-0495 06                         ; DUP
-0496 0f                         ; CFETCH
-0497 0e 2d                      ; CPUSH 2d
-0499 16                         ; EQ
-049a 06                         ; DUP
-049b 0b 89 00                   ; CALL 0089 - isNeg
-049e 10                         ; CSTORE
-049f 09 a3 04                   ; JMPZ 04a3
-04a2 24                         ; ONEPLUS
+0492 06                         ; DUP
+0493 0e 61                      ; CPUSH 61
+0495 0e 66                      ; CPUSH 66
+0497 0b 20 03                   ; CALL 0320 - BETWEEN
+049a 09 a3 04                   ; JMPZ 04a3
+049d 0e 57                      ; CPUSH 57
+049f 12                         ; SUB
+04a0 0e 01                      ; CPUSH 01
+04a2 0c                         ; RET
 04a3 0e 00                      ; CPUSH 00
-04a5 21                         ; DTOR
-04a6 06                         ; DUP
-04a7 0f                         ; CFETCH
-04a8 06                         ; DUP
+04a5 0c                         ; RET
+
+04a6 18 a5 1b                   ; DICTP 1ba5 - NEGATE
 04a9 0e 00                      ; CPUSH 00
-04ab 16                         ; EQ
-04ac 09 bf 04                   ; JMPZ 04bf
-04af 05                         ; DROP
-04b0 05                         ; DROP
-04b1 23                         ; RTOD
-04b2 0b 89 00                   ; CALL 0089 - isNeg
-04b5 0f                         ; CFETCH
-04b6 09 bc 04                   ; JMPZ 04bc
-04b9 0b 8a 04                   ; CALL 048a - NEGATE
-04bc 0e 01                      ; CPUSH 01
-04be 0c                         ; RET
-04bf 0b 4b 04                   ; CALL 044b - isNumChar?
-04c2 09 d1 04                   ; JMPZ 04d1
-04c5 23                         ; RTOD
-04c6 0b 65 00                   ; CALL 0065 - BASE
-04c9 02                         ; FETCH
-04ca 13                         ; MUL
-04cb 11                         ; ADD
-04cc 21                         ; DTOR
-04cd 24                         ; ONEPLUS
-04ce 08 d6 04                   ; JMP 04d6
-04d1 05                         ; DROP
-04d2 23                         ; RTOD
-04d3 0e 00                      ; CPUSH 00
-04d5 0c                         ; RET
-04d6 08 a6 04                   ; JMP 04a6
-04d9 0c                         ; RET
+04ab 04                         ; SWAP
+04ac 12                         ; SUB
+04ad 0c                         ; RET
 
-04da 18 9f 1b                   ; DICTP 1b9f - /MOD
-04dd 1a                         ; OVER
-04de 1a                         ; OVER
-04df 14                         ; DIV
-04e0 21                         ; DTOR
-04e1 22                         ; RFETCH
-04e2 13                         ; MUL
-04e3 12                         ; SUB
-04e4 23                         ; RTOD
-04e5 04                         ; SWAP
-04e6 0c                         ; RET
-
-04e7 18 95 1b                   ; DICTP 1b95 - (.)
-04ea 06                         ; DUP
-04eb 0e 00                      ; CPUSH 00
-04ed 16                         ; EQ
-04ee 09 f6 04                   ; JMPZ 04f6
-04f1 05                         ; DROP
-04f2 0e 30                      ; CPUSH 30
-04f4 19                         ; EMIT
+04ae 18 95 1b                   ; DICTP 1b95 - isNumber?
+04b1 06                         ; DUP
+04b2 0f                         ; CFETCH
+04b3 0e 2d                      ; CPUSH 2d
+04b5 16                         ; EQ
+04b6 06                         ; DUP
+04b7 0b 89 00                   ; CALL 0089 - isNeg
+04ba 10                         ; CSTORE
+04bb 09 bf 04                   ; JMPZ 04bf
+04be 24                         ; ONEPLUS
+04bf 0e 00                      ; CPUSH 00
+04c1 21                         ; DTOR
+04c2 06                         ; DUP
+04c3 0f                         ; CFETCH
+04c4 06                         ; DUP
+04c5 0e 00                      ; CPUSH 00
+04c7 16                         ; EQ
+04c8 09 db 04                   ; JMPZ 04db
+04cb 05                         ; DROP
+04cc 05                         ; DROP
+04cd 23                         ; RTOD
+04ce 0b 89 00                   ; CALL 0089 - isNeg
+04d1 0f                         ; CFETCH
+04d2 09 d8 04                   ; JMPZ 04d8
+04d5 0b a6 04                   ; CALL 04a6 - NEGATE
+04d8 0e 01                      ; CPUSH 01
+04da 0c                         ; RET
+04db 0b 67 04                   ; CALL 0467 - isNumChar?
+04de 09 ed 04                   ; JMPZ 04ed
+04e1 23                         ; RTOD
+04e2 0b 65 00                   ; CALL 0065 - BASE
+04e5 02                         ; FETCH
+04e6 13                         ; MUL
+04e7 11                         ; ADD
+04e8 21                         ; DTOR
+04e9 24                         ; ONEPLUS
+04ea 08 f2 04                   ; JMP 04f2
+04ed 05                         ; DROP
+04ee 23                         ; RTOD
+04ef 0e 00                      ; CPUSH 00
+04f1 0c                         ; RET
+04f2 08 c2 04                   ; JMP 04c2
 04f5 0c                         ; RET
-04f6 06                         ; DUP
-04f7 0e 00                      ; CPUSH 00
-04f9 15                         ; LT
-04fa 09 05 05                   ; JMPZ 0505
-04fd 0b 8a 04                   ; CALL 048a - NEGATE
-0500 0e 01                      ; CPUSH 01
-0502 08 07 05                   ; JMP 0507
-0505 0e 00                      ; CPUSH 00
-0507 21                         ; DTOR
-0508 0e 00                      ; CPUSH 00
-050a 04                         ; SWAP
-050b 06                         ; DUP
-050c 0e 00                      ; CPUSH 00
-050e 16                         ; EQ
-050f 09 2b 05                   ; JMPZ 052b
-0512 05                         ; DROP
-0513 23                         ; RTOD
-0514 09 1a 05                   ; JMPZ 051a
-0517 0e 2d                      ; CPUSH 2d
-0519 19                         ; EMIT
-051a 0b 4f 03                   ; CALL 034f - ?DUP
-051d 09 24 05                   ; JMPZ 0524
-0520 19                         ; EMIT
-0521 08 25 05                   ; JMP 0525
-0524 0c                         ; RET
-0525 08 1a 05                   ; JMP 051a
-0528 08 40 05                   ; JMP 0540
-052b 0b 65 00                   ; CALL 0065 - BASE
-052e 02                         ; FETCH
-052f 0b da 04                   ; CALL 04da - /MOD
-0532 0e 30                      ; CPUSH 30
-0534 1a                         ; OVER
-0535 0e 09                      ; CPUSH 09
-0537 17                         ; GT
-0538 09 3e 05                   ; JMPZ 053e
-053b 0e 07                      ; CPUSH 07
-053d 11                         ; ADD
-053e 11                         ; ADD
-053f 04                         ; SWAP
-0540 08 0b 05                   ; JMP 050b
-0543 0c                         ; RET
 
-0544 18 8d 1b                   ; DICTP 1b8d - .
-0547 0b 04 03                   ; CALL 0304 - BL
-054a 0b e7 04                   ; CALL 04e7 - (.)
-054d 0c                         ; RET
+04f6 18 8a 1b                   ; DICTP 1b8a - /MOD
+04f9 1a                         ; OVER
+04fa 1a                         ; OVER
+04fb 14                         ; DIV
+04fc 21                         ; DTOR
+04fd 22                         ; RFETCH
+04fe 13                         ; MUL
+04ff 12                         ; SUB
+0500 23                         ; RTOD
+0501 04                         ; SWAP
+0502 0c                         ; RET
 
-054e 18 82 1b                   ; DICTP 1b82 - HEX.
-0551 0b 65 00                   ; CALL 0065 - BASE
-0554 02                         ; FETCH
-0555 04                         ; SWAP
-0556 0b 58 03                   ; CALL 0358 - HEX
-0559 0b e7 04                   ; CALL 04e7 - (.)
-055c 0b 65 00                   ; CALL 0065 - BASE
-055f 03                         ; STORE
-0560 0c                         ; RET
+0503 18 80 1b                   ; DICTP 1b80 - (.)
+0506 06                         ; DUP
+0507 0e 00                      ; CPUSH 00
+0509 16                         ; EQ
+050a 09 12 05                   ; JMPZ 0512
+050d 05                         ; DROP
+050e 0e 30                      ; CPUSH 30
+0510 19                         ; EMIT
+0511 0c                         ; RET
+0512 06                         ; DUP
+0513 0e 00                      ; CPUSH 00
+0515 15                         ; LT
+0516 09 21 05                   ; JMPZ 0521
+0519 0b a6 04                   ; CALL 04a6 - NEGATE
+051c 0e 01                      ; CPUSH 01
+051e 08 23 05                   ; JMP 0523
+0521 0e 00                      ; CPUSH 00
+0523 21                         ; DTOR
+0524 0e 00                      ; CPUSH 00
+0526 04                         ; SWAP
+0527 06                         ; DUP
+0528 0e 00                      ; CPUSH 00
+052a 16                         ; EQ
+052b 09 47 05                   ; JMPZ 0547
+052e 05                         ; DROP
+052f 23                         ; RTOD
+0530 09 36 05                   ; JMPZ 0536
+0533 0e 2d                      ; CPUSH 2d
+0535 19                         ; EMIT
+0536 0b 7f 03                   ; CALL 037f - ?DUP
+0539 09 40 05                   ; JMPZ 0540
+053c 19                         ; EMIT
+053d 08 41 05                   ; JMP 0541
+0540 0c                         ; RET
+0541 08 36 05                   ; JMP 0536
+0544 08 5c 05                   ; JMP 055c
+0547 0b 65 00                   ; CALL 0065 - BASE
+054a 02                         ; FETCH
+054b 0b f6 04                   ; CALL 04f6 - /MOD
+054e 0e 30                      ; CPUSH 30
+0550 1a                         ; OVER
+0551 0e 09                      ; CPUSH 09
+0553 17                         ; GT
+0554 09 5a 05                   ; JMPZ 055a
+0557 0e 07                      ; CPUSH 07
+0559 11                         ; ADD
+055a 11                         ; ADD
+055b 04                         ; SWAP
+055c 08 27 05                   ; JMP 0527
+055f 0c                         ; RET
 
-0561 18 73 1b                   ; DICTP 1b73 - DECIMAL.
-0564 0b 65 00                   ; CALL 0065 - BASE
-0567 02                         ; FETCH
-0568 04                         ; SWAP
-0569 0b 62 03                   ; CALL 0362 - DECIMAL
-056c 0b e7 04                   ; CALL 04e7 - (.)
-056f 0b 65 00                   ; CALL 0065 - BASE
-0572 03                         ; STORE
-0573 0c                         ; RET
+0560 18 78 1b                   ; DICTP 1b78 - .
+0563 0b 04 03                   ; CALL 0304 - BL
+0566 0b 03 05                   ; CALL 0503 - (.)
+0569 0c                         ; RET
 
-0574 18 65 1b                   ; DICTP 1b65 - BINARY.
-0577 0b 65 00                   ; CALL 0065 - BASE
-057a 02                         ; FETCH
-057b 04                         ; SWAP
-057c 0b 76 03                   ; CALL 0376 - BINARY
-057f 0b e7 04                   ; CALL 04e7 - (.)
-0582 0b 65 00                   ; CALL 0065 - BASE
-0585 03                         ; STORE
-0586 0c                         ; RET
+056a 18 6d 1b                   ; DICTP 1b6d - HEX.
+056d 0b 65 00                   ; CALL 0065 - BASE
+0570 02                         ; FETCH
+0571 04                         ; SWAP
+0572 0b 88 03                   ; CALL 0388 - HEX
+0575 0b 03 05                   ; CALL 0503 - (.)
+0578 0b 65 00                   ; CALL 0065 - BASE
+057b 03                         ; STORE
+057c 0c                         ; RET
 
-0587 18 5c 1b                   ; DICTP 1b5c - .S
-058a 26                         ; DEPTH
-058b 0b 4f 03                   ; CALL 034f - ?DUP
-058e 09 bb 05                   ; JMPZ 05bb
-0591 0b 04 03                   ; CALL 0304 - BL
-0594 0e 28                      ; CPUSH 28
-0596 19                         ; EMIT
-0597 0e 01                      ; CPUSH 01
-0599 12                         ; SUB
-059a 21                         ; DTOR
-059b 22                         ; RFETCH
-059c 25                         ; PICK
-059d 0b 44 05                   ; CALL 0544 - .
-05a0 22                         ; RFETCH
-05a1 09 ac 05                   ; JMPZ 05ac
-05a4 23                         ; RTOD
-05a5 0e 01                      ; CPUSH 01
-05a7 12                         ; SUB
-05a8 21                         ; DTOR
-05a9 08 b5 05                   ; JMP 05b5
-05ac 23                         ; RTOD
-05ad 05                         ; DROP
-05ae 0b 04 03                   ; CALL 0304 - BL
-05b1 0e 29                      ; CPUSH 29
-05b3 19                         ; EMIT
-05b4 0c                         ; RET
-05b5 08 9b 05                   ; JMP 059b
-05b8 08 c7 05                   ; JMP 05c7
-05bb 0b 04 03                   ; CALL 0304 - BL
-05be 0e 28                      ; CPUSH 28
-05c0 19                         ; EMIT
-05c1 0e ed                      ; CPUSH ed
-05c3 19                         ; EMIT
-05c4 0e 29                      ; CPUSH 29
-05c6 19                         ; EMIT
-05c7 0c                         ; RET
+057d 18 5e 1b                   ; DICTP 1b5e - DECIMAL.
+0580 0b 65 00                   ; CALL 0065 - BASE
+0583 02                         ; FETCH
+0584 04                         ; SWAP
+0585 0b 92 03                   ; CALL 0392 - DECIMAL
+0588 0b 03 05                   ; CALL 0503 - (.)
+058b 0b 65 00                   ; CALL 0065 - BASE
+058e 03                         ; STORE
+058f 0c                         ; RET
 
-05c8 18 50 1b                   ; DICTP 1b50 - WORDS
-05cb 0b 97 00                   ; CALL 0097 - LAST
-05ce 06                         ; DUP
-05cf 02                         ; FETCH
-05d0 0e 00                      ; CPUSH 00
-05d2 16                         ; EQ
-05d3 09 db 05                   ; JMPZ 05db
-05d6 05                         ; DROP
-05d7 0b fa 02                   ; CALL 02fa - CRLF
-05da 0c                         ; RET
-05db 06                         ; DUP
-05dc 0e 02                      ; CPUSH 02
-05de 0b 9f 00                   ; CALL 009f - CELLS
-05e1 24                         ; ONEPLUS
-05e2 11                         ; ADD
-05e3 0b 2d 03                   ; CALL 032d - COUNT
-05e6 0b 20 03                   ; CALL 0320 - TYPE
-05e9 0b 04 03                   ; CALL 0304 - BL
-05ec 02                         ; FETCH
-05ed 08 ce 05                   ; JMP 05ce
-05f0 0c                         ; RET
+0590 18 50 1b                   ; DICTP 1b50 - BINARY.
+0593 0b 65 00                   ; CALL 0065 - BASE
+0596 02                         ; FETCH
+0597 04                         ; SWAP
+0598 0b a6 03                   ; CALL 03a6 - BINARY
+059b 0b 03 05                   ; CALL 0503 - (.)
+059e 0b 65 00                   ; CALL 0065 - BASE
+05a1 03                         ; STORE
+05a2 0c                         ; RET
 
-05f1 18 42 1b                   ; DICTP 1b42 - EXECUTE
-05f4 23                         ; RTOD
-05f5 05                         ; DROP
-05f6 21                         ; DTOR
-05f7 0c                         ; RET
+05a3 18 47 1b                   ; DICTP 1b47 - .S
+05a6 26                         ; DEPTH
+05a7 0b 7f 03                   ; CALL 037f - ?DUP
+05aa 09 d7 05                   ; JMPZ 05d7
+05ad 0b 04 03                   ; CALL 0304 - BL
+05b0 0e 28                      ; CPUSH 28
+05b2 19                         ; EMIT
+05b3 0e 01                      ; CPUSH 01
+05b5 12                         ; SUB
+05b6 21                         ; DTOR
+05b7 22                         ; RFETCH
+05b8 25                         ; PICK
+05b9 0b 60 05                   ; CALL 0560 - .
+05bc 22                         ; RFETCH
+05bd 09 c8 05                   ; JMPZ 05c8
+05c0 23                         ; RTOD
+05c1 0e 01                      ; CPUSH 01
+05c3 12                         ; SUB
+05c4 21                         ; DTOR
+05c5 08 d1 05                   ; JMP 05d1
+05c8 23                         ; RTOD
+05c9 05                         ; DROP
+05ca 0b 04 03                   ; CALL 0304 - BL
+05cd 0e 29                      ; CPUSH 29
+05cf 19                         ; EMIT
+05d0 0c                         ; RET
+05d1 08 b7 05                   ; JMP 05b7
+05d4 08 e3 05                   ; JMP 05e3
+05d7 0b 04 03                   ; CALL 0304 - BL
+05da 0e 28                      ; CPUSH 28
+05dc 19                         ; EMIT
+05dd 0e ed                      ; CPUSH ed
+05df 19                         ; EMIT
+05e0 0e 29                      ; CPUSH 29
+05e2 19                         ; EMIT
+05e3 0c                         ; RET
 
-05f8 18 30 1b                   ; DICTP 1b30 - executeWord
-05fb 21                         ; DTOR
-05fc 22                         ; RFETCH
-05fd 0b ec 03                   ; CALL 03ec - findInDict
-0600 09 26 06                   ; JMPZ 0626
-0603 23                         ; RTOD
-0604 05                         ; DROP
-0605 0b a7 00                   ; CALL 00a7 - ?COMPILING
-0608 09 1f 06                   ; JMPZ 061f
-060b 09 14 06                   ; JMPZ 0614
-060e 0b f1 05                   ; CALL 05f1 - EXECUTE
-0611 08 1c 06                   ; JMP 061c
-0614 01 0b 0b                   ; PUSH 0b0b
-0617 d4                         ; (data)
-0618 00                         ; (data)
-0619 0b c3 00                   ; CALL 00c3 - ,
-061c 08 23 06                   ; JMP 0623
-061f 05                         ; DROP
-0620 0b f1 05                   ; CALL 05f1 - EXECUTE
-0623 08 62 06                   ; JMP 0662
-0626 05                         ; DROP
-0627 05                         ; DROP
-0628 22                         ; RFETCH
-0629 0b 92 04                   ; CALL 0492 - isNumber?
-062c 09 51 06                   ; JMPZ 0651
-062f 0b a7 00                   ; CALL 00a7 - ?COMPILING
-0632 09 4e 06                   ; JMPZ 064e
-0635 06                         ; DUP
-0636 01 00 01                   ; PUSH 0100
-0639 15                         ; LT
-063a 09 47 06                   ; JMPZ 0647
-063d 0e 0b                      ; CPUSH 0b
-063f d4                         ; (data)
-0640 00                         ; (data)
-0641 0b d4 00                   ; CALL 00d4 - C,
-0644 08 4e 06                   ; JMP 064e
-0647 01 0b d4                   ; PUSH ffffd40b
-064a 00                         ; (data)
-064b 0b c3 00                   ; CALL 00c3 - ,
-064e 08 60 06                   ; JMP 0660
-0651 05                         ; DROP
-0652 0b 04 03                   ; CALL 0304 - BL
-0655 22                         ; RFETCH
-0656 0b 0b 03                   ; CALL 030b - ZTYPE
-0659 0e 3f                      ; CPUSH 3f
-065b 19                         ; EMIT
-065c 0e 3f                      ; CPUSH 3f
-065e 19                         ; EMIT
-065f fe                         ; RESET
-0660 23                         ; RTOD
-0661 05                         ; DROP
-0662 0c                         ; RET
+05e4 18 3b 1b                   ; DICTP 1b3b - WORDS
+05e7 0b 97 00                   ; CALL 0097 - LAST
+05ea 06                         ; DUP
+05eb 02                         ; FETCH
+05ec 0e 00                      ; CPUSH 00
+05ee 16                         ; EQ
+05ef 09 f7 05                   ; JMPZ 05f7
+05f2 05                         ; DROP
+05f3 0b fa 02                   ; CALL 02fa - CRLF
+05f6 0c                         ; RET
+05f7 06                         ; DUP
+05f8 0e 02                      ; CPUSH 02
+05fa 0b 9f 00                   ; CALL 009f - CELLS
+05fd 24                         ; ONEPLUS
+05fe 11                         ; ADD
+05ff 0b 41 03                   ; CALL 0341 - COUNT
+0602 0b 34 03                   ; CALL 0334 - TYPE
+0605 0b 04 03                   ; CALL 0304 - BL
+0608 02                         ; FETCH
+0609 08 ea 05                   ; JMP 05ea
+060c 0c                         ; RET
 
-0663 18 1d 1b                   ; DICTP 1b1d - executeInput
-0666 0b 83 00                   ; CALL 0083 - >IN
-0669 02                         ; FETCH
-066a 0b a7 03                   ; CALL 03a7 - skipWS
-066d 0b 83 00                   ; CALL 0083 - >IN
-0670 03                         ; STORE
-0671 0b 83 00                   ; CALL 0083 - >IN
-0674 02                         ; FETCH
-0675 0f                         ; CFETCH
-0676 09 8a 06                   ; JMPZ 068a
-0679 0b 83 00                   ; CALL 0083 - >IN
-067c 02                         ; FETCH
-067d 0b c4 03                   ; CALL 03c4 - getOneWord
-0680 0b 83 00                   ; CALL 0083 - >IN
-0683 03                         ; STORE
-0684 0b f8 05                   ; CALL 05f8 - executeWord
-0687 08 8b 06                   ; JMP 068b
-068a 0c                         ; RET
-068b 08 66 06                   ; JMP 0666
-068e 0c                         ; RET
+060d 18 2d 1b                   ; DICTP 1b2d - EXECUTE
+0610 23                         ; RTOD
+0611 05                         ; DROP
+0612 21                         ; DTOR
+0613 0c                         ; RET
 
-068f 18 0c 1b                   ; DICTP 1b0c - resetState
-0692 0e 00                      ; CPUSH 00
-0694 0b 5f 00                   ; CALL 005f - STATE
-0697 03                         ; STORE
-0698 0b 62 03                   ; CALL 0362 - DECIMAL
-069b 0c                         ; RET
+0614 18 1b 1b                   ; DICTP 1b1b - executeWord
+0617 21                         ; DTOR
+0618 22                         ; RFETCH
+0619 0b 1c 04                   ; CALL 041c - findInDict
+061c 09 42 06                   ; JMPZ 0642
+061f 23                         ; RTOD
+0620 05                         ; DROP
+0621 0b a7 00                   ; CALL 00a7 - ?COMPILING
+0624 09 3b 06                   ; JMPZ 063b
+0627 09 30 06                   ; JMPZ 0630
+062a 0b 0d 06                   ; CALL 060d - EXECUTE
+062d 08 38 06                   ; JMP 0638
+0630 01 0b 0b                   ; PUSH 0b0b
+0633 d4                         ; (data)
+0634 00                         ; (data)
+0635 0b c3 00                   ; CALL 00c3 - ,
+0638 08 3f 06                   ; JMP 063f
+063b 05                         ; DROP
+063c 0b 0d 06                   ; CALL 060d - EXECUTE
+063f 08 7e 06                   ; JMP 067e
+0642 05                         ; DROP
+0643 05                         ; DROP
+0644 22                         ; RFETCH
+0645 0b ae 04                   ; CALL 04ae - isNumber?
+0648 09 6d 06                   ; JMPZ 066d
+064b 0b a7 00                   ; CALL 00a7 - ?COMPILING
+064e 09 6a 06                   ; JMPZ 066a
+0651 06                         ; DUP
+0652 01 00 01                   ; PUSH 0100
+0655 15                         ; LT
+0656 09 63 06                   ; JMPZ 0663
+0659 0e 0b                      ; CPUSH 0b
+065b d4                         ; (data)
+065c 00                         ; (data)
+065d 0b d4 00                   ; CALL 00d4 - C,
+0660 08 6a 06                   ; JMP 066a
+0663 01 0b d4                   ; PUSH ffffd40b
+0666 00                         ; (data)
+0667 0b c3 00                   ; CALL 00c3 - ,
+066a 08 7c 06                   ; JMP 067c
+066d 05                         ; DROP
+066e 0b 04 03                   ; CALL 0304 - BL
+0671 22                         ; RFETCH
+0672 0b 0b 03                   ; CALL 030b - ZTYPE
+0675 0e 3f                      ; CPUSH 3f
+0677 19                         ; EMIT
+0678 0e 3f                      ; CPUSH 3f
+067a 19                         ; EMIT
+067b fe                         ; RESET
+067c 23                         ; RTOD
+067d 05                         ; DROP
+067e 0c                         ; RET
 
-069c 18 03 1b                   ; DICTP 1b03 - OK
-069f 0b 04 03                   ; CALL 0304 - BL
-06a2 0e 4f                      ; CPUSH 4f
-06a4 19                         ; EMIT
-06a5 0e 4b                      ; CPUSH 4b
-06a7 19                         ; EMIT
-06a8 0b 87 05                   ; CALL 0587 - .S
-06ab 0b fa 02                   ; CALL 02fa - CRLF
-06ae 0c                         ; RET
+067f 18 08 1b                   ; DICTP 1b08 - executeInput
+0682 0b 83 00                   ; CALL 0083 - >IN
+0685 02                         ; FETCH
+0686 0b d7 03                   ; CALL 03d7 - skipWS
+0689 0b 83 00                   ; CALL 0083 - >IN
+068c 03                         ; STORE
+068d 0b 83 00                   ; CALL 0083 - >IN
+0690 02                         ; FETCH
+0691 0f                         ; CFETCH
+0692 09 a6 06                   ; JMPZ 06a6
+0695 0b 83 00                   ; CALL 0083 - >IN
+0698 02                         ; FETCH
+0699 0b f4 03                   ; CALL 03f4 - getOneWord
+069c 0b 83 00                   ; CALL 0083 - >IN
+069f 03                         ; STORE
+06a0 0b 14 06                   ; CALL 0614 - executeWord
+06a3 08 a7 06                   ; JMP 06a7
+06a6 0c                         ; RET
+06a7 08 82 06                   ; JMP 0682
+06aa 0c                         ; RET
 
-06af 18 f4 1a                   ; DICTP 1af4 - mainLoop
-06b2 0b 8f 06                   ; CALL 068f - resetState
-06b5 0b 9c 06                   ; CALL 069c - OK
-06b8 0b 3f 03                   ; CALL 033f - getInput
-06bb 24                         ; ONEPLUS
-06bc 0b 83 00                   ; CALL 0083 - >IN
-06bf 03                         ; STORE
-06c0 0b 63 06                   ; CALL 0663 - executeInput
-06c3 08 b5 06                   ; JMP 06b5
-06c6 0c                         ; RET
+06ab 18 fe 1a                   ; DICTP 1afe - Pad
+06ae 0b 97 00                   ; CALL 0097 - LAST
+06b1 0e 64                      ; CPUSH 64
+06b3 12                         ; SUB
+06b4 0c                         ; RET
 
-06c7 18 e8 1a                   ; DICTP 1ae8 - HELLO
-06ca 0b 83 00                   ; CALL 0083 - >IN
-06cd 02                         ; FETCH
-06ce 09 d4 06                   ; JMPZ 06d4
-06d1 08 e6 06                   ; JMP 06e6
-06d4 0e 48                      ; CPUSH 48
-06d6 19                         ; EMIT
-06d7 0e 65                      ; CPUSH 65
-06d9 19                         ; EMIT
-06da 0e 6c                      ; CPUSH 6c
-06dc 19                         ; EMIT
-06dd 0e 6c                      ; CPUSH 6c
-06df 19                         ; EMIT
-06e0 0e 6f                      ; CPUSH 6f
-06e2 19                         ; EMIT
-06e3 0b fa 02                   ; CALL 02fa - CRLF
-06e6 0c                         ; RET
+06b5 18 f4 1a                   ; DICTP 1af4 - >In
+06b8 0e 38                      ; CPUSH 38
+06ba 0c                         ; RET
 
-06e7 18 dd 1a                   ; DICTP 1add - main
-06ea 0b c7 06                   ; CALL 06c7 - HELLO
-06ed 0b af 06                   ; CALL 06af - mainLoop
-06f0 0c                         ; RET
+06bb 18 e6 1a                   ; DICTP 1ae6 - getLine
+06be 0e 00                      ; CPUSH 00
+06c0 0b ab 06                   ; CALL 06ab - Pad
+06c3 06                         ; DUP
+06c4 24                         ; ONEPLUS
+06c5 0b b5 06                   ; CALL 06b5 - >In
+06c8 03                         ; STORE
+06c9 10                         ; CSTORE
+06ca 0e 00                      ; CPUSH 00
+06cc 0b b5 06                   ; CALL 06b5 - >In
+06cf 02                         ; FETCH
+06d0 10                         ; CSTORE
+06d1 27                         ; GETCH
+06d2 06                         ; DUP
+06d3 0e 0d                      ; CPUSH 0d
+06d5 16                         ; EQ
+06d6 09 de 06                   ; JMPZ 06de
+06d9 05                         ; DROP
+06da 0b ab 06                   ; CALL 06ab - Pad
+06dd 0c                         ; RET
+06de 06                         ; DUP
+06df 0e 08                      ; CPUSH 08
+06e1 16                         ; EQ
+06e2 09 12 07                   ; JMPZ 0712
+06e5 0b ab 06                   ; CALL 06ab - Pad
+06e8 0f                         ; CFETCH
+06e9 0e 00                      ; CPUSH 00
+06eb 17                         ; GT
+06ec 09 0e 07                   ; JMPZ 070e
+06ef 0e 00                      ; CPUSH 00
+06f1 0e 01                      ; CPUSH 01
+06f3 12                         ; SUB
+06f4 0b ab 06                   ; CALL 06ab - Pad
+06f7 0b 71 03                   ; CALL 0371 - C@+!
+06fa 0e 00                      ; CPUSH 00
+06fc 0e 01                      ; CPUSH 01
+06fe 12                         ; SUB
+06ff 0b b5 06                   ; CALL 06b5 - >In
+0702 0b 63 03                   ; CALL 0363 - @+!
+0705 06                         ; DUP
+0706 19                         ; EMIT
+0707 0b 04 03                   ; CALL 0304 - BL
+070a 19                         ; EMIT
+070b 08 0f 07                   ; JMP 070f
+070e 05                         ; DROP
+070f 08 38 07                   ; JMP 0738
+0712 06                         ; DUP
+0713 0e 20                      ; CPUSH 20
+0715 0e 7f                      ; CPUSH 7f
+0717 0b 20 03                   ; CALL 0320 - BETWEEN
+071a 09 37 07                   ; JMPZ 0737
+071d 06                         ; DUP
+071e 19                         ; EMIT
+071f 0b b5 06                   ; CALL 06b5 - >In
+0722 02                         ; FETCH
+0723 10                         ; CSTORE
+0724 0e 01                      ; CPUSH 01
+0726 0b b5 06                   ; CALL 06b5 - >In
+0729 0b 63 03                   ; CALL 0363 - @+!
+072c 0e 01                      ; CPUSH 01
+072e 0b ab 06                   ; CALL 06ab - Pad
+0731 0b 71 03                   ; CALL 0371 - C@+!
+0734 08 38 07                   ; JMP 0738
+0737 05                         ; DROP
+0738 08 ca 06                   ; JMP 06ca
+073b 0c                         ; RET
 
-1add ; The dictionary starts here ...
+073c 18 dc 1a                   ; DICTP 1adc - bbb
+073f ff                         ; BYE
+0740 0c                         ; RET
 
-1add e8 1a                      ; Next=1ae8, main
-1adf e7 06 00 04 6d             ; XT=06e7, flags=00
-1ae2 04 6d 61 69 6e 00
+0741 18 cb 1a                   ; DICTP 1acb - resetState
+0744 0e 00                      ; CPUSH 00
+0746 0b 5f 00                   ; CALL 005f - STATE
+0749 03                         ; STORE
+074a 0b 92 03                   ; CALL 0392 - DECIMAL
+074d 0c                         ; RET
 
-1ae8 f4 1a                      ; Next=1af4, HELLO
-1aea c7 06 00 05 48             ; XT=06c7, flags=00
-1aed 05 48 45 4c 4c 4f 00
+074e 18 c2 1a                   ; DICTP 1ac2 - OK
+0751 0b 04 03                   ; CALL 0304 - BL
+0754 0e 4f                      ; CPUSH 4f
+0756 19                         ; EMIT
+0757 0e 4b                      ; CPUSH 4b
+0759 19                         ; EMIT
+075a 0b a3 05                   ; CALL 05a3 - .S
+075d 0b fa 02                   ; CALL 02fa - CRLF
+0760 0c                         ; RET
 
-1af4 03 1b                      ; Next=1b03, mainLoop
-1af6 af 06 00 08 6d             ; XT=06af, flags=00
-1af9 08 6d 61 69 6e 4c 6f 6f 70 00
+0761 18 b3 1a                   ; DICTP 1ab3 - mainLoop
+0764 0b 41 07                   ; CALL 0741 - resetState
+0767 0b 4e 07                   ; CALL 074e - OK
+076a 0b bb 06                   ; CALL 06bb - getLine
+076d 24                         ; ONEPLUS
+076e 0b 83 00                   ; CALL 0083 - >IN
+0771 03                         ; STORE
+0772 0b 7f 06                   ; CALL 067f - executeInput
+0775 08 67 07                   ; JMP 0767
+0778 0c                         ; RET
 
-1b03 0c 1b                      ; Next=1b0c, OK
-1b05 9c 06 00 02 4f             ; XT=069c, flags=00
-1b08 02 4f 4b 00
+0779 18 a7 1a                   ; DICTP 1aa7 - HELLO
+077c 0b 83 00                   ; CALL 0083 - >IN
+077f 02                         ; FETCH
+0780 09 86 07                   ; JMPZ 0786
+0783 08 98 07                   ; JMP 0798
+0786 0e 48                      ; CPUSH 48
+0788 19                         ; EMIT
+0789 0e 65                      ; CPUSH 65
+078b 19                         ; EMIT
+078c 0e 6c                      ; CPUSH 6c
+078e 19                         ; EMIT
+078f 0e 6c                      ; CPUSH 6c
+0791 19                         ; EMIT
+0792 0e 6f                      ; CPUSH 6f
+0794 19                         ; EMIT
+0795 0b fa 02                   ; CALL 02fa - CRLF
+0798 0c                         ; RET
 
-1b0c 1d 1b                      ; Next=1b1d, resetState
-1b0e 8f 06 00 0a 72             ; XT=068f, flags=00
-1b11 0a 72 65 73 65 74 53 74 61 74 65 00
+0799 18 9c 1a                   ; DICTP 1a9c - main
+079c 0b 79 07                   ; CALL 0779 - HELLO
+079f 0b 61 07                   ; CALL 0761 - mainLoop
+07a2 0c                         ; RET
 
-1b1d 30 1b                      ; Next=1b30, executeInput
-1b1f 63 06 00 0c 65             ; XT=0663, flags=00
-1b22 0c 65 78 65 63 75 74 65 49 6e 70 75 74 00
+1a9c ; The dictionary starts here ...
 
-1b30 42 1b                      ; Next=1b42, executeWord
-1b32 f8 05 00 0b 65             ; XT=05f8, flags=00
-1b35 0b 65 78 65 63 75 74 65 57 6f 72 64 00
+1a9c a7 1a                      ; Next=1aa7, main
+1a9e 99 07 00 04 6d             ; XT=0799, flags=00
+1aa1 04 6d 61 69 6e 00
 
-1b42 50 1b                      ; Next=1b50, EXECUTE
-1b44 f1 05 00 07 45             ; XT=05f1, flags=00
-1b47 07 45 58 45 43 55 54 45 00
+1aa7 b3 1a                      ; Next=1ab3, HELLO
+1aa9 79 07 00 05 48             ; XT=0779, flags=00
+1aac 05 48 45 4c 4c 4f 00
 
-1b50 5c 1b                      ; Next=1b5c, WORDS
-1b52 c8 05 00 05 57             ; XT=05c8, flags=00
-1b55 05 57 4f 52 44 53 00
+1ab3 c2 1a                      ; Next=1ac2, mainLoop
+1ab5 61 07 00 08 6d             ; XT=0761, flags=00
+1ab8 08 6d 61 69 6e 4c 6f 6f 70 00
 
-1b5c 65 1b                      ; Next=1b65, .S
-1b5e 87 05 00 02 2e             ; XT=0587, flags=00
-1b61 02 2e 53 00
+1ac2 cb 1a                      ; Next=1acb, OK
+1ac4 4e 07 00 02 4f             ; XT=074e, flags=00
+1ac7 02 4f 4b 00
 
-1b65 73 1b                      ; Next=1b73, BINARY.
-1b67 74 05 00 07 42             ; XT=0574, flags=00
-1b6a 07 42 49 4e 41 52 59 2e 00
+1acb dc 1a                      ; Next=1adc, resetState
+1acd 41 07 00 0a 72             ; XT=0741, flags=00
+1ad0 0a 72 65 73 65 74 53 74 61 74 65 00
 
-1b73 82 1b                      ; Next=1b82, DECIMAL.
-1b75 61 05 00 08 44             ; XT=0561, flags=00
-1b78 08 44 45 43 49 4d 41 4c 2e 00
+1adc e6 1a                      ; Next=1ae6, bbb
+1ade 3c 07 00 03 62             ; XT=073c, flags=00
+1ae1 03 62 62 62 00
 
-1b82 8d 1b                      ; Next=1b8d, HEX.
-1b84 4e 05 00 04 48             ; XT=054e, flags=00
-1b87 04 48 45 58 2e 00
+1ae6 f4 1a                      ; Next=1af4, getLine
+1ae8 bb 06 00 07 67             ; XT=06bb, flags=00
+1aeb 07 67 65 74 4c 69 6e 65 00
 
-1b8d 95 1b                      ; Next=1b95, .
-1b8f 44 05 00 01 2e             ; XT=0544, flags=00
-1b92 01 2e 00
+1af4 fe 1a                      ; Next=1afe, >In
+1af6 b5 06 00 03 3e             ; XT=06b5, flags=00
+1af9 03 3e 49 6e 00
 
-1b95 9f 1b                      ; Next=1b9f, (.)
-1b97 e7 04 00 03 28             ; XT=04e7, flags=00
-1b9a 03 28 2e 29 00
+1afe 08 1b                      ; Next=1b08, Pad
+1b00 ab 06 00 03 50             ; XT=06ab, flags=00
+1b03 03 50 61 64 00
 
-1b9f aa 1b                      ; Next=1baa, /MOD
-1ba1 da 04 00 04 2f             ; XT=04da, flags=00
-1ba4 04 2f 4d 4f 44 00
+1b08 1b 1b                      ; Next=1b1b, executeInput
+1b0a 7f 06 00 0c 65             ; XT=067f, flags=00
+1b0d 0c 65 78 65 63 75 74 65 49 6e 70 75 74 00
 
-1baa ba 1b                      ; Next=1bba, isNumber?
-1bac 92 04 00 09 69             ; XT=0492, flags=00
-1baf 09 69 73 4e 75 6d 62 65 72 3f 00
+1b1b 2d 1b                      ; Next=1b2d, executeWord
+1b1d 14 06 00 0b 65             ; XT=0614, flags=00
+1b20 0b 65 78 65 63 75 74 65 57 6f 72 64 00
 
-1bba c7 1b                      ; Next=1bc7, NEGATE
-1bbc 8a 04 00 06 4e             ; XT=048a, flags=00
-1bbf 06 4e 45 47 41 54 45 00
+1b2d 3b 1b                      ; Next=1b3b, EXECUTE
+1b2f 0d 06 00 07 45             ; XT=060d, flags=00
+1b32 07 45 58 45 43 55 54 45 00
 
-1bc7 d8 1b                      ; Next=1bd8, isNumChar?
-1bc9 4b 04 00 0a 69             ; XT=044b, flags=00
-1bcc 0a 69 73 4e 75 6d 43 68 61 72 3f 00
+1b3b 47 1b                      ; Next=1b47, WORDS
+1b3d e4 05 00 05 57             ; XT=05e4, flags=00
+1b40 05 57 4f 52 44 53 00
 
-1bd8 e5 1b                      ; Next=1be5, isHEX?
-1bda 40 04 00 06 69             ; XT=0440, flags=00
-1bdd 06 69 73 48 45 58 3f 00
+1b47 50 1b                      ; Next=1b50, .S
+1b49 a3 05 00 02 2e             ; XT=05a3, flags=00
+1b4c 02 2e 53 00
 
-1be5 f3 1b                      ; Next=1bf3, BETWEEN
-1be7 2c 04 00 07 42             ; XT=042c, flags=00
-1bea 07 42 45 54 57 45 45 4e 00
+1b50 5e 1b                      ; Next=1b5e, BINARY.
+1b52 90 05 00 07 42             ; XT=0590, flags=00
+1b55 07 42 49 4e 41 52 59 2e 00
 
-1bf3 04 1c                      ; Next=1c04, findInDict
-1bf5 ec 03 00 0a 66             ; XT=03ec, flags=00
-1bf8 0a 66 69 6e 64 49 6e 44 69 63 74 00
+1b5e 6d 1b                      ; Next=1b6d, DECIMAL.
+1b60 7d 05 00 08 44             ; XT=057d, flags=00
+1b63 08 44 45 43 49 4d 41 4c 2e 00
 
-1c04 15 1c                      ; Next=1c15, getOneWord
-1c06 c4 03 00 0a 67             ; XT=03c4, flags=00
-1c09 0a 67 65 74 4f 6e 65 57 6f 72 64 00
+1b6d 78 1b                      ; Next=1b78, HEX.
+1b6f 6a 05 00 04 48             ; XT=056a, flags=00
+1b72 04 48 45 58 2e 00
 
-1c15 22 1c                      ; Next=1c22, skipWS
-1c17 a7 03 00 06 73             ; XT=03a7, flags=00
-1c1a 06 73 6b 69 70 57 53 00
+1b78 80 1b                      ; Next=1b80, .
+1b7a 60 05 00 01 2e             ; XT=0560, flags=00
+1b7d 01 2e 00
 
-1c22 2f 1c                      ; Next=1c2f, strcmp
-1c24 80 03 00 06 73             ; XT=0380, flags=00
-1c27 06 73 74 72 63 6d 70 00
+1b80 8a 1b                      ; Next=1b8a, (.)
+1b82 03 05 00 03 28             ; XT=0503, flags=00
+1b85 03 28 2e 29 00
 
-1c2f 3c 1c                      ; Next=1c3c, BINARY
-1c31 76 03 00 06 42             ; XT=0376, flags=00
-1c34 06 42 49 4e 41 52 59 00
+1b8a 95 1b                      ; Next=1b95, /MOD
+1b8c f6 04 00 04 2f             ; XT=04f6, flags=00
+1b8f 04 2f 4d 4f 44 00
 
-1c3c 48 1c                      ; Next=1c48, OCTAL
-1c3e 6c 03 00 05 4f             ; XT=036c, flags=00
-1c41 05 4f 43 54 41 4c 00
+1b95 a5 1b                      ; Next=1ba5, isNumber?
+1b97 ae 04 00 09 69             ; XT=04ae, flags=00
+1b9a 09 69 73 4e 75 6d 62 65 72 3f 00
 
-1c48 56 1c                      ; Next=1c56, DECIMAL
-1c4a 62 03 00 07 44             ; XT=0362, flags=00
-1c4d 07 44 45 43 49 4d 41 4c 00
+1ba5 b2 1b                      ; Next=1bb2, NEGATE
+1ba7 a6 04 00 06 4e             ; XT=04a6, flags=00
+1baa 06 4e 45 47 41 54 45 00
 
-1c56 60 1c                      ; Next=1c60, HEX
-1c58 58 03 00 03 48             ; XT=0358, flags=00
-1c5b 03 48 45 58 00
+1bb2 c3 1b                      ; Next=1bc3, isNumChar?
+1bb4 67 04 00 0a 69             ; XT=0467, flags=00
+1bb7 0a 69 73 4e 75 6d 43 68 61 72 3f 00
 
-1c60 6b 1c                      ; Next=1c6b, ?DUP
-1c62 4f 03 00 04 3f             ; XT=034f, flags=00
-1c65 04 3f 44 55 50 00
+1bc3 d0 1b                      ; Next=1bd0, isHEX?
+1bc5 5c 04 00 06 69             ; XT=045c, flags=00
+1bc8 06 69 73 48 45 58 3f 00
 
-1c6b 7a 1c                      ; Next=1c7a, getInput
-1c6d 3f 03 00 08 67             ; XT=033f, flags=00
-1c70 08 67 65 74 49 6e 70 75 74 00
+1bd0 e1 1b                      ; Next=1be1, findInDict
+1bd2 1c 04 00 0a 66             ; XT=041c, flags=00
+1bd5 0a 66 69 6e 64 49 6e 44 69 63 74 00
 
-1c7a 84 1c                      ; Next=1c84, PAD
-1c7c 35 03 00 03 50             ; XT=0335, flags=00
-1c7f 03 50 41 44 00
+1be1 f2 1b                      ; Next=1bf2, getOneWord
+1be3 f4 03 00 0a 67             ; XT=03f4, flags=00
+1be6 0a 67 65 74 4f 6e 65 57 6f 72 64 00
 
-1c84 90 1c                      ; Next=1c90, COUNT
-1c86 2d 03 00 05 43             ; XT=032d, flags=00
-1c89 05 43 4f 55 4e 54 00
+1bf2 ff 1b                      ; Next=1bff, skipWS
+1bf4 d7 03 00 06 73             ; XT=03d7, flags=00
+1bf7 06 73 6b 69 70 57 53 00
 
-1c90 9b 1c                      ; Next=1c9b, TYPE
-1c92 20 03 00 04 54             ; XT=0320, flags=00
-1c95 04 54 59 50 45 00
+1bff 0c 1c                      ; Next=1c0c, strcmp
+1c01 b0 03 00 06 73             ; XT=03b0, flags=00
+1c04 06 73 74 72 63 6d 70 00
+
+1c0c 19 1c                      ; Next=1c19, BINARY
+1c0e a6 03 00 06 42             ; XT=03a6, flags=00
+1c11 06 42 49 4e 41 52 59 00
+
+1c19 25 1c                      ; Next=1c25, OCTAL
+1c1b 9c 03 00 05 4f             ; XT=039c, flags=00
+1c1e 05 4f 43 54 41 4c 00
+
+1c25 33 1c                      ; Next=1c33, DECIMAL
+1c27 92 03 00 07 44             ; XT=0392, flags=00
+1c2a 07 44 45 43 49 4d 41 4c 00
+
+1c33 3d 1c                      ; Next=1c3d, HEX
+1c35 88 03 00 03 48             ; XT=0388, flags=00
+1c38 03 48 45 58 00
+
+1c3d 48 1c                      ; Next=1c48, ?DUP
+1c3f 7f 03 00 04 3f             ; XT=037f, flags=00
+1c42 04 3f 44 55 50 00
+
+1c48 53 1c                      ; Next=1c53, C@+!
+1c4a 71 03 00 04 43             ; XT=0371, flags=00
+1c4d 04 43 40 2b 21 00
+
+1c53 5d 1c                      ; Next=1c5d, @+!
+1c55 63 03 00 03 40             ; XT=0363, flags=00
+1c58 03 40 2b 21 00
+
+1c5d 6c 1c                      ; Next=1c6c, getInput
+1c5f 53 03 00 08 67             ; XT=0353, flags=00
+1c62 08 67 65 74 49 6e 70 75 74 00
+
+1c6c 76 1c                      ; Next=1c76, PAD
+1c6e 49 03 00 03 50             ; XT=0349, flags=00
+1c71 03 50 41 44 00
+
+1c76 82 1c                      ; Next=1c82, COUNT
+1c78 41 03 00 05 43             ; XT=0341, flags=00
+1c7b 05 43 4f 55 4e 54 00
+
+1c82 8d 1c                      ; Next=1c8d, TYPE
+1c84 34 03 00 04 54             ; XT=0334, flags=00
+1c87 04 54 59 50 45 00
+
+1c8d 9b 1c                      ; Next=1c9b, BETWEEN
+1c8f 20 03 00 07 42             ; XT=0320, flags=00
+1c92 07 42 45 54 57 45 45 4e 00
 
 1c9b a7 1c                      ; Next=1ca7, ZTYPE
 1c9d 0b 03 00 05 5a             ; XT=030b, flags=00
@@ -1213,29 +1344,29 @@
 1cd8 d1 02 01 02 31             ; XT=02d1, flags=01
 1cdb 02 31 2b 00
 
-1cdf eb 1c                      ; Next=1ceb, GETCH
-1ce1 c0 02 01 05 47             ; XT=02c0, flags=01
-1ce4 05 47 45 54 43 48 00
+1cdf ec 1c                      ; Next=1cec, FCLOSE
+1ce1 c0 02 01 06 46             ; XT=02c0, flags=01
+1ce4 06 46 43 4c 4f 53 45 00
 
-1ceb f8 1c                      ; Next=1cf8, FCLOSE
-1ced af 02 01 06 46             ; XT=02af, flags=01
-1cf0 06 46 43 4c 4f 53 45 00
+1cec f9 1c                      ; Next=1cf9, FRWITE
+1cee ad 02 01 06 46             ; XT=02ad, flags=01
+1cf1 06 46 52 57 49 54 45 00
 
-1cf8 05 1d                      ; Next=1d05, FRWITE
-1cfa 9c 02 01 06 46             ; XT=029c, flags=01
-1cfd 06 46 52 57 49 54 45 00
+1cf9 09 1d                      ; Next=1d09, FREADLINE
+1cfb 9c 02 01 09 46             ; XT=029c, flags=01
+1cfe 09 46 52 45 41 44 4c 49 4e 45 00
 
-1d05 15 1d                      ; Next=1d15, FREADLINE
-1d07 8b 02 01 09 46             ; XT=028b, flags=01
-1d0a 09 46 52 45 41 44 4c 49 4e 45 00
+1d09 15 1d                      ; Next=1d15, FREAD
+1d0b 8b 02 01 05 46             ; XT=028b, flags=01
+1d0e 05 46 52 45 41 44 00
 
-1d15 21 1d                      ; Next=1d21, FREAD
+1d15 21 1d                      ; Next=1d21, FOPEN
 1d17 7a 02 01 05 46             ; XT=027a, flags=01
-1d1a 05 46 52 45 41 44 00
+1d1a 05 46 4f 50 45 4e 00
 
-1d21 2d 1d                      ; Next=1d2d, FOPEN
-1d23 69 02 01 05 46             ; XT=0269, flags=01
-1d26 05 46 4f 50 45 4e 00
+1d21 2d 1d                      ; Next=1d2d, GETCH
+1d23 69 02 01 05 47             ; XT=0269, flags=01
+1d26 05 47 45 54 43 48 00
 
 1d2d 38 1d                      ; Next=1d38, EMIT
 1d2f 58 02 01 04 45             ; XT=0258, flags=01
