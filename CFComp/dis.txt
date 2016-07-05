@@ -1,4 +1,4 @@
-0000 08 95 07                   ; JMP 0795
+0000 08 f7 07                   ; JMP 07f7
 0003 00                         ; (data)
 0004 00                         ; (data)
 0005 00                         ; (data)
@@ -12,11 +12,9 @@
 000d 1f                         ; FWRITE
 000e 00                         ; (data)
 000f 00                         ; (data)
-0010 9f                         ; (data)
-0011 07                         ; ROT
-0012 00                         ; (data)
+0010 01 08 00                   ; PUSH 0008
 0013 00                         ; (data)
-0014 9c                         ; (data)
+0014 7a                         ; (data)
 0015 1a                         ; OVER
 0016 00                         ; (data)
 0017 00                         ; (data)
@@ -1099,78 +1097,139 @@
 073b ff                         ; BYE
 073c 0c                         ; RET
 
-073d 18 cb 1a                   ; DICTP 1acb - resetState
-0740 0e 00                      ; CPUSH 00
-0742 0b 5f 00                   ; CALL 005f - STATE
-0745 03                         ; STORE
-0746 0b 92 03                   ; CALL 0392 - DECIMAL
+073d 18 ca 1a                   ; DICTP 1aca - Define-Word
+0740 0e 5b                      ; CPUSH 5b
+0742 19                         ; EMIT
+0743 0b 0b 03                   ; CALL 030b - ZTYPE
+0746 0e 5d                      ; CPUSH 5d
+0748 19                         ; EMIT
 0749 0c                         ; RET
 
-074a 18 c2 1a                   ; DICTP 1ac2 - OK
-074d 0b 04 03                   ; CALL 0304 - BL
-0750 0e 4f                      ; CPUSH 4f
-0752 19                         ; EMIT
-0753 0e 4b                      ; CPUSH 4b
-0755 19                         ; EMIT
-0756 0b a3 05                   ; CALL 05a3 - .S
-0759 0b fa 02                   ; CALL 02fa - CRLF
-075c 0c                         ; RET
+074a 18 c2 1a                   ; DICTP 1ac2 - :
+074d 0b 83 00                   ; CALL 0083 - >IN
+0750 02                         ; FETCH
+0751 0b d7 03                   ; CALL 03d7 - skipWS
+0754 0b 83 00                   ; CALL 0083 - >IN
+0757 03                         ; STORE
+0758 0b 83 00                   ; CALL 0083 - >IN
+075b 02                         ; FETCH
+075c 0f                         ; CFETCH
+075d 09 88 07                   ; JMPZ 0788
+0760 0b 83 00                   ; CALL 0083 - >IN
+0763 02                         ; FETCH
+0764 0b f4 03                   ; CALL 03f4 - getOneWord
+0767 0b 83 00                   ; CALL 0083 - >IN
+076a 03                         ; STORE
+076b 06                         ; DUP
+076c 0f                         ; CFETCH
+076d 09 87 07                   ; JMPZ 0787
+0770 0b 3d 07                   ; CALL 073d - Define-Word
+0773 0e 18                      ; CPUSH 18
+0775 0b d4 00                   ; CALL 00d4 - C,
+0778 0b 97 00                   ; CALL 0097 - LAST
+077b 0b c3 00                   ; CALL 00c3 - ,
+077e 0e 01                      ; CPUSH 01
+0780 0b 5f 00                   ; CALL 005f - STATE
+0783 03                         ; STORE
+0784 08 88 07                   ; JMP 0788
+0787 05                         ; DROP
+0788 0c                         ; RET
 
-075d 18 b3 1a                   ; DICTP 1ab3 - mainLoop
-0760 0b 3d 07                   ; CALL 073d - resetState
-0763 0b 4a 07                   ; CALL 074a - OK
-0766 0b bb 06                   ; CALL 06bb - getLine
-0769 24                         ; ONEPLUS
-076a 0b 83 00                   ; CALL 0083 - >IN
-076d 03                         ; STORE
-076e 0b 7f 06                   ; CALL 067f - executeInput
-0771 08 63 07                   ; JMP 0763
-0774 0c                         ; RET
-
-0775 18 a7 1a                   ; DICTP 1aa7 - HELLO
-0778 0b 83 00                   ; CALL 0083 - >IN
-077b 02                         ; FETCH
-077c 09 82 07                   ; JMPZ 0782
-077f 08 94 07                   ; JMP 0794
-0782 0e 48                      ; CPUSH 48
-0784 19                         ; EMIT
-0785 0e 65                      ; CPUSH 65
-0787 19                         ; EMIT
-0788 0e 6c                      ; CPUSH 6c
-078a 19                         ; EMIT
-078b 0e 6c                      ; CPUSH 6c
-078d 19                         ; EMIT
-078e 0e 6f                      ; CPUSH 6f
-0790 19                         ; EMIT
-0791 0b fa 02                   ; CALL 02fa - CRLF
-0794 0c                         ; RET
-
-0795 18 9c 1a                   ; DICTP 1a9c - main
-0798 0b 75 07                   ; CALL 0775 - HELLO
-079b 0b 5d 07                   ; CALL 075d - mainLoop
+0789 18 ba 1a                   ; DICTP 1aba - ;
+078c 0e 0c                      ; CPUSH 0c
+078e 0b d4 00                   ; CALL 00d4 - C,
+0791 0b 5f 00                   ; CALL 005f - STATE
+0794 02                         ; FETCH
+0795 0b 60 05                   ; CALL 0560 - .
+0798 0e 00                      ; CPUSH 00
+079a 0b 5f 00                   ; CALL 005f - STATE
+079d 03                         ; STORE
 079e 0c                         ; RET
 
-1a9c ; The dictionary starts here ...
+079f 18 a9 1a                   ; DICTP 1aa9 - resetState
+07a2 0e 00                      ; CPUSH 00
+07a4 0b 5f 00                   ; CALL 005f - STATE
+07a7 03                         ; STORE
+07a8 0b 92 03                   ; CALL 0392 - DECIMAL
+07ab 0c                         ; RET
 
-1a9c a7 1a                      ; Next=1aa7, main
-1a9e 95 07 00 04 6d             ; XT=0795, flags=00
-1aa1 04 6d 61 69 6e 00
+07ac 18 a0 1a                   ; DICTP 1aa0 - OK
+07af 0b 04 03                   ; CALL 0304 - BL
+07b2 0e 4f                      ; CPUSH 4f
+07b4 19                         ; EMIT
+07b5 0e 4b                      ; CPUSH 4b
+07b7 19                         ; EMIT
+07b8 0b a3 05                   ; CALL 05a3 - .S
+07bb 0b fa 02                   ; CALL 02fa - CRLF
+07be 0c                         ; RET
 
-1aa7 b3 1a                      ; Next=1ab3, HELLO
-1aa9 75 07 00 05 48             ; XT=0775, flags=00
-1aac 05 48 45 4c 4c 4f 00
+07bf 18 91 1a                   ; DICTP 1a91 - mainLoop
+07c2 0b 9f 07                   ; CALL 079f - resetState
+07c5 0b ac 07                   ; CALL 07ac - OK
+07c8 0b bb 06                   ; CALL 06bb - getLine
+07cb 24                         ; ONEPLUS
+07cc 0b 83 00                   ; CALL 0083 - >IN
+07cf 03                         ; STORE
+07d0 0b 7f 06                   ; CALL 067f - executeInput
+07d3 08 c5 07                   ; JMP 07c5
+07d6 0c                         ; RET
 
-1ab3 c2 1a                      ; Next=1ac2, mainLoop
-1ab5 5d 07 00 08 6d             ; XT=075d, flags=00
-1ab8 08 6d 61 69 6e 4c 6f 6f 70 00
+07d7 18 85 1a                   ; DICTP 1a85 - HELLO
+07da 0b 83 00                   ; CALL 0083 - >IN
+07dd 02                         ; FETCH
+07de 09 e4 07                   ; JMPZ 07e4
+07e1 08 f6 07                   ; JMP 07f6
+07e4 0e 48                      ; CPUSH 48
+07e6 19                         ; EMIT
+07e7 0e 65                      ; CPUSH 65
+07e9 19                         ; EMIT
+07ea 0e 6c                      ; CPUSH 6c
+07ec 19                         ; EMIT
+07ed 0e 6c                      ; CPUSH 6c
+07ef 19                         ; EMIT
+07f0 0e 6f                      ; CPUSH 6f
+07f2 19                         ; EMIT
+07f3 0b fa 02                   ; CALL 02fa - CRLF
+07f6 0c                         ; RET
 
-1ac2 cb 1a                      ; Next=1acb, OK
-1ac4 4a 07 00 02 4f             ; XT=074a, flags=00
-1ac7 02 4f 4b 00
+07f7 18 7a 1a                   ; DICTP 1a7a - main
+07fa 0b d7 07                   ; CALL 07d7 - HELLO
+07fd 0b bf 07                   ; CALL 07bf - mainLoop
+0800 0c                         ; RET
 
-1acb dc 1a                      ; Next=1adc, resetState
-1acd 3d 07 00 0a 72             ; XT=073d, flags=00
-1ad0 0a 72 65 73 65 74 53 74 61 74 65 00
+1a7a ; The dictionary starts here ...
+
+1a7a 85 1a                      ; Next=1a85, main
+1a7c f7 07 00 04 6d             ; XT=07f7, flags=00
+1a7f 04 6d 61 69 6e 00
+
+1a85 91 1a                      ; Next=1a91, HELLO
+1a87 d7 07 00 05 48             ; XT=07d7, flags=00
+1a8a 05 48 45 4c 4c 4f 00
+
+1a91 a0 1a                      ; Next=1aa0, mainLoop
+1a93 bf 07 00 08 6d             ; XT=07bf, flags=00
+1a96 08 6d 61 69 6e 4c 6f 6f 70 00
+
+1aa0 a9 1a                      ; Next=1aa9, OK
+1aa2 ac 07 00 02 4f             ; XT=07ac, flags=00
+1aa5 02 4f 4b 00
+
+1aa9 ba 1a                      ; Next=1aba, resetState
+1aab 9f 07 00 0a 72             ; XT=079f, flags=00
+1aae 0a 72 65 73 65 74 53 74 61 74 65 00
+
+1aba c2 1a                      ; Next=1ac2, ;
+1abc 89 07 01 01 3b             ; XT=0789, flags=01
+1abf 01 3b 00
+
+1ac2 ca 1a                      ; Next=1aca, :
+1ac4 4a 07 01 01 3a             ; XT=074a, flags=01
+1ac7 01 3a 00
+
+1aca dc 1a                      ; Next=1adc, Define-Word
+1acc 3d 07 00 0b 44             ; XT=073d, flags=00
+1acf 0b 44 65 66 69 6e 65 2d 57 6f 72 64 00
 
 1adc e6 1a                      ; Next=1ae6, bbb
 1ade 38 07 00 03 62             ; XT=0738, flags=00

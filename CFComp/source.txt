@@ -379,6 +379,34 @@
 
 : bbb BYE ;
 
+: Define-Word \ ( addr -- )
+	91 EMIT ZTYPE 93 EMIT
+;
+
+: : \ ( -- )
+	>IN @ skipWS >IN ! 
+	>IN @ C@ 
+	IF
+		>IN @ getOneWord >IN ! 
+		DUP C@
+		IF
+			Define-Word
+			<asm> CPUSH DICTP </asm> C,
+			LAST ,
+			1 STATE !
+		ELSE
+			DROP
+		THEN
+		\ 91 EMIT ZTYPE 45 EMIT HERE (.) 93 EMIT \ DEBUG
+		\ ?COMPILING .
+	THEN
+;
+
+:! ; \ ( -- )
+	<asm> CPUSH RET </asm> C,
+	STATE @ . 0 STATE !
+;
+
 : resetState 0 STATE ! DECIMAL ;
 
 : OK BL 79 EMIT 75 EMIT .S CRLF ;
