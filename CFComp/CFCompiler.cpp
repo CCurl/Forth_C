@@ -179,6 +179,12 @@ OPCODE_T *CCFCompiler::FindOpcode(BYTE opcode)
 
 BOOL IsNumeric(char *w)
 {
+	// One leading minus sign is OK
+	if (*w == '-')
+	{
+		w++;
+	}
+
 	while (*w)
 	{
 		if ((*w < '0') || (*w > '9'))
@@ -423,7 +429,7 @@ void CCFCompiler::Parse(CString& line)
 		CELL num = 0;
 		if (MakeNumber(word, num))
 		{
-			if (num < 256)
+			if ((0 <= num) && (num <= 255))
 			{
 				if (STATE == 1)
 					CComma(CPUSH);

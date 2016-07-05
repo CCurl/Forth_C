@@ -1,4 +1,4 @@
-0000 08 99 07                   ; JMP 0799
+0000 08 95 07                   ; JMP 0795
 0003 00                         ; (data)
 0004 00                         ; (data)
 0005 00                         ; (data)
@@ -12,7 +12,7 @@
 000d 1f                         ; FWRITE
 000e 00                         ; (data)
 000f 00                         ; (data)
-0010 a3                         ; (data)
+0010 9f                         ; (data)
 0011 07                         ; ROT
 0012 00                         ; (data)
 0013 00                         ; (data)
@@ -1055,129 +1055,125 @@
 06de 06                         ; DUP
 06df 0e 08                      ; CPUSH 08
 06e1 16                         ; EQ
-06e2 09 12 07                   ; JMPZ 0712
+06e2 09 0e 07                   ; JMPZ 070e
 06e5 0b ab 06                   ; CALL 06ab - Pad
 06e8 0f                         ; CFETCH
 06e9 0e 00                      ; CPUSH 00
 06eb 17                         ; GT
-06ec 09 0e 07                   ; JMPZ 070e
-06ef 0e 00                      ; CPUSH 00
-06f1 0e 01                      ; CPUSH 01
-06f3 12                         ; SUB
-06f4 0b ab 06                   ; CALL 06ab - Pad
-06f7 0b 71 03                   ; CALL 0371 - C@+!
-06fa 0e 00                      ; CPUSH 00
-06fc 0e 01                      ; CPUSH 01
-06fe 12                         ; SUB
-06ff 0b b5 06                   ; CALL 06b5 - >In
-0702 0b 63 03                   ; CALL 0363 - @+!
-0705 06                         ; DUP
+06ec 09 0a 07                   ; JMPZ 070a
+06ef 01 ff ff                   ; PUSH ffffffff
+06f2 0b ab 06                   ; CALL 06ab - Pad
+06f5 0b 71 03                   ; CALL 0371 - C@+!
+06f8 01 ff ff                   ; PUSH ffffffff
+06fb 0b b5 06                   ; CALL 06b5 - >In
+06fe 0b 63 03                   ; CALL 0363 - @+!
+0701 06                         ; DUP
+0702 19                         ; EMIT
+0703 0b 04 03                   ; CALL 0304 - BL
 0706 19                         ; EMIT
-0707 0b 04 03                   ; CALL 0304 - BL
-070a 19                         ; EMIT
-070b 08 0f 07                   ; JMP 070f
-070e 05                         ; DROP
-070f 08 38 07                   ; JMP 0738
-0712 06                         ; DUP
-0713 0e 20                      ; CPUSH 20
-0715 0e 7f                      ; CPUSH 7f
-0717 0b 20 03                   ; CALL 0320 - BETWEEN
-071a 09 37 07                   ; JMPZ 0737
-071d 06                         ; DUP
-071e 19                         ; EMIT
-071f 0b b5 06                   ; CALL 06b5 - >In
-0722 02                         ; FETCH
-0723 10                         ; CSTORE
-0724 0e 01                      ; CPUSH 01
-0726 0b b5 06                   ; CALL 06b5 - >In
-0729 0b 63 03                   ; CALL 0363 - @+!
-072c 0e 01                      ; CPUSH 01
-072e 0b ab 06                   ; CALL 06ab - Pad
-0731 0b 71 03                   ; CALL 0371 - C@+!
-0734 08 38 07                   ; JMP 0738
-0737 05                         ; DROP
-0738 08 ca 06                   ; JMP 06ca
-073b 0c                         ; RET
+0707 08 0b 07                   ; JMP 070b
+070a 05                         ; DROP
+070b 08 34 07                   ; JMP 0734
+070e 06                         ; DUP
+070f 0e 20                      ; CPUSH 20
+0711 0e 7f                      ; CPUSH 7f
+0713 0b 20 03                   ; CALL 0320 - BETWEEN
+0716 09 33 07                   ; JMPZ 0733
+0719 06                         ; DUP
+071a 19                         ; EMIT
+071b 0b b5 06                   ; CALL 06b5 - >In
+071e 02                         ; FETCH
+071f 10                         ; CSTORE
+0720 0e 01                      ; CPUSH 01
+0722 0b b5 06                   ; CALL 06b5 - >In
+0725 0b 63 03                   ; CALL 0363 - @+!
+0728 0e 01                      ; CPUSH 01
+072a 0b ab 06                   ; CALL 06ab - Pad
+072d 0b 71 03                   ; CALL 0371 - C@+!
+0730 08 34 07                   ; JMP 0734
+0733 05                         ; DROP
+0734 08 ca 06                   ; JMP 06ca
+0737 0c                         ; RET
 
-073c 18 dc 1a                   ; DICTP 1adc - bbb
-073f ff                         ; BYE
-0740 0c                         ; RET
+0738 18 dc 1a                   ; DICTP 1adc - bbb
+073b ff                         ; BYE
+073c 0c                         ; RET
 
-0741 18 cb 1a                   ; DICTP 1acb - resetState
-0744 0e 00                      ; CPUSH 00
-0746 0b 5f 00                   ; CALL 005f - STATE
-0749 03                         ; STORE
-074a 0b 92 03                   ; CALL 0392 - DECIMAL
-074d 0c                         ; RET
+073d 18 cb 1a                   ; DICTP 1acb - resetState
+0740 0e 00                      ; CPUSH 00
+0742 0b 5f 00                   ; CALL 005f - STATE
+0745 03                         ; STORE
+0746 0b 92 03                   ; CALL 0392 - DECIMAL
+0749 0c                         ; RET
 
-074e 18 c2 1a                   ; DICTP 1ac2 - OK
-0751 0b 04 03                   ; CALL 0304 - BL
-0754 0e 4f                      ; CPUSH 4f
-0756 19                         ; EMIT
-0757 0e 4b                      ; CPUSH 4b
-0759 19                         ; EMIT
-075a 0b a3 05                   ; CALL 05a3 - .S
-075d 0b fa 02                   ; CALL 02fa - CRLF
-0760 0c                         ; RET
+074a 18 c2 1a                   ; DICTP 1ac2 - OK
+074d 0b 04 03                   ; CALL 0304 - BL
+0750 0e 4f                      ; CPUSH 4f
+0752 19                         ; EMIT
+0753 0e 4b                      ; CPUSH 4b
+0755 19                         ; EMIT
+0756 0b a3 05                   ; CALL 05a3 - .S
+0759 0b fa 02                   ; CALL 02fa - CRLF
+075c 0c                         ; RET
 
-0761 18 b3 1a                   ; DICTP 1ab3 - mainLoop
-0764 0b 41 07                   ; CALL 0741 - resetState
-0767 0b 4e 07                   ; CALL 074e - OK
-076a 0b bb 06                   ; CALL 06bb - getLine
-076d 24                         ; ONEPLUS
-076e 0b 83 00                   ; CALL 0083 - >IN
-0771 03                         ; STORE
-0772 0b 7f 06                   ; CALL 067f - executeInput
-0775 08 67 07                   ; JMP 0767
-0778 0c                         ; RET
+075d 18 b3 1a                   ; DICTP 1ab3 - mainLoop
+0760 0b 3d 07                   ; CALL 073d - resetState
+0763 0b 4a 07                   ; CALL 074a - OK
+0766 0b bb 06                   ; CALL 06bb - getLine
+0769 24                         ; ONEPLUS
+076a 0b 83 00                   ; CALL 0083 - >IN
+076d 03                         ; STORE
+076e 0b 7f 06                   ; CALL 067f - executeInput
+0771 08 63 07                   ; JMP 0763
+0774 0c                         ; RET
 
-0779 18 a7 1a                   ; DICTP 1aa7 - HELLO
-077c 0b 83 00                   ; CALL 0083 - >IN
-077f 02                         ; FETCH
-0780 09 86 07                   ; JMPZ 0786
-0783 08 98 07                   ; JMP 0798
-0786 0e 48                      ; CPUSH 48
-0788 19                         ; EMIT
-0789 0e 65                      ; CPUSH 65
-078b 19                         ; EMIT
-078c 0e 6c                      ; CPUSH 6c
-078e 19                         ; EMIT
-078f 0e 6c                      ; CPUSH 6c
-0791 19                         ; EMIT
-0792 0e 6f                      ; CPUSH 6f
-0794 19                         ; EMIT
-0795 0b fa 02                   ; CALL 02fa - CRLF
-0798 0c                         ; RET
+0775 18 a7 1a                   ; DICTP 1aa7 - HELLO
+0778 0b 83 00                   ; CALL 0083 - >IN
+077b 02                         ; FETCH
+077c 09 82 07                   ; JMPZ 0782
+077f 08 94 07                   ; JMP 0794
+0782 0e 48                      ; CPUSH 48
+0784 19                         ; EMIT
+0785 0e 65                      ; CPUSH 65
+0787 19                         ; EMIT
+0788 0e 6c                      ; CPUSH 6c
+078a 19                         ; EMIT
+078b 0e 6c                      ; CPUSH 6c
+078d 19                         ; EMIT
+078e 0e 6f                      ; CPUSH 6f
+0790 19                         ; EMIT
+0791 0b fa 02                   ; CALL 02fa - CRLF
+0794 0c                         ; RET
 
-0799 18 9c 1a                   ; DICTP 1a9c - main
-079c 0b 79 07                   ; CALL 0779 - HELLO
-079f 0b 61 07                   ; CALL 0761 - mainLoop
-07a2 0c                         ; RET
+0795 18 9c 1a                   ; DICTP 1a9c - main
+0798 0b 75 07                   ; CALL 0775 - HELLO
+079b 0b 5d 07                   ; CALL 075d - mainLoop
+079e 0c                         ; RET
 
 1a9c ; The dictionary starts here ...
 
 1a9c a7 1a                      ; Next=1aa7, main
-1a9e 99 07 00 04 6d             ; XT=0799, flags=00
+1a9e 95 07 00 04 6d             ; XT=0795, flags=00
 1aa1 04 6d 61 69 6e 00
 
 1aa7 b3 1a                      ; Next=1ab3, HELLO
-1aa9 79 07 00 05 48             ; XT=0779, flags=00
+1aa9 75 07 00 05 48             ; XT=0775, flags=00
 1aac 05 48 45 4c 4c 4f 00
 
 1ab3 c2 1a                      ; Next=1ac2, mainLoop
-1ab5 61 07 00 08 6d             ; XT=0761, flags=00
+1ab5 5d 07 00 08 6d             ; XT=075d, flags=00
 1ab8 08 6d 61 69 6e 4c 6f 6f 70 00
 
 1ac2 cb 1a                      ; Next=1acb, OK
-1ac4 4e 07 00 02 4f             ; XT=074e, flags=00
+1ac4 4a 07 00 02 4f             ; XT=074a, flags=00
 1ac7 02 4f 4b 00
 
 1acb dc 1a                      ; Next=1adc, resetState
-1acd 41 07 00 0a 72             ; XT=0741, flags=00
+1acd 3d 07 00 0a 72             ; XT=073d, flags=00
 1ad0 0a 72 65 73 65 74 53 74 61 74 65 00
 
 1adc e6 1a                      ; Next=1ae6, bbb
-1ade 3c 07 00 03 62             ; XT=073c, flags=00
+1ade 38 07 00 03 62             ; XT=0738, flags=00
 1ae1 03 62 62 62 00
 
 1ae6 f4 1a                      ; Next=1af4, getLine

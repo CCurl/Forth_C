@@ -354,9 +354,9 @@
 			Pad C@ 0 >
 			IF 
 				\ 65 EMIT DEPTH .
-				0 1 - Pad C@+!
+				-1 Pad C@+!
 				\ 69 EMIT DEPTH .
-				0 1 - >In @+!
+				-1 >In @+!
 				\ 66 EMIT DEPTH .
 				DUP EMIT BL EMIT
 				\ 67 EMIT DEPTH .
