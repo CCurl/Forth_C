@@ -24,12 +24,14 @@
 : HERE (HERE) @ ;
 : LAST (LAST) @ ;
 
-: ?COMPILING STATE @ ;
-: [ 0 STATE ! ;
-: ] 1 STATE ! ;
+: CELLS CELL * ; \ ( num1 -- num2 )
 
-: ,  (HERE) TUCK @ TUCK  ! 4 + SWAP ! ;
-: C, (HERE) TUCK @ TUCK C! 1+  SWAP ! ;
+: ?COMPILING STATE @ ;
+:! [ 0 STATE ! ;
+:! ] 1 STATE ! ;
+
+: ,  (HERE) TUCK @ TUCK  ! CELL + SWAP ! ;
+: C, (HERE) TUCK @ TUCK C! 1+     SWAP ! ;
 
 :! !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ;
 :! C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ;
@@ -59,7 +61,8 @@
 :! BREAK ?COMPILING IF <asm> CPUSH BREAK </asm> C, <asm> RET </asm> THEN BREAK ;
 :! BYE   ?COMPILING IF <asm> CPUSH BYE   </asm> C, <asm> RET </asm> THEN BYE ;
 
-:! EMIT ?COMPILING IF <asm> CPUSH EMIT </asm> C, <asm> RET </asm> THEN EMIT ;
+:! EMIT  ?COMPILING IF <asm> CPUSH EMIT  </asm> C, <asm> RET </asm> THEN EMIT ;
+:! GETCH ?COMPILING IF <asm> CPUSH GETCH </asm> C, <asm> RET </asm> THEN GETCH ;
 
 :! FOPEN ?COMPILING IF <asm> CPUSH FOPEN </asm> C, <asm> RET </asm> THEN FOPEN ;
 :! FREAD ?COMPILING IF <asm> CPUSH FREAD </asm> C, <asm> RET </asm> THEN FREAD ;
@@ -90,12 +93,12 @@
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
 
-: bye 66 EMIT 89 EMIT 69 EMIT 46 EMIT BYE ;
-
 : ?DUP DUP IF DUP THEN ;
 
-: HEX 16 BASE ! ;
+: HEX     16 BASE ! ;
 : DECIMAL 10 BASE ! ;
+: OCTAL    8 BASE ! ;
+: BINARY   2 BASE ! ;
 
 \ NB: This algorithm is designed for ZERO delimited strings. But
 \ since the counted strings in this implementation are also ZERO 
@@ -152,9 +155,9 @@
 	BEGIN
 		R@ DUP
 		IF
-			CELL 2 * 2 + + OVER strcmp
+			2 CELLS 2 + + OVER strcmp
 			IF
-				DROP R@ CELL + @ R> CELL 2 * + C@ 1
+				DROP R@ CELL + @ R> 2 CELLS + C@ 1
 				LEAVE
 			THEN
 		ELSE
@@ -164,31 +167,22 @@
 	AGAIN
 ;
 
-: isHexDigit? \ ( ch -- bool )
-	BASE @ 16 = 
-	IF
-			DUP 65 < IF DROP 0 LEAVE THEN
-			DUP 70 > IF DROP 0 LEAVE THEN
-			DROP 1
-	ELSE
-		DROP 0
-	THEN
+: BETWEEN \ ( num min max -- bool )
+	2 PICK 
+	< IF DROP DROP 0 LEAVE THEN
+	< 0 =
 ;
 
+: isHEX? BASE @ 16 = ;
+
 : isNumChar? \ ( ch -- val bool )
-	DUP 48 < IF 0 LEAVE THEN
-	DUP 57 > 
-	IF 
-		DUP isHexDigit?
-		IF 
-			55
-		ELSE 
-			DROP 0 LEAVE
-		THEN
-	ELSE
-		48
+	DUP 48 57 BETWEEN IF 48 - 1 LEAVE THEN
+	isHEX? 
+	IF
+		DUP 65  70 BETWEEN IF 55 - 1 LEAVE THEN
+		DUP 97 102 BETWEEN IF 87 - 1 LEAVE THEN
 	THEN
-	- 1
+	0
 ;
 
 : NEGATE 0 SWAP - ; \ ( num1 -- num2 )
@@ -216,16 +210,6 @@
 			DROP R> 0 LEAVE
 		THEN
 	AGAIN
-;
-
-: isBYE? \ ( addr -- bool )
-	PAD 5 -
-	\ (addr) is a string that is not counted.
-	96  2 + OVER C! 1+	\ b
-	96 25 + OVER C! 1+	\ y
-	96  5 + OVER C! 1+	\ e
-	 0 SWAP C!
-	PAD 5 - strcmp
 ;
 
 : /MOD \ ( num1 num2 -- num3 mod )
@@ -259,7 +243,9 @@
 
 : . BL (.) ;
 
-: HEX. BASE @ SWAP HEX (.) BASE ! ;
+: HEX.     BASE @ SWAP HEX     (.) BASE ! ;
+: DECIMAL. BASE @ SWAP DECIMAL (.) BASE ! ;
+: BINARY.  BASE @ SWAP BINARY  (.) BASE ! ;
 
 : .S 
 	DEPTH ?DUP
@@ -275,7 +261,7 @@
 			THEN
 		AGAIN
 	ELSE
-		BL 41 237 40 EMIT EMIT EMIT
+		BL 40 EMIT 237 EMIT 41 EMIT
 	THEN
 ;
 
@@ -284,10 +270,10 @@
 	BEGIN
 		DUP @ 0 =
 		IF
-			DROP LEAVE
+			DROP CRLF LEAVE
 		THEN
 		\ DUP 40 EMIT HEX. 41 EMIT BL \ DEBUG
-		DUP CELL 2 * 1+ + 
+		DUP 2 CELLS 1+ + 
 		COUNT TYPE BL
 		@
 	AGAIN
@@ -297,8 +283,6 @@
 
 : executeWord  \ ( addr -- )
 	\ 91 EMIT DUP ZTYPE 93 EMIT \ DEBUG
-	DUP isBYE? IF DROP bye THEN
-
 	>R R@ findInDict \ ( addr -- XT IMM found )
 	IF
 		R> DROP
@@ -357,5 +341,10 @@
 
 : mainLoop resetState BEGIN OK getInput 1+ >IN ! executeInput AGAIN ;
 
-: HELLO >IN @ 0 = IF 72 EMIT 73 EMIT THEN ;
+: HELLO >IN @
+	IF 
+		\ BL 82 EMIT 101 EMIT 115 EMIT 101 EMIT 116 EMIT CRLF 
+	ELSE
+		72 EMIT 101 EMIT 108 EMIT 108 EMIT 111 EMIT CRLF 
+	THEN ;
 : main HELLO mainLoop ;

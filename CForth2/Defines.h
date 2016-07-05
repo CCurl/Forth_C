@@ -39,6 +39,7 @@
 #define ONEPLUS   36
 #define PICK      37
 #define DEPTH     38
+#define GETCH     39
 #define BREAK    253
 #define RESET    254
 #define BYE      255

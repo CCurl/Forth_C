@@ -4,8 +4,12 @@
 #include "stdafx.h"
 #include <string.h>
 #include <malloc.h>
-#include "Defines.h"
 #include <stdio.h>
+#include <conio.h>
+#include <ctype.h>
+
+#include "Defines.h"
+
 
 // ------------------------------------------------------------------------------------------
 // The VM
@@ -286,6 +290,11 @@ int run()
 			arg1 = pop();
 			if (arg1 != 0)
 				fclose((FILE *)arg1);
+			break;
+
+		case GETCH:
+			arg1 = _getch();
+			push(arg1);
 			break;
 
 		case DTOR:

@@ -40,6 +40,7 @@ OPCODE_T opcodes[] = {
 	, { _T("ONEPLUS"), ONEPLUS, _T("1+") }
 	, { _T("PICK"), PICK, _T("PICK") }
 	, { _T("DEPTH"), DEPTH, _T("DEPTH") }
+	, { _T("GETCH"), GETCH, _T("GETCH") }
 	, { _T("BREAK"), BREAK, _T("BREAK") }
 	, { _T("BYE"), BYE, _T("BYE") }
 	, { _T(""), 0, _T("") }
