@@ -7,7 +7,6 @@
 
 .ORG 64
 
-: CELL  7  C@ ;
 : SP        8 ;
 : RSP      12 ;
 : (HERE)   16 ;
@@ -24,6 +23,7 @@
 : HERE (HERE) @ ;
 : LAST (LAST) @ ;
 
+: CELL      2 ; \ : CELL 7 C@ ;
 : CELLS CELL * ; \ ( num1 -- num2 )
 
 : ?COMPILING STATE @ ;
@@ -72,6 +72,17 @@
 
 :! 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ;
 
+:! IF   ?COMPILING IF <asm> CPUSH JMPZ </asm> C, HERE 0 , THEN ;
+:! ELSE ?COMPILING IF <asm> CPUSH JMP  </asm> C, HERE SWAP 0 , HERE SWAP ! THEN ;
+:! THEN ?COMPILING IF HERE SWAP ! THEN ;
+
+:! BEGIN ?COMPILING IF HERE THEN ;
+:! AGAIN ?COMPILING IF <asm> CPUSH JMP   </asm> C, , THEN ;
+:! WHILE ?COMPILING IF <asm> CPUSH JMPNZ </asm> C, , THEN ;
+:! UNTIL ?COMPILING IF <asm> CPUSH JMPZ  </asm> C, , THEN ;
+
+:! LEAVE ?COMPILING IF <asm> CPUSH RET </asm> C, THEN ;
+
 : <> = 0 = ; 
 : <= > 0 = ; 
 : >= < 0 = ;
@@ -99,8 +110,8 @@
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
 
-: @+!  TUCK @  + SWAP ! ;  ( num addr -- )
-: C@+! TUCK C@ + SWAP C! ; ( num addr -- )
+: @+!  TUCK @  + SWAP ! ;  \ ( num addr -- )
+: C@+! TUCK C@ + SWAP C! ; \ ( num addr -- )
 
 : ?DUP DUP IF DUP THEN ;
 
@@ -269,7 +280,7 @@
 ;
 
 : WORDS \ ( -- )
-	LAST
+	BL LAST
 	BEGIN
 		DUP @ 0 =
 		IF
@@ -285,7 +296,6 @@
 : EXECUTE R> DROP >R ; \ ( addr -- )
 
 : executeWord  \ ( addr -- )
-	\ 91 EMIT DUP ZTYPE 93 EMIT \ DEBUG
 	>R R@ findInDict \ ( addr -- XT IMM found )
 	IF
 		R> DROP
@@ -294,7 +304,7 @@
 			IF \ Immediate?
 				EXECUTE
 			ELSE
-				<asm> PUSH CALL </asm> C, ,
+				<asm> CPUSH CALL </asm> C, ,
 			THEN
 		ELSE
 			DROP EXECUTE
@@ -305,11 +315,11 @@
 		IF
 			?COMPILING
 			IF
-				DUP 256 <
+				DUP 0 255 BETWEEN
 				IF
-					<asm> CPUSH </asm> C, C,
+					<asm> CPUSH CPUSH </asm> C, C,
 				ELSE
-					<asm> PUSH </asm> C, ,
+					<asm> CPUSH PUSH </asm> C, ,
 				THEN
 			\ ELSE
 				\ 65 + EMIT \ DEBUG
@@ -339,8 +349,9 @@
 ;
 
 
-: Pad LAST 100 - ;
-: >In 56 ;
+: Pad LAST 200 - ;
+: >In Pad CELL - ;
+
 : getLine \ ( -- addr )
 	0 Pad DUP 1+ >In ! C!
 	BEGIN
@@ -353,13 +364,9 @@
 			\ .S
 			Pad C@ 0 >
 			IF 
-				\ 65 EMIT DEPTH .
 				-1 Pad C@+!
-				\ 69 EMIT DEPTH .
 				-1 >In @+!
-				\ 66 EMIT DEPTH .
 				DUP EMIT BL EMIT
-				\ 67 EMIT DEPTH .
 			ELSE
 				DROP
 			THEN
@@ -379,9 +386,49 @@
 
 : bbb BYE ;
 
-: Define-Word \ ( addr -- )
-	91 EMIT ZTYPE 93 EMIT
+: strlen \ ( addr -- num )
+	0 >R
+	BEGIN
+		DUP C@
+		IF
+			R> 1+ >R 1+
+		ELSE
+			DROP R> LEAVE
+		THEN
+	AGAIN
 ;
+
+: strcpy2c \ ( from to -- ) from is NOT counted, to is to get count byte
+	\ 65 EMIT OVER . DUP . \ DEBUG
+	DUP >R					\ from to
+	0 OVER C!				\ from to (init count)
+	1+ SWAP					\ to+1 from
+	BEGIN
+		DUP C@ DUP			\ to from ch ch
+		IF					\ to from ch
+			2 PICK C!		\ to from
+			SWAP 1+ SWAP 1+
+			1 R@ C@+!
+		ELSE				\ to from ch
+			ROT C! DROP
+			R> DROP
+			LEAVE
+		THEN
+	AGAIN
+;
+
+: Define-Word \ ( addr -- )
+	\ 91 EMIT DUP ZTYPE 45 EMIT LAST (.) 45 EMIT HERE (.) 93 EMIT \ DEBUG
+	LAST OVER strlen 2 CELLS 3 + + - 
+	DUP >R >R					\ Save new LAST
+	LAST R@  !  R> CELL + >R	\ NEXT
+	HERE R@  !  R> CELL + >R	\ XT
+	0    R@ C!  R> 1+ >R		\ IMM
+	R> strcpy2c					\ LEN + NAME
+	R> (LAST) !
+;
+
+: IMMEDIATE 1 LAST 2 CELLS + C! ;
 
 : : \ ( -- )
 	>IN @ skipWS >IN ! 
@@ -397,25 +444,36 @@
 		ELSE
 			DROP
 		THEN
-		\ 91 EMIT ZTYPE 45 EMIT HERE (.) 93 EMIT \ DEBUG
-		\ ?COMPILING .
 	THEN
 ;
 
 :! ; \ ( -- )
-	<asm> CPUSH RET </asm> C,
-	STATE @ . 0 STATE !
+	?COMPILING 
+	IF
+		<asm> CPUSH RET </asm> C,
+		0 STATE !
+	ELSE
+		RESET
+	THEN
 ;
 
-: resetState 0 STATE ! DECIMAL ;
+: .FL. \ Forgets the last word
+	LAST CELL + @ (HERE) ! 
+	LAST @ (LAST) ! 
+;
 
-: OK BL 79 EMIT 75 EMIT .S CRLF ;
+: resetState ?COMPILING 
+	IF .FL. THEN 
+	0 STATE ! DECIMAL 
+;
+
+: OK ?COMPILING 0 = IF BL 79 EMIT 75 EMIT .S THEN CRLF ;
 
 : mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput AGAIN ;
 
 : HELLO >IN @
 	IF 
-		\ BL 82 EMIT 101 EMIT 115 EMIT 101 EMIT 116 EMIT CRLF 
+		BL 82 EMIT 101 EMIT 115 EMIT 101 EMIT 116 EMIT CRLF 
 	ELSE
 		72 EMIT 101 EMIT 108 EMIT 108 EMIT 111 EMIT CRLF 
 	THEN ;

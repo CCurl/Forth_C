@@ -233,7 +233,7 @@ void CCFCompiler::SetAt(CELL loc, CELL num)
 
 void CCFCompiler::Comma(CELL num)
 {
-	if ((HERE < LAST) && (HERE < (MEM_SZ - CELL_SZ)))
+	if ((0 <= HERE) && (HERE < LAST))
 	{
 		SetAt(HERE, num);
 		HERE += CELL_SZ;
@@ -626,7 +626,7 @@ CELL CCFCompiler::DisDict(CELL PC, FILE *fp)
 
 	PC += CELL_SZ;
 	line.Format(_T("%0*x"), CELL_WD, PC);
-	DisRange(line, PC, 5);
+	DisRange(line, PC, CELL_SZ+1);
 	desc.Format(_T("XT=%0*x, flags=%02x"), CELL_WD, dp->XT, dp->flags);
 	DisOut(fp, line, desc, 32);
 
