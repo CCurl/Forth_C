@@ -66,13 +66,13 @@ int run()
 		IR = the_mem[PC++];
 		switch (IR)
 		{
-		case PUSH:
+		case LITERAL:
 			arg1 = GETAT(PC);
 			PC += CELL_SZ;
 			push(arg1);
 			break;
 
-		case CPUSH:
+		case CLITERAL:
 			arg1 = the_mem[PC++];
 			push(arg1);
 			break;
@@ -105,25 +105,14 @@ int run()
 			push(arg1);
 			break;
 
-		case ROT:
-			arg1 = pop();
-			arg2 = pop();
-			arg3 = pop();
-			push(arg2);
-			push(arg1);
-			push(arg3);
-			break;
-
 		case OVER:
 			arg1 = GET2ND();
 			push(arg1);
 			break;
 
-		case TUCK:
-			arg2 = pop();
+		case PICK:
 			arg1 = pop();
-			push(arg2);
-			push(arg1);
+			arg2 = *(DSP-arg1);
 			push(arg2);
 			break;
 
@@ -316,18 +305,36 @@ int run()
 			SETTOS(arg1+1);
 			break;
 
-		case PICK:
-			arg1 = pop();
-			arg2 = *(DSP-arg1);
-			push(arg2);
-			break;
-
 		case DEPTH:
 		{
 			CELL *dsp_base = (CELL *)&the_mem[DSP_INIT];
 			arg1 = DSP - dsp_base;
 			push(arg1);
 		}
+			break;
+
+		case LSHIFT:
+			arg1 = pop();
+			arg2 = pop();
+			push(arg2 << arg1);
+			break;
+
+		case RSHIFT:
+			arg1 = pop();
+			arg2 = pop();
+			push(arg2 >> arg1);
+			break;
+
+		case AND:
+			arg1 = pop();
+			arg2 = pop();
+			push(arg2 & arg1);
+			break;
+
+		case OR:
+			arg1 = pop();
+			arg2 = pop();
+			push(arg2 | arg1);
 			break;
 
 		case BREAK:

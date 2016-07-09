@@ -22,6 +22,7 @@ public:
 	void GetWord(CString& line, CString& word);
 	void DefineWord(CString& word, BYTE flags);
 	void Parse(CString& line);
+	bool ExecuteOpcode(BYTE opcode);
 	BYTE FindAsm(CString& word);
 	BYTE FindForthPrim(CString& word);
 	CELL FindWord(CString& word);

@@ -7,18 +7,8 @@
 
 .ORG 64
 
-: SP        8 ;
-: RSP      12 ;
 : (HERE)   16 ;
 : (LAST)   20 ;
-: STATE    24 ;
-: BASE     28 ;
-: (STACK)  32 ;
-: (RSTACK) 36 ;
-: STDIN    40 ;
-: INPUT-FP 44 ;
-: >IN      48 ;
-: isNeg    52 ;
 
 : HERE (HERE) @ ;
 : LAST (LAST) @ ;
@@ -26,9 +16,18 @@
 : CELL      2 ; \ : CELL 7 C@ ;
 : CELLS CELL * ; \ ( num1 -- num2 )
 
+: >IN   <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+: STATE <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+: BASE  <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+: STDIN <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+: INPUT-FP <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+: isNeg <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+
 : ?COMPILING STATE @ ;
 :! [ 0 STATE ! ;
 :! ] 1 STATE ! ;
+
+: TUCK SWAP OVER ;
 
 : ,  (HERE) TUCK @ TUCK  ! CELL + SWAP ! ;
 : C, (HERE) TUCK @ TUCK C! 1+     SWAP ! ;
@@ -44,6 +43,16 @@
 :! * ?COMPILING IF <asm> CPUSH MUL </asm> C, <asm> RET </asm> THEN * ;
 :! / ?COMPILING IF <asm> CPUSH DIV </asm> C, <asm> RET </asm> THEN / ;
 
+:! << ?COMPILING IF <asm> CPUSH LSHIFT </asm> C, <asm> RET </asm> THEN << ;
+:! >> ?COMPILING IF <asm> CPUSH RSHIFT </asm> C, <asm> RET </asm> THEN >> ;
+
+:! AND ?COMPILING IF <asm> CPUSH AND </asm> C, <asm> RET </asm> THEN AND ;
+:! OR  ?COMPILING IF <asm> CPUSH OR  </asm> C, <asm> RET </asm> THEN OR ;
+
+:! >R ?COMPILING IF <asm> CPUSH DTOR   </asm> C, <asm> RET </asm> THEN >R ;
+:! R@ ?COMPILING IF <asm> CPUSH RFETCH </asm> C, <asm> RET </asm> THEN R@ ;
+:! R> ?COMPILING IF <asm> CPUSH RTOD   </asm> C, <asm> RET </asm> THEN R> ;
+
 :! < ?COMPILING IF <asm> CPUSH LT </asm> C, <asm> RET </asm> THEN < ;
 :! = ?COMPILING IF <asm> CPUSH EQ </asm> C, <asm> RET </asm> THEN = ;
 :! > ?COMPILING IF <asm> CPUSH GT </asm> C, <asm> RET </asm> THEN > ;
@@ -51,10 +60,11 @@
 :! DUP  ?COMPILING IF <asm> CPUSH DUP  </asm> C, <asm> RET </asm> THEN DUP ;
 :! SWAP ?COMPILING IF <asm> CPUSH SWAP </asm> C, <asm> RET </asm> THEN SWAP ;
 :! DROP ?COMPILING IF <asm> CPUSH DROP </asm> C, <asm> RET </asm> THEN DROP ;
-:! ROT  ?COMPILING IF <asm> CPUSH ROT  </asm> C, <asm> RET </asm> THEN ROT ;
 :! OVER ?COMPILING IF <asm> CPUSH OVER </asm> C, <asm> RET </asm> THEN OVER ;
-:! TUCK ?COMPILING IF <asm> CPUSH TUCK </asm> C, <asm> RET </asm> THEN TUCK ;
 :! PICK ?COMPILING IF <asm> CPUSH PICK </asm> C, <asm> RET </asm> THEN PICK ;
+
+:  ROT >R SWAP R> SWAP ;
+: -ROT SWAP >R SWAP R> ;
 
 :! DEPTH ?COMPILING IF <asm> CPUSH DEPTH </asm> C, <asm> RET </asm> THEN DEPTH ;
 :! RESET ?COMPILING IF <asm> CPUSH RESET </asm> C, <asm> RET </asm> THEN RESET ;
@@ -67,7 +77,7 @@
 :! FOPEN ?COMPILING IF <asm> CPUSH FOPEN </asm> C, <asm> RET </asm> THEN FOPEN ;
 :! FREAD ?COMPILING IF <asm> CPUSH FREAD </asm> C, <asm> RET </asm> THEN FREAD ;
 :! FREADLINE ?COMPILING IF <asm> CPUSH FREADLINE </asm> C, <asm> RET </asm> THEN FREADLINE ;
-:! FRWITE ?COMPILING IF <asm> CPUSH FRWITE </asm> C, <asm> RET </asm> THEN FRWITE ;
+:! FWRITE ?COMPILING IF <asm> CPUSH FWRITE </asm> C, <asm> RET </asm> THEN FWRITE ;
 :! FCLOSE ?COMPILING IF <asm> CPUSH FCLOSE </asm> C, <asm> RET </asm> THEN FCLOSE ;
 
 :! 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ;
@@ -104,7 +114,7 @@
 	< 0 =
 ;
 
-: TYPE DROP ZTYPE ; ( addr num -- )
+: TYPE DROP ZTYPE ; \ ( addr num -- )
 : COUNT DUP 1+ SWAP C@ ; \ ( addr1 --  addr2 num )
 
 : PAD LAST 200 - ;
@@ -261,11 +271,17 @@
 : DECIMAL. BASE @ SWAP DECIMAL (.) BASE ! ;
 : BINARY.  BASE @ SWAP BINARY  (.) BASE ! ;
 
+: MIN OVER OVER > IF SWAP THEN DROP ; 
+: MAX OVER OVER < IF SWAP THEN DROP ; 
+
 : .S 
 	DEPTH ?DUP
 	IF
+		\ See if it is out of whack
+		DUP 64 MIN 0 MAX = 0 = IF RESET THEN
+
 		BL 40 EMIT
-		1 - >R
+		DEPTH 1 - >R
 		BEGIN 
 			R@ PICK . R@ 
 			IF
@@ -348,9 +364,9 @@
 	AGAIN
 ;
 
-
 : Pad LAST 200 - ;
-: >In Pad CELL - ;
+: >In <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+\ : >In Pad CELL - ;
 
 : getLine \ ( -- addr )
 	0 Pad DUP 1+ >In ! C!

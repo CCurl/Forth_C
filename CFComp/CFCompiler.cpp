@@ -3,16 +3,14 @@
 
 OPCODE_T opcodes[] = {
 	{ _T("RESET"), RESET, _T("RESET") }
-	, { _T("PUSH"), PUSH, _T("") }
-	, { _T("CPUSH"), CPUSH, _T("") }
+	, { _T("PUSH"), LITERAL, _T("") }
+	, { _T("CPUSH"), CLITERAL, _T("") }
 	, { _T("FETCH"), FETCH, _T("@") }
 	, { _T("STORE"), STORE, _T("!") }
 	, { _T("SWAP"), SWAP, _T("SWAP") }
 	, { _T("DROP"), DROP, _T("DROP") }
 	, { _T("DUP"), DUP, _T("DUP") }
-	, { _T("ROT"), ROT, _T("ROT") }
 	, { _T("OVER"), OVER, _T("OVER") }
-	, { _T("TUCK"), TUCK, _T("TUCK") }
 	, { _T("JMP"), JMP, _T("JMP") }
 	, { _T("JMPZ"), JMPZ, _T("JMPZ") }
 	, { _T("JMPNZ"), JMPNZ, _T("JMPNZ") }
@@ -40,6 +38,10 @@ OPCODE_T opcodes[] = {
 	, { _T("ONEPLUS"), ONEPLUS, _T("1+") }
 	, { _T("PICK"), PICK, _T("PICK") }
 	, { _T("DEPTH"), DEPTH, _T("DEPTH") }
+	, { _T("LSHIFT"), LSHIFT, _T("<<") }
+	, { _T("RSHIFT"), RSHIFT, _T(">>") }
+	, { _T("AND"), AND, _T("AND") }
+	, { _T("OR"), OR, _T("OR") }
 	, { _T("GETCH"), GETCH, _T("GETCH") }
 	, { _T("BREAK"), BREAK, _T("BREAK") }
 	, { _T("BYE"), BYE, _T("BYE") }
@@ -123,6 +125,21 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	//	fp_out = NULL;
 	//}
 
+}
+
+bool CCFCompiler::ExecuteOpcode(BYTE opcode)
+{
+	CELL arg1, arg2, arg3;
+	switch (opcode)
+	{
+	case ADD:
+		arg2 = Pop();
+		arg1 = Pop();
+		arg3 = arg1+arg2;
+		Push(arg3);
+		return true;
+	}
+	return false;
 }
 
 BYTE CCFCompiler::FindAsm(CString& word)
@@ -305,6 +322,12 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
+		if ((STATE < 0) || (STATE > 2))
+		{
+			printf("STATE (%d) is messed up!\n", STATE);
+			STATE = 0;
+		}
+
 		if (word == _T(":"))
 		{
 			STATE = 1;
@@ -329,6 +352,37 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
+		if (word == _T(".HERE"))
+		{
+			Push(HERE);
+			if (STATE == 1)
+			{
+				CComma(LITERAL);
+				Comma(Pop());
+			}
+			continue;
+		}
+
+		if (word == _T(".LITERAL"))
+		{
+			CComma(LITERAL);
+			Comma(Pop());
+			continue;
+		}
+
+		if (word == _T(".CLITERAL"))
+		{
+			CComma(CLITERAL);
+			CComma((BYTE)Pop());
+			continue;
+		}
+
+		if (word == _T(".COMMA"))
+		{
+			Comma(Pop());
+			continue;
+		}
+
 		if (word == _T(":!"))
 		{
 			STATE = 1;
@@ -346,105 +400,145 @@ void CCFCompiler::Parse(CString& line)
 			CComma(RET);
 			continue;
 		}
-
-		if (word == "IF")
+		
+		// These words are only for : definitions
+		if (STATE == 1)
 		{
-			CComma(JMPZ);
-			Push(HERE);
-			Comma(0);
-			continue;
-		}
+			if (word == "IF")
+			{
+				CComma(JMPZ);
+				Push(HERE);
+				Comma(0);
+				continue;
+			}
 
-		if (word == "ELSE")
-		{
-			CELL tmp = Pop();
-			CComma(JMP);
-			Push(HERE);
-			Comma(0);
-			SetAt(tmp, HERE);
-			continue;
-		}
+			if (word == "ELSE")
+			{
+				CELL tmp = Pop();
+				CComma(JMP);
+				Push(HERE);
+				Comma(0);
+				SetAt(tmp, HERE);
+				continue;
+			}
 
-		if (word == "THEN")
-		{
-			CELL tmp = Pop();
-			SetAt(tmp, HERE);
-			continue;
-		}
+			if (word == "THEN")
+			{
+				CELL tmp = Pop();
+				SetAt(tmp, HERE);
+				continue;
+			}
 
-		if (word == "BEGIN")
-		{
-			Push(HERE);
-			continue;
-		}
+			if (word == "BEGIN")
+			{
+				Push(HERE);
+				continue;
+			}
 
-		if (word == "AGAIN")
-		{
-			CComma(JMP);
-			Comma(Pop());
-			continue;
-		}
+			if (word == "AGAIN")
+			{
+				CComma(JMP);
+				Comma(Pop());
+				continue;
+			}
 
-		if (word == "WHILE")
-		{
-			CComma(JMPNZ);
-			Comma(Pop());
-			continue;
-		}
+			if (word == "WHILE")
+			{
+				CComma(JMPNZ);
+				Comma(Pop());
+				continue;
+			}
 
-		if (word == "UNTIL")
-		{
-			CComma(JMPZ);
-			Comma(Pop());
-			continue;
+			if (word == "UNTIL")
+			{
+				CComma(JMPZ);
+				Comma(Pop());
+				continue;
+			}
 		}
 
 		BYTE opcode = 0;
 
-		if ((STATE == 0) || (STATE == 2))
+		opcode = FindAsm(word);
+		//if ((STATE == 0) || (STATE == 2))
+		if (0 < opcode)
 		{
-			opcode = FindAsm(word);
-			if (opcode >= 0)
+			if (STATE == 0)
+			{
+				if (! ExecuteOpcode(opcode))
+				{
+					printf("%s: unsupported opcode %d\n", source, opcode);
+				}
+			}
+			else 
 			{
 				CComma(opcode);
-				continue;
 			}
+			continue;
 		}
 
 		opcode = FindForthPrim(word);
 		if (0 < opcode)
 		{
-			CComma(opcode);
+			if (STATE == 1)
+			{
+				CComma(opcode);
+			}
+			else
+			{
+				if (!ExecuteOpcode(opcode))
+				{
+					printf("%s: unsupported opcode %d\n", source, opcode);
+				}
+			}
 			continue;
 		}
 
 		CELL XT = FindWord(word);
-		if (XT > 0)
+		if (0 < XT)
 		{
-			CComma(CALL);
-			Comma(XT);
+			if (STATE == 1)
+			{
+				CComma(CALL);
+				Comma(XT);
+			}
+			else
+			{
+				printf("%s: cannot execute '%s'!\n", source, word);
+			}
 			continue;
 		}
 
 		CELL num = 0;
 		if (MakeNumber(word, num))
 		{
-			if ((0 <= num) && (num <= 255))
+			if (STATE == 0)
 			{
-				if (STATE == 1)
-					CComma(CPUSH);
-				CComma((BYTE)num);
+				Push(num);
+				continue;
+			}
+			else if (STATE == 1)
+			{
+				if ((0 <= num) && (num <= 255))
+				{
+					CComma(CLITERAL);
+					CComma((BYTE)num);
+				}
+				else
+				{
+					CComma(LITERAL);
+					Comma(num);
+				}
 			}
 			else
 			{
-				if (STATE == 1)
-					CComma(PUSH);
-				Comma(num);
+				Push(num);
+				continue;
 			}
 			continue;
 		}
 
-		// Error here?
+		printf("%s: '%s'??\n", source, word);
 	}
 }
 
@@ -575,19 +669,19 @@ CELL CCFCompiler::Dis1(CELL PC, FILE *fp)
 		PC += CELL_SZ;
 	}
 
-	else if (op == PUSH)
+	else if (op == LITERAL)
 	{
 		CELL arg = GetAt(PC);
 		DisRange(line, PC, CELL_SZ);
-		desc.Format(_T("PUSH %0*x"), CELL_WD, arg);
+		desc.Format(_T("LITERAL %0*x"), CELL_WD, arg);
 		PC += CELL_SZ;
 	}
 
-	else if (op == CPUSH)
+	else if (op == CLITERAL)
 	{
 		BYTE arg = the_memory[PC++];
 		line.AppendFormat(_T(" %02x"), arg);
-		desc.Format(_T("CPUSH %02x"), arg);
+		desc.Format(_T("CLITERAL %02x"), arg);
 	}
 
 	else
