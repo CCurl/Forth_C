@@ -16,6 +16,7 @@ OPCODE_T opcodes[] = {
 	, { _T("JMPNZ"), JMPNZ, _T("JMPNZ") }
 	, { _T("CALL"), CALL, _T("") }
 	, { _T("RET"), RET, _T("LEAVE") }
+	, { _T("COMPARE"), COMPARE, _T("COMPARE") }
 	, { _T("CFETCH"), CFETCH, _T("C@") }
 	, { _T("CSTORE"), CSTORE, _T("C!") }
 	, { _T("ADD"), ADD, _T("+") }
@@ -27,11 +28,13 @@ OPCODE_T opcodes[] = {
 	, { _T("GT"), GT, _T(">") }
 	, { _T("DICTP"), DICTP, _T("DICTP") }
 	, { _T("EMIT"), EMIT, _T("EMIT") }
+	, { _T("ZTYPE"), ZTYPE, _T("ZTYPE") }
 	, { _T("FOPEN"), FOPEN, _T("FOPEN") }
 	, { _T("FREAD"), FREAD, _T("FREAD") }
 	, { _T("FREADLINE"), FREADLINE, _T("FREADLINE") }
 	, { _T("FWRITE"), FWRITE, _T("FWRITE") }
 	, { _T("FCLOSE"), FCLOSE, _T("FCLOSE") }
+	, { _T("SLITERAL"), SLITERAL, _T("") }
 	, { _T("DTOR"), DTOR, _T(">R") }
 	, { _T("RFETCH"), RFETCH, _T("R@") }
 	, { _T("RTOD"), RTOD, _T("R>") }
@@ -455,6 +458,31 @@ void CCFCompiler::Parse(CString& line)
 				Comma(Pop());
 				continue;
 			}
+
+			if (word == "S\"")
+			{
+				CComma(SLITERAL);
+				int cur_here = HERE++, count = 0;
+				bool done = false;
+				while ((!done) && (line.GetLength() > 0))
+				{
+					char ch = line[0];
+					line = line.Mid(1);
+					parsed.AppendChar((TCHAR)ch);
+					if (ch == '\"')
+					{
+						done = true;
+					}
+					else
+					{
+						the_memory[HERE++] = (BYTE)ch;
+						count++;
+					}
+				}
+				the_memory[HERE++] = (BYTE)NULL;
+				the_memory[cur_here] = (BYTE)count;
+				continue;
+			}
 		}
 
 		BYTE opcode = 0;
@@ -682,6 +710,22 @@ CELL CCFCompiler::Dis1(CELL PC, FILE *fp)
 		BYTE arg = the_memory[PC++];
 		line.AppendFormat(_T(" %02x"), arg);
 		desc.Format(_T("CLITERAL %02x"), arg);
+	}
+
+	else if (op == SLITERAL)
+	{
+		desc.Format(_T("SLITERAL - "));
+		BYTE arg = the_memory[PC++];		// Skip count byte
+		line.AppendFormat(_T(" %02x"), arg);
+		desc.AppendFormat(_T("(%d), "), (int)arg);
+		arg = the_memory[PC++];
+		while (arg)
+		{
+			line.AppendFormat(_T(" %02x"), arg);
+			desc.AppendChar((TCHAR)arg);
+			arg = the_memory[PC++];
+		}
+		line.Append(_T(" 00 "));
 	}
 
 	else

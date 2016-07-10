@@ -28,9 +28,12 @@
 :! ] 1 STATE ! ;
 
 : TUCK SWAP OVER ;
+: NIP  SWAP DROP ;
 
 : ,  (HERE) TUCK @ TUCK  ! CELL + SWAP ! ;
 : C, (HERE) TUCK @ TUCK C! 1+     SWAP ! ;
+
+: (var) HERE 4 + 1 C, , <asm> CPUSH RET </asm> C, 0 , ;
 
 :! !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ;
 :! C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ;
@@ -72,6 +75,7 @@
 :! BYE   ?COMPILING IF <asm> CPUSH BYE   </asm> C, <asm> RET </asm> THEN BYE ;
 
 :! EMIT  ?COMPILING IF <asm> CPUSH EMIT  </asm> C, <asm> RET </asm> THEN EMIT ;
+:! ZTYPE ?COMPILING IF <asm> CPUSH ZTYPE </asm> C, <asm> RET </asm> THEN ZTYPE ;
 :! GETCH ?COMPILING IF <asm> CPUSH GETCH </asm> C, <asm> RET </asm> THEN GETCH ;
 
 :! FOPEN ?COMPILING IF <asm> CPUSH FOPEN </asm> C, <asm> RET </asm> THEN FOPEN ;
@@ -79,6 +83,8 @@
 :! FREADLINE ?COMPILING IF <asm> CPUSH FREADLINE </asm> C, <asm> RET </asm> THEN FREADLINE ;
 :! FWRITE ?COMPILING IF <asm> CPUSH FWRITE </asm> C, <asm> RET </asm> THEN FWRITE ;
 :! FCLOSE ?COMPILING IF <asm> CPUSH FCLOSE </asm> C, <asm> RET </asm> THEN FCLOSE ;
+
+:! COMPARE ?COMPILING IF <asm> CPUSH COMPARE </asm> C, <asm> RET </asm> THEN COMPARE ;
 
 :! 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ;
 
@@ -99,14 +105,14 @@
 
 : CRLF 13 EMIT 10 EMIT ;
 : BL 32 EMIT ;
-: ZTYPE 
-	BEGIN 
-		DUP C@ DUP 
-		IF EMIT 1+ 
-		ELSE DROP DROP LEAVE 
-		THEN 
-	AGAIN 
-;
+\ : ZTYPE 
+\	BEGIN 
+\		DUP C@ DUP 
+\		IF EMIT 1+ 
+\		ELSE DROP DROP LEAVE 
+\		THEN 
+\	AGAIN 
+\ ;
 
 : BETWEEN \ ( num min max -- bool )
 	2 PICK 
@@ -134,21 +140,6 @@
 \ since the counted strings in this implementation are also ZERO 
 \ delimited, this algorithm works for them too. For counted strings 
 \ with no ZERO delimiter, a different word would need to be written.
-
-: strcmp \ ( addr1 addr2 -- bool )
-	BEGIN
-		OVER C@
-		OVER C@ =
- 		IF
-			DUP C@ 0 =
-			IF DROP DROP 1 LEAVE THEN
-			1+ SWAP 1+
-		ELSE
-			DROP DROP 0 
-			LEAVE
-		THEN
-	AGAIN 
-;
 
 : skipWS \ ( addr1 -- addr2 )
 	BEGIN
@@ -185,7 +176,7 @@
 	BEGIN
 		R@ DUP
 		IF
-			2 CELLS 2 + + OVER strcmp
+			2 CELLS 2 + + OVER COMPARE
 			IF
 				DROP R@ CELL + @ R> 2 CELLS + C@ 1
 				LEAVE
@@ -278,7 +269,8 @@
 	DEPTH ?DUP
 	IF
 		\ See if it is out of whack
-		DUP 64 MIN 0 MAX = 0 = IF RESET THEN
+		DUP 64 MIN 0 MAX = 0 = 
+		IF S"  ?Stack" COUNT TYPE RESET THEN
 
 		BL 40 EMIT
 		DEPTH 1 - >R
@@ -342,7 +334,7 @@
 			THEN
 		ELSE
 			DROP
-			BL R@ ZTYPE 63 EMIT 63 EMIT RESET \ TODO: error
+			BL R@ ZTYPE S" ??" COUNT TYPE RESET \ TODO: error
 		THEN
 		R> DROP
 	THEN
@@ -446,7 +438,7 @@
 
 : IMMEDIATE 1 LAST 2 CELLS + C! ;
 
-: : \ ( -- )
+: (:) \ ( -- )
 	>IN @ skipWS >IN ! 
 	>IN @ C@ 
 	IF
@@ -456,12 +448,13 @@
 			Define-Word
 			<asm> CPUSH DICTP </asm> C,
 			LAST ,
-			1 STATE !
 		ELSE
-			DROP
+			DROP RESET
 		THEN
 	THEN
 ;
+
+: : (:) 1 STATE ! ;
 
 :! ; \ ( -- )
 	?COMPILING 
@@ -483,14 +476,21 @@
 	0 STATE ! DECIMAL 
 ;
 
-: OK ?COMPILING 0 = IF BL 79 EMIT 75 EMIT .S THEN CRLF ;
+: OK ?COMPILING 0 = IF S"  OK" COUNT TYPE .S THEN CRLF ;
 
 : mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput AGAIN ;
 
+: z DUP BL HEX. DUP C@ BL HEX. 1+ ;
+
 : HELLO >IN @
 	IF 
-		BL 82 EMIT 101 EMIT 115 EMIT 101 EMIT 116 EMIT CRLF 
+		S"  Reset."
 	ELSE
-		72 EMIT 101 EMIT 108 EMIT 108 EMIT 111 EMIT CRLF 
-	THEN ;
+		S" Hello."
+	THEN 
+	COUNT TYPE CRLF
+;
+
+: VARIABLE (:) (var) ;
+
 : main HELLO mainLoop ;

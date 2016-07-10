@@ -154,6 +154,28 @@ int run()
 			PC = rpop();
 			break;
 
+		case COMPARE:
+			arg2 = pop();
+			arg1 = pop();
+			{
+				char *cp1 = (char *)&the_mem[arg1];
+				char *cp2 = (char *)&the_mem[arg2];
+				arg3 = strcmp(cp1, cp2) ? 0 : 1;
+				push(arg3);
+			}
+			break;
+
+		case SLITERAL:
+			arg1 = PC++;
+			arg2 = the_mem[PC++];
+			while (arg2)
+			{
+				arg2 = the_mem[PC++];
+			}
+			// PC++;
+			push(arg1);
+			break;
+
 		case CFETCH:
 			arg1 = GETTOS();
 			SETTOS(the_mem[arg1]);
@@ -215,6 +237,14 @@ int run()
 		case EMIT:
 			arg1 = pop();
 			putchar(arg1);
+			break;
+
+		case ZTYPE:
+			arg1 = pop();		// addr
+			{
+				char *cp = (char *)&the_mem[arg1];
+				printf("%s", cp);
+			}
 			break;
 
 		case FOPEN:			// ( name mode -- fp status ) - mode: 0 = read, 1 = write

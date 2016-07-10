@@ -8,12 +8,13 @@
 #define SWAP       4
 #define DROP       5
 #define DUP        6
-// #define ROT        7
+#define SLITERAL   7
 #define JMP        8
 #define JMPZ       9
 #define JMPNZ     10
 #define CALL      11
 #define RET       12
+#define ZTYPE     13
 #define CLITERAL  14
 #define CFETCH    15
 #define CSTORE    16
@@ -27,7 +28,7 @@
 #define DICTP     24
 #define EMIT      25
 #define OVER      26
-// #define TUCK      27
+#define COMPARE   27	// ( addr1 addr2 -- bool )
 #define FOPEN     28	// ( name mode -- fp status ) - mode: 0 = read, 1 = write
 #define FREAD     29	// ( addr num fp -- count ) - fp == 0 means STDIN
 #define FREADLINE 30	// ( addr fp -- count )
