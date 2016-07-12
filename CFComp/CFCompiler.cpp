@@ -325,6 +325,17 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
+		//if (word == ".CELL")
+		//{
+		//	GetWord(line, word);
+		//	CELL cell_sz = 2;
+		//	if (MakeNumber(word, cell_sz))
+		//	{
+		//		the_memory[ADDR_CELL] = (BYTE)cell_sz;
+		//	}
+		//	continue;
+		//}
+
 		if ((STATE < 0) || (STATE > 2))
 		{
 			printf("STATE (%d) is messed up!\n", STATE);
