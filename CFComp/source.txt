@@ -24,8 +24,8 @@
 : isNeg <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
 
 : ?COMPILING STATE @ ;
-:! [ 0 STATE ! ;
-:! ] 1 STATE ! ;
+: [ 0 STATE ! ; IMMEDIATE
+: ] 1 STATE ! ; IMMEDIATE
 
 : TUCK SWAP OVER ;
 : NIP  SWAP DROP ;
@@ -35,69 +35,69 @@
 
 : (var) HERE 4 + 1 C, , <asm> CPUSH RET </asm> C, 0 , ;
 
-:! !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ;
-:! C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ;
+: !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ; IMMEDIATE
+: C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ; IMMEDIATE
 
-:! @  ?COMPILING IF <asm> CPUSH FETCH  </asm> C, <asm> RET </asm> THEN @ ;
-:! C@ ?COMPILING IF <asm> CPUSH CFETCH </asm> C, <asm> RET </asm> THEN C@ ;
+: @  ?COMPILING IF <asm> CPUSH FETCH  </asm> C, <asm> RET </asm> THEN @ ; IMMEDIATE
+: C@ ?COMPILING IF <asm> CPUSH CFETCH </asm> C, <asm> RET </asm> THEN C@ ; IMMEDIATE
 
-:! + ?COMPILING IF <asm> CPUSH ADD </asm> C, <asm> RET </asm> THEN + ;
-:! - ?COMPILING IF <asm> CPUSH SUB </asm> C, <asm> RET </asm> THEN - ;
-:! * ?COMPILING IF <asm> CPUSH MUL </asm> C, <asm> RET </asm> THEN * ;
-:! / ?COMPILING IF <asm> CPUSH DIV </asm> C, <asm> RET </asm> THEN / ;
+: + ?COMPILING IF <asm> CPUSH ADD </asm> C, <asm> RET </asm> THEN + ; IMMEDIATE
+: - ?COMPILING IF <asm> CPUSH SUB </asm> C, <asm> RET </asm> THEN - ; IMMEDIATE
+: * ?COMPILING IF <asm> CPUSH MUL </asm> C, <asm> RET </asm> THEN * ; IMMEDIATE
+: / ?COMPILING IF <asm> CPUSH DIV </asm> C, <asm> RET </asm> THEN / ; IMMEDIATE
 
-:! << ?COMPILING IF <asm> CPUSH LSHIFT </asm> C, <asm> RET </asm> THEN << ;
-:! >> ?COMPILING IF <asm> CPUSH RSHIFT </asm> C, <asm> RET </asm> THEN >> ;
+: << ?COMPILING IF <asm> CPUSH LSHIFT </asm> C, <asm> RET </asm> THEN << ; IMMEDIATE
+: >> ?COMPILING IF <asm> CPUSH RSHIFT </asm> C, <asm> RET </asm> THEN >> ; IMMEDIATE
 
-:! AND ?COMPILING IF <asm> CPUSH AND </asm> C, <asm> RET </asm> THEN AND ;
-:! OR  ?COMPILING IF <asm> CPUSH OR  </asm> C, <asm> RET </asm> THEN OR ;
+: AND ?COMPILING IF <asm> CPUSH AND </asm> C, <asm> RET </asm> THEN AND ; IMMEDIATE
+: OR  ?COMPILING IF <asm> CPUSH OR  </asm> C, <asm> RET </asm> THEN OR ; IMMEDIATE
 
-:! >R ?COMPILING IF <asm> CPUSH DTOR   </asm> C, <asm> RET </asm> THEN >R ;
-:! R@ ?COMPILING IF <asm> CPUSH RFETCH </asm> C, <asm> RET </asm> THEN R@ ;
-:! R> ?COMPILING IF <asm> CPUSH RTOD   </asm> C, <asm> RET </asm> THEN R> ;
+: >R ?COMPILING IF <asm> CPUSH DTOR   </asm> C, <asm> RET </asm> THEN >R ; IMMEDIATE
+: R@ ?COMPILING IF <asm> CPUSH RFETCH </asm> C, <asm> RET </asm> THEN R@ ; IMMEDIATE
+: R> ?COMPILING IF <asm> CPUSH RTOD   </asm> C, <asm> RET </asm> THEN R> ; IMMEDIATE
 
-:! < ?COMPILING IF <asm> CPUSH LT </asm> C, <asm> RET </asm> THEN < ;
-:! = ?COMPILING IF <asm> CPUSH EQ </asm> C, <asm> RET </asm> THEN = ;
-:! > ?COMPILING IF <asm> CPUSH GT </asm> C, <asm> RET </asm> THEN > ;
+: < ?COMPILING IF <asm> CPUSH LT </asm> C, <asm> RET </asm> THEN < ; IMMEDIATE
+: = ?COMPILING IF <asm> CPUSH EQ </asm> C, <asm> RET </asm> THEN = ; IMMEDIATE
+: > ?COMPILING IF <asm> CPUSH GT </asm> C, <asm> RET </asm> THEN > ; IMMEDIATE
 
-:! DUP  ?COMPILING IF <asm> CPUSH DUP  </asm> C, <asm> RET </asm> THEN DUP ;
-:! SWAP ?COMPILING IF <asm> CPUSH SWAP </asm> C, <asm> RET </asm> THEN SWAP ;
-:! DROP ?COMPILING IF <asm> CPUSH DROP </asm> C, <asm> RET </asm> THEN DROP ;
-:! OVER ?COMPILING IF <asm> CPUSH OVER </asm> C, <asm> RET </asm> THEN OVER ;
-:! PICK ?COMPILING IF <asm> CPUSH PICK </asm> C, <asm> RET </asm> THEN PICK ;
+: DUP  ?COMPILING IF <asm> CPUSH DUP  </asm> C, <asm> RET </asm> THEN DUP ; IMMEDIATE
+: SWAP ?COMPILING IF <asm> CPUSH SWAP </asm> C, <asm> RET </asm> THEN SWAP ; IMMEDIATE
+: DROP ?COMPILING IF <asm> CPUSH DROP </asm> C, <asm> RET </asm> THEN DROP ; IMMEDIATE
+: OVER ?COMPILING IF <asm> CPUSH OVER </asm> C, <asm> RET </asm> THEN OVER ; IMMEDIATE
+: PICK ?COMPILING IF <asm> CPUSH PICK </asm> C, <asm> RET </asm> THEN PICK ; IMMEDIATE
 
 :  ROT >R SWAP R> SWAP ;
 : -ROT SWAP >R SWAP R> ;
 
-:! DEPTH ?COMPILING IF <asm> CPUSH DEPTH </asm> C, <asm> RET </asm> THEN DEPTH ;
-:! RESET ?COMPILING IF <asm> CPUSH RESET </asm> C, <asm> RET </asm> THEN RESET ;
-:! BREAK ?COMPILING IF <asm> CPUSH BREAK </asm> C, <asm> RET </asm> THEN BREAK ;
-:! BYE   ?COMPILING IF <asm> CPUSH BYE   </asm> C, <asm> RET </asm> THEN BYE ;
+: DEPTH ?COMPILING IF <asm> CPUSH DEPTH </asm> C, <asm> RET </asm> THEN DEPTH ; IMMEDIATE
+: RESET ?COMPILING IF <asm> CPUSH RESET </asm> C, <asm> RET </asm> THEN RESET ; IMMEDIATE
+: BREAK ?COMPILING IF <asm> CPUSH BREAK </asm> C, <asm> RET </asm> THEN BREAK ; IMMEDIATE
+: BYE   ?COMPILING IF <asm> CPUSH BYE   </asm> C, <asm> RET </asm> THEN BYE ; IMMEDIATE
 
-:! EMIT  ?COMPILING IF <asm> CPUSH EMIT  </asm> C, <asm> RET </asm> THEN EMIT ;
-:! ZTYPE ?COMPILING IF <asm> CPUSH ZTYPE </asm> C, <asm> RET </asm> THEN ZTYPE ;
-:! GETCH ?COMPILING IF <asm> CPUSH GETCH </asm> C, <asm> RET </asm> THEN GETCH ;
+: EMIT  ?COMPILING IF <asm> CPUSH EMIT  </asm> C, <asm> RET </asm> THEN EMIT ; IMMEDIATE
+: ZTYPE ?COMPILING IF <asm> CPUSH ZTYPE </asm> C, <asm> RET </asm> THEN ZTYPE ; IMMEDIATE
+: GETCH ?COMPILING IF <asm> CPUSH GETCH </asm> C, <asm> RET </asm> THEN GETCH ; IMMEDIATE
 
-:! FOPEN ?COMPILING IF <asm> CPUSH FOPEN </asm> C, <asm> RET </asm> THEN FOPEN ;
-:! FREAD ?COMPILING IF <asm> CPUSH FREAD </asm> C, <asm> RET </asm> THEN FREAD ;
-:! FREADLINE ?COMPILING IF <asm> CPUSH FREADLINE </asm> C, <asm> RET </asm> THEN FREADLINE ;
-:! FWRITE ?COMPILING IF <asm> CPUSH FWRITE </asm> C, <asm> RET </asm> THEN FWRITE ;
-:! FCLOSE ?COMPILING IF <asm> CPUSH FCLOSE </asm> C, <asm> RET </asm> THEN FCLOSE ;
+: FOPEN ?COMPILING IF <asm> CPUSH FOPEN </asm> C, <asm> RET </asm> THEN FOPEN ; IMMEDIATE
+: FREAD ?COMPILING IF <asm> CPUSH FREAD </asm> C, <asm> RET </asm> THEN FREAD ; IMMEDIATE
+: FREADLINE ?COMPILING IF <asm> CPUSH FREADLINE </asm> C, <asm> RET </asm> THEN FREADLINE ; IMMEDIATE
+: FWRITE ?COMPILING IF <asm> CPUSH FWRITE </asm> C, <asm> RET </asm> THEN FWRITE ; IMMEDIATE
+: FCLOSE ?COMPILING IF <asm> CPUSH FCLOSE </asm> C, <asm> RET </asm> THEN FCLOSE ; IMMEDIATE
 
-:! COMPARE ?COMPILING IF <asm> CPUSH COMPARE </asm> C, <asm> RET </asm> THEN COMPARE ;
+: COMPARE ?COMPILING IF <asm> CPUSH COMPARE </asm> C, <asm> RET </asm> THEN COMPARE ; IMMEDIATE
 
-:! 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ;
+: 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ; IMMEDIATE
 
-:! IF   ?COMPILING IF <asm> CPUSH JMPZ </asm> C, HERE 0 , THEN ;
-:! ELSE ?COMPILING IF <asm> CPUSH JMP  </asm> C, HERE SWAP 0 , HERE SWAP ! THEN ;
-:! THEN ?COMPILING IF HERE SWAP ! THEN ;
+: IF   ?COMPILING IF <asm> CPUSH JMPZ </asm> C, HERE 0 , THEN ; IMMEDIATE
+: ELSE ?COMPILING IF <asm> CPUSH JMP  </asm> C, HERE SWAP 0 , HERE SWAP ! THEN ; IMMEDIATE
+: THEN ?COMPILING IF HERE SWAP ! THEN ; IMMEDIATE
 
-:! BEGIN ?COMPILING IF HERE THEN ;
-:! AGAIN ?COMPILING IF <asm> CPUSH JMP   </asm> C, , THEN ;
-:! WHILE ?COMPILING IF <asm> CPUSH JMPNZ </asm> C, , THEN ;
-:! UNTIL ?COMPILING IF <asm> CPUSH JMPZ  </asm> C, , THEN ;
+: BEGIN ?COMPILING IF HERE THEN ; IMMEDIATE
+: AGAIN ?COMPILING IF <asm> CPUSH JMP   </asm> C, , THEN ; IMMEDIATE
+: WHILE ?COMPILING IF <asm> CPUSH JMPNZ </asm> C, , THEN ; IMMEDIATE
+: UNTIL ?COMPILING IF <asm> CPUSH JMPZ  </asm> C, , THEN ; IMMEDIATE
 
-:! LEAVE ?COMPILING IF <asm> CPUSH RET </asm> C, THEN ;
+: LEAVE ?COMPILING IF <asm> CPUSH RET </asm> C, THEN ; IMMEDIATE
 
 : <> = 0 = ; 
 : <= > 0 = ; 
@@ -266,25 +266,20 @@
 : MAX OVER OVER < IF SWAP THEN DROP ; 
 
 : .S 
-	DEPTH ?DUP
-	IF
-		\ See if it is out of whack
-		DUP 64 MIN 0 MAX = 0 = 
-		IF S"  ?Stack" COUNT TYPE RESET THEN
-
-		BL 40 EMIT
-		DEPTH 1 - >R
-		BEGIN 
-			R@ PICK . R@ 
-			IF
-				R> 1 - >R
-			ELSE
-				R> DROP BL 41 EMIT LEAVE
-			THEN
-		AGAIN
-	ELSE
-		BL 40 EMIT 237 EMIT 41 EMIT
-	THEN
+	BL DEPTH 0 < 
+	IF S" Stack underflow!" COUNT TYPE RESET THEN
+	DEPTH 0 =
+	IF 40 EMIT 237 EMIT 41 EMIT LEAVE THEN
+	40 EMIT
+	DEPTH 1 - >R
+	BEGIN 
+		R@ PICK . R@ 
+		IF
+			R> 1 - >R
+		ELSE
+			R> DROP BL 41 EMIT LEAVE
+		THEN
+	AGAIN
 ;
 
 : WORDS \ ( -- )
@@ -392,7 +387,7 @@
 	AGAIN
 ;
 
-: bbb BYE ;
+: bye BYE ;
 
 : strlen \ ( addr -- num )
 	0 >R
@@ -456,7 +451,7 @@
 
 : : (:) 1 STATE ! ;
 
-:! ; \ ( -- )
+: ; \ ( -- )
 	?COMPILING 
 	IF
 		<asm> CPUSH RET </asm> C,
@@ -464,7 +459,7 @@
 	ELSE
 		RESET
 	THEN
-;
+; IMMEDIATE
 
 : .FL. \ Forgets the last word
 	LAST CELL + @ (HERE) ! 
@@ -476,19 +471,21 @@
 	0 STATE ! DECIMAL 
 ;
 
-: OK ?COMPILING 0 = IF S"  OK" COUNT TYPE .S THEN CRLF ;
+: OK ?COMPILING 0 = IF S" OK" COUNT TYPE .S THEN CRLF ;
 
-: mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput AGAIN ;
+: mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput BL AGAIN ;
 
 : z DUP BL HEX. DUP C@ BL HEX. 1+ ;
 
+: hi S" Hello" COUNT TYPE ;
+: there S" , Chris." COUNT TYPE ;
+
 : HELLO >IN @
 	IF 
-		S"  Reset."
+		S"  Reset. " COUNT TYPE
 	ELSE
-		S" Hello."
+		hi there CRLF
 	THEN 
-	COUNT TYPE CRLF
 ;
 
 : VARIABLE (:) (var) ;

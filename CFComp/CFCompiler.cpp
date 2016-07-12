@@ -69,7 +69,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	line_no = 0;
 	memset(the_memory, 0x00, sizeof(the_memory));
 	SetAt(LAST, 0);
-	SetAt(ADDR_SP, LAST  + sizeof(int));
+	SetAt(ADDR_SP, LAST  + (CELL_SZ*4));
 	SetAt(ADDR_RSP, GetAt(ADDR_SP) + DSTACK_SZ);
 
 	CW2A source(m_source);
@@ -342,6 +342,13 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
+		if (word == _T("IMMEDIATE"))
+		{
+			DICT_T *dp = (DICT_T *)&the_memory[LAST];
+			dp->flags = 0x01;
+			continue;
+		}
+
 		if (word == _T("<asm>"))
 		{
 			Push(STATE);
@@ -386,16 +393,16 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
-		if (word == _T(":!"))
-		{
-			STATE = 1;
-			GetWord(line, word);
-			parsed.AppendFormat(_T(" %s"), word);
-			DefineWord(word, 1);
-			CComma(DICTP);
-			Comma(LAST);
-			continue;
-		}
+		//if (word == _T(":!"))
+		//{
+		//	STATE = 1;
+		//	GetWord(line, word);
+		//	parsed.AppendFormat(_T(" %s"), word);
+		//	DefineWord(word, 1);
+		//	CComma(DICTP);
+		//	Comma(LAST);
+		//	continue;
+		//}
 
 		if (word == ";")
 		{
@@ -466,7 +473,7 @@ void CCFCompiler::Parse(CString& line)
 				bool done = false;
 				while ((!done) && (line.GetLength() > 0))
 				{
-					char ch = line[0];
+					char ch = (char)line[0];
 					line = line.Mid(1);
 					parsed.AppendChar((TCHAR)ch);
 					if (ch == '\"')
