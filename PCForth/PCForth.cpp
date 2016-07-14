@@ -33,7 +33,7 @@ CELL *RSP = NULL; // the return stack pointer
 CELL *DSP = NULL; // the data stack pointer
 
 CELL RSP_INIT = MEM_SZ - CELL_SZ;								// Initial value of the return stack pointer
-CELL DSP_INIT = MEM_SZ - RSTACK_SZ - DSTACK_SZ + (CELL_SZ*4);	// Initial value of the data stack pointer
+CELL DSP_INIT = MEM_SZ - RSTACK_SZ - DSTACK_SZ + (CELL_SZ * 4);	// Initial value of the data stack pointer
 
 #define GETAT(loc) *(CELL *)(&the_mem[loc])
 #define SETAT(loc, val) *(CELL *)(&the_mem[loc]) = val
@@ -112,7 +112,7 @@ int run()
 
 		case PICK:
 			arg1 = pop();
-			arg2 = *(DSP-arg1);
+			arg2 = *(DSP - arg1);
 			push(arg2);
 			break;
 
@@ -285,7 +285,7 @@ int run()
 				}
 				arg2 = strlen(pBuf);
 				// Strip off any trailing newline
-				if ((arg2 > 0) && (pBuf[arg2-1] == '\n'))
+				if ((arg2 > 0) && (pBuf[arg2 - 1] == '\n'))
 				{
 					pBuf[--arg2] = NULL;
 				}
@@ -332,7 +332,7 @@ int run()
 
 		case ONEPLUS:
 			arg1 = GETTOS();
-			SETTOS(arg1+1);
+			SETTOS(arg1 + 1);
 			break;
 
 		case DEPTH:
@@ -412,7 +412,7 @@ char *GetNextNum(char *cp, CELL& val)
 		{
 			val = (val << 4) + 10 + (c - 'a');
 		}
-		else 
+		else
 		{
 			//if (c == ';')
 			//{
@@ -437,10 +437,12 @@ int bios_init()
 
 	char buf[128], *fn = ".\\dis.txt";
 	FILE *fp = NULL;
-#ifdef _DEBUG
-	fn = "..\\CFComp\\dis.txt";
-#endif
 	fopen_s(&fp, fn, "rt");
+	if (!fp)
+	{
+		fn = "..\\dis.txt";
+		fopen_s(&fp, fn, "rt");
+	}
 	if (fp)
 	{
 		while (fgets(buf, sizeof(buf), fp) == buf)

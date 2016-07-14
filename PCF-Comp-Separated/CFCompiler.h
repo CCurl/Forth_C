@@ -1,7 +1,5 @@
 #pragma once
 
-#include "..\CForth2\Defines.h"
-
 #define MEM_SZ 8192
 
 

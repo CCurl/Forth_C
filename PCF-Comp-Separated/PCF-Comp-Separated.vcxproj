@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{439003E2-4D93-4BB7-B162-AA5D9463267E}</ProjectGuid>
+    <ProjectGuid>{B86547AB-F45C-4638-A369-C7CFBE7FFB82}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>contest</RootNamespace>
+    <RootNamespace>PCFCompSeparated</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -79,11 +79,14 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\PCForth\Defines.h" />
+    <ClInclude Include="CFCompiler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="contest.cpp" />
+    <ClCompile Include="CFCompiler.cpp" />
+    <ClCompile Include="PCF-Comp-Separated.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

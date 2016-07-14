@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include <atlstr.h>
+#include "..\PCForth\Defines.h"
 #include "CFCompiler.h"
 
 OPCODE_T opcodes[] = {
@@ -105,7 +107,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	SetAt(ADDR_STATE, 0);
 
 	FILE *fp_out = NULL;
-	fopen_s(&fp_out, "dis.txt", "wt");
+	fopen_s(&fp_out, output, "wt");
 	if (fp_out)
 	{
 		Dis(fp_out);

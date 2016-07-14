@@ -15,23 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="source.txt" />
-    <Text Include="dis.txt" />
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CFComp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CFCompDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CFCompiler.h">
@@ -42,38 +32,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CFComp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CFCompDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PCF-Comp-Integrated.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CFCompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="CFComp.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\CFComp.rc2">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="forth.bat">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="go.bat">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="res\CFComp.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>
