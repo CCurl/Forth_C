@@ -1,6 +1,6 @@
 @echo off
 cd Release
-REM PCF-Comp-Integrated.exe
-PCF-Comp-Separated.exe
-PCForth.exe
+PCF-Comp-Integrated.exe
+REM PCF-Comp-Separated.exe
 cd ..
+Release\PCForth.exe

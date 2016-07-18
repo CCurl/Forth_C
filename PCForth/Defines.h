@@ -53,13 +53,6 @@ typedef short CELL;				// Use long for a 32-bit implementation, short for a 16-b
 #define CELL_SZ sizeof(CELL)
 typedef unsigned char BYTE;
 
-typedef struct {
-	CELL next, XT;
-	BYTE flags;
-	BYTE len;
-	char name[30];
-} DICT_T;
-
 #define DSTACK_SZ CELL_SZ * 64
 #define RSTACK_SZ CELL_SZ * 64
 

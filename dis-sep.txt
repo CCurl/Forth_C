@@ -1,4 +1,4 @@
-0000 08 10 0a                   ; JMP 0a10
+0000 08 4f 0a                   ; JMP 0a4f
 0003 00                         ; (data)
 0004 00                         ; (data)
 0005 00                         ; (data)
@@ -12,9 +12,9 @@
 000d 1f                         ; FWRITE
 000e 00                         ; (data)
 000f 00                         ; (data)
-0010 1a                         ; OVER
+0010 59                         ; (data)
 0011 0a 00 00                   ; JMPNZ 0000
-0014 87                         ; (data)
+0014 4d                         ; (data)
 0015 19                         ; EMIT
 0016 00                         ; (data)
 0017 00                         ; (data)
@@ -1423,16 +1423,84 @@
 0a0c 0b be 00                   ; CALL 00be - (var)
 0a0f 0c                         ; RET
 
-0a10 18 87 19                   ; DICTP 1987 - main
-0a13 0b de 09                   ; CALL 09de - HELLO
-0a16 0b 88 09                   ; CALL 0988 - mainLoop
-0a19 0c                         ; RET
+0a10 18 86 19                   ; DICTP 1986 - ALLOT
+0a13 0b 33 00                   ; CALL 0033 - HERE
+0a16 11                         ; ADD
+0a17 0b 27 00                   ; CALL 0027 - (HERE)
+0a1a 03                         ; STORE
+0a1b 0c                         ; RET
 
-1987 ; The dictionary starts here ...
+0a1c 18 7c 19                   ; DICTP 197c - c++
+0a1f 06                         ; DUP
+0a20 0f                         ; CFETCH
+0a21 24                         ; ONEPLUS
+0a22 04                         ; SWAP
+0a23 10                         ; CSTORE
+0a24 0c                         ; RET
 
-1987 92 19                      ; Next=1992, main
-1989 10 0a 00                   ; XT=0a10, flags=00
-198c 04 6d 61 69 6e 00
+0a25 18 73 19                   ; DICTP 1973 - c?
+0a28 0f                         ; CFETCH
+0a29 0b 27 06                   ; CALL 0627 - .
+0a2c 0c                         ; RET
+
+0a2d 18 6a 19                   ; DICTP 196a - ct
+0a30 0b 37 04                   ; CALL 0437 - COUNT
+0a33 0b 31 04                   ; CALL 0431 - TYPE
+0a36 0c                         ; RET
+
+0a37 18 61 19                   ; DICTP 1961 - ba
+0a3a 06                         ; DUP
+0a3b 0b 1c 0a                   ; CALL 0a1c - c++
+0a3e 06                         ; DUP
+0a3f 0f                         ; CFETCH
+0a40 11                         ; ADD
+0a41 10                         ; CSTORE
+0a42 0c                         ; RET
+
+0a43 18 58 19                   ; DICTP 1958 - zt
+0a46 06                         ; DUP
+0a47 0f                         ; CFETCH
+0a48 11                         ; ADD
+0a49 24                         ; ONEPLUS
+0a4a 0e 00                      ; CLITERAL 00
+0a4c 04                         ; SWAP
+0a4d 10                         ; CSTORE
+0a4e 0c                         ; RET
+
+0a4f 18 4d 19                   ; DICTP 194d - main
+0a52 0b de 09                   ; CALL 09de - HELLO
+0a55 0b 88 09                   ; CALL 0988 - mainLoop
+0a58 0c                         ; RET
+
+194d ; The dictionary starts here ...
+
+194d 58 19                      ; Next=1958, main
+194f 4f 0a 00                   ; XT=0a4f, flags=00
+1952 04 6d 61 69 6e 00
+
+1958 61 19                      ; Next=1961, zt
+195a 43 0a 00                   ; XT=0a43, flags=00
+195d 02 7a 74 00
+
+1961 6a 19                      ; Next=196a, ba
+1963 37 0a 00                   ; XT=0a37, flags=00
+1966 02 62 61 00
+
+196a 73 19                      ; Next=1973, ct
+196c 2d 0a 00                   ; XT=0a2d, flags=00
+196f 02 63 74 00
+
+1973 7c 19                      ; Next=197c, c?
+1975 25 0a 00                   ; XT=0a25, flags=00
+1978 02 63 3f 00
+
+197c 86 19                      ; Next=1986, c++
+197e 1c 0a 00                   ; XT=0a1c, flags=00
+1981 03 63 2b 2b 00
+
+1986 92 19                      ; Next=1992, ALLOT
+1988 10 0a 00                   ; XT=0a10, flags=00
+198b 05 41 4c 4c 4f 54 00
 
 1992 a1 19                      ; Next=19a1, VARIABLE
 1994 06 0a 00                   ; XT=0a06, flags=00

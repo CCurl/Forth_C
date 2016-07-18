@@ -3,6 +3,13 @@
 #include "..\PCForth\Defines.h"
 #include "CFCompiler.h"
 
+typedef struct {
+	CELL prev, next, XT;
+	BYTE flags;
+	BYTE len;
+	char name[30];
+} DICT_T;
+
 OPCODE_T opcodes[] = {
 	{ _T("RESET"), RESET, _T("RESET") }
 	, { _T("PUSH"), LITERAL, _T("") }
@@ -66,7 +73,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 {
 	SP = 0;
 	HERE = 0;
-	LAST = MEM_SZ - (DSTACK_SZ + RSTACK_SZ) - sizeof(int);
+	LAST = HERE;
 	STATE = 0;
 	line_no = 0;
 	memset(the_memory, 0x00, sizeof(the_memory));
@@ -173,16 +180,17 @@ BYTE CCFCompiler::FindForthPrim(CString& word)
 
 CELL CCFCompiler::FindWord(CString& word)
 {
+	CELL cur = LAST;
 	CW2A wd(word);
-	DICT_T *dp = (DICT_T *)(&the_memory[LAST]);
-	while (dp->next > 0)
+	do
 	{
+		DICT_T *dp = (DICT_T *)(&the_memory[cur]);
 		if (strcmp(wd, dp->name) == 0)
 		{
 			return dp->XT;
 		}
-		dp = (DICT_T *)(&the_memory[dp->next]);
-	}
+		cur = dp->prev;
+	} while (cur > 0);
 
 	return 0;
 }
@@ -229,23 +237,52 @@ BOOL CCFCompiler::MakeNumber(CString& word, CELL& the_num)
 
 void CCFCompiler::DefineWord(CString& word, BYTE flags)
 {
-	CELL tmp = LAST;
-	LAST -= ((CELL_SZ*2) + 3 + word.GetLength());
+	CELL new_LAST = HERE;
 
-	DICT_T *dp = (DICT_T *)(&the_memory[LAST]);
-	dp->next = tmp;
-	dp->XT = HERE;
-	dp->flags = flags;
-	dp->len = word.GetLength();
+	DICT_T *dp_LAST = (DICT_T *)(&the_memory[LAST]);
+	DICT_T *dp_NEW = (DICT_T *)(&the_memory[new_LAST]);
 
-	tmp = 0;
+	// PREV
+	if (new_LAST != LAST)
+	{
+		Comma(LAST);
+		dp_LAST->next = new_LAST;
+	}
+	else
+	{
+		FIRST = new_LAST;
+		Comma(0);
+	}
+	//dp_NEW->next = 0;
+	//dp_NEW->flags = flags;
+	//dp_NEW->len = word.GetLength();
+
+	// NEXT
+	Comma(0);
+
+	// XT - set this later
+	Comma(0);
+
+	// FLAGS
+	CComma(flags);
+
+	// LEN
+	CComma(word.GetLength());
+
+	// WORD
 	CW2A wd(word);
 	char *cp = wd;
 	while (*cp)
 	{
-		dp->name[tmp++] = *(cp++);
+		CComma(*cp++);
 	}
-	dp->name[tmp++] = NULL;
+
+	// NULL
+	CComma(NULL);
+
+	// Fill in XT
+	dp_NEW->XT = HERE;
+	LAST = new_LAST;
 }
 
 void CCFCompiler::SetAt(CELL loc, CELL num)
@@ -255,7 +292,7 @@ void CCFCompiler::SetAt(CELL loc, CELL num)
 
 void CCFCompiler::Comma(CELL num)
 {
-	if ((0 <= HERE) && (HERE < LAST))
+	if (0 <= HERE) // && (HERE < LAST))
 	{
 		SetAt(HERE, num);
 		HERE += CELL_SZ;
@@ -268,7 +305,7 @@ void CCFCompiler::Comma(CELL num)
 
 void CCFCompiler::CComma(BYTE num)
 {
-	if (HERE < LAST)
+	if (0 <= HERE)	// < LAST)
 	{
 		the_memory[HERE] = num;
 		HERE += 1;
@@ -323,6 +360,8 @@ void CCFCompiler::Parse(CString& line)
 			if (MakeNumber(word, addr))
 			{
 				HERE = addr;
+				LAST = HERE;
+				SetAt(LAST, 0);		// PREV = 0 means end of dictionary
 			}
 			continue;
 		}
@@ -593,18 +632,17 @@ void CCFCompiler::Parse(CString& line)
 void CCFCompiler::Dis(FILE *fp)
 {
 	CELL PC = 0;
-	while (PC < HERE)
+	while (PC < FIRST)
 	{
 		PC = Dis1(PC, fp);
 	}
+	fprintf(fp, "\n%0*x ; The dictionary starts here ...\n", CELL_SZ*2, FIRST);
 
-	fprintf(fp, "\n%0*x ; The dictionary starts here ...\n", CELL_SZ*2, LAST);
-
-	PC = LAST;
-	while (PC >= LAST)
+	PC = FIRST;
+	do
 	{
 		PC = DisDict(PC, fp);
-	}
+	} while (PC != 0);
 }
 
 CELL CCFCompiler::GetAt(CELL loc)
@@ -768,20 +806,21 @@ CELL CCFCompiler::DisDict(CELL PC, FILE *fp)
 	int CELL_WD = CELL_SZ * 2;
 
 	DICT_T *dp = (DICT_T *)&the_memory[PC];
-	if (dp->next == 0)
-	{
-		line.Format(_T("\n%0*x"), CELL_WD, PC, dp->next);
-		DisRange(line, PC, CELL_SZ);
-		desc.Format(_T("End"));
-		DisOut(fp, line, desc, 33);
-		return 0;
-	}
+	//if (dp->next == 0)
+	//{
+	//	line.Format(_T("\n%0*x"), CELL_WD, PC, dp->next);
+	//	DisRange(line, PC, CELL_SZ);
+	//	desc.Format(_T("End"));
+	//	DisOut(fp, line, desc, 33);
+	//	return 0;
+	//}
 
 	line.Format(_T("\n%0*x"), CELL_WD, PC);
-	DisRange(line, PC, CELL_SZ);
-	desc.Format(_T("Next=%0*x, %S"), CELL_SZ, dp->next, dp->name);
+	DisRange(line, PC, CELL_SZ*2);
+	desc.Format(_T("Prev=%0*x, Next=%0*x, %S"), CELL_WD, dp->prev, CELL_WD, dp->next, dp->name);
 	DisOut(fp, line, desc, 33);
 
+	PC += CELL_SZ;
 	PC += CELL_SZ;
 	line.Format(_T("%0*x"), CELL_WD, PC);
 	DisRange(line, PC, CELL_SZ+1);
@@ -793,6 +832,13 @@ CELL CCFCompiler::DisDict(CELL PC, FILE *fp)
 	DisRange(line, PC, dp->len + 2);
 	desc.Empty();
 	DisOut(fp, line, desc, 32);
+
+	PC = dp->XT;
+	CELL stop_here = dp->next ? dp->next : HERE;
+	while (PC < stop_here)
+	{
+		PC = Dis1(PC, fp);
+	}
 
 	return dp->next;
 }

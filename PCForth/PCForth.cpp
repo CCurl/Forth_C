@@ -431,16 +431,18 @@ char *GetNextNum(char *cp, CELL& val)
 }
 
 // ------------------------------------------------------------------------------------------
-int bios_init()
+int bios_init(char *arg)
 {
 	PC = 0;
 
-	char buf[128], *fn = ".\\dis.txt";
+	char buf[128], fn[256];
+	sprintf_s(fn, ".\\dis-%s.txt", arg);
+
 	FILE *fp = NULL;
 	fopen_s(&fp, fn, "rt");
 	if (!fp)
 	{
-		fn = "..\\dis.txt";
+		sprintf_s(fn, "..\\dis-%s.txt", arg);
 		fopen_s(&fp, fn, "rt");
 	}
 	if (fp)
@@ -476,7 +478,19 @@ int _tmain(int argc, _TCHAR* argv[])
 	the_mem = (BYTE *)malloc(MEM_SZ);
 	memset(the_mem, NULL, (MEM_SZ*sizeof(BYTE)));
 
-	int initOK = bios_init();
+	char arg[64];
+	sprintf_s(arg, sizeof(arg), "sep");
+	if (argc > 1)
+	{
+		TCHAR *xxx = argv[1];
+		if ((xxx[0] == '-') && (xxx[1] == 'i') && (xxx[2] == ':'))
+		{
+			xxx += 3;
+			sprintf_s(arg, sizeof(arg), "%S", xxx);
+		}
+	}
+
+	int initOK = bios_init(arg);
 	if (initOK != 0)
 	{
 		return initOK;

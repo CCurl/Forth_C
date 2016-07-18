@@ -9,7 +9,6 @@ typedef struct {
 	CString forth_prim;
 } OPCODE_T;
 
-
 class CCFCompiler
 {
 public:

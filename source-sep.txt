@@ -494,4 +494,11 @@
 
 : VARIABLE (:) (var) ;
 
+: ALLOT HERE + (HERE) ! ;
+: c++ DUP C@ 1+ SWAP C! ; \ ( addr -- )
+: c? C@ . ; \ ( addr -- )
+: ct COUNT TYPE ;
+: ba DUP c++ DUP C@ + C! ; \ ( ch addr -- )
+: zt DUP C@ + 1+ 0 SWAP C! ; \ ( addr -- )
+
 : main HELLO mainLoop ;

@@ -1,4 +1,2 @@
 @echo off
-CD Release
-PCForth.exe
-cd ..
+Release\PCForth.exe

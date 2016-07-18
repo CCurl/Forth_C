@@ -8,7 +8,6 @@ typedef struct {
 	CString forth_prim;
 } OPCODE_T;
 
-
 class CCFCompiler
 {
 public:
@@ -40,5 +39,5 @@ public:
 	BYTE the_memory[MEM_SZ];
 	CELL HERE, LAST, STATE;
 	CELL stack[256], SP;
-	CELL line_no;
+	CELL line_no, FIRST;
 };

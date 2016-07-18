@@ -3,6 +3,13 @@
 #include "..\PCForth\Defines.h"
 #include "CFCompiler.h"
 
+typedef struct {
+	CELL next, XT;
+	BYTE flags;
+	BYTE len;
+	char name[30];
+} DICT_T;
+
 OPCODE_T opcodes[] = {
 	{ _T("RESET"), RESET, _T("RESET") }
 	, { _T("PUSH"), LITERAL, _T("") }

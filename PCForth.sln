@@ -5,11 +5,13 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3B22C439-AF69-4DE8-BC91-B7285E89F55E}"
 	ProjectSection(SolutionItems) = preProject
-		dis.txt = dis.txt
+		dis-int.txt = dis-int.txt
+		dis-sep.txt = dis-sep.txt
 		forth.bat = forth.bat
 		go.bat = go.bat
 		README.md = README.md
-		source.txt = source.txt
+		source-int.txt = source-int.txt
+		source-sep.txt = source-sep.txt
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PCF-Comp-Integrated", "PCF-Comp-Integrated\PCF-Comp-Integrated.vcxproj", "{8CEAE5AC-F224-4035-B67A-413C6FE4A69B}"
