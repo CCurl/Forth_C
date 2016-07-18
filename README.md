@@ -10,8 +10,11 @@ in-memory image of the VM's desired initial state from the "source.txt" file. It
 into a file named "dis.txt". A casual inspection of the disassembly will show that the entire system is 
 just a Forth dictionary.
 
-Currently, this implementation has the code at the beginning of the memory space, and the dictionary at the 
+There are 2 versions: one has the code at the beginning of the memory space, and the dictionary at the 
 end, and they grow towards each other. The data and return stacks are after the dictionary.
+
+The other version has the code and the dictionary integrated. The code for a word starts immediately after
+the word's name. This dictionary entries in the implementation are also a doubly linked list.
 
 When the VM boots, its "BIOS" start up code reads and parses the "dis.txt" file to load the initial image of 
 itself, and then starts executing at address 0, which is just a JUMP to the "main" word.
