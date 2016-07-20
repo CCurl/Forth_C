@@ -98,6 +98,11 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 		}
 		fclose(fp_in);
 	}
+	else
+	{
+		printf("error opening '%s'!", source);
+		return;
+	}
 
 	CELL start_here = FindWord(CString(_T("main")));
 	if (start_here <= 0)
@@ -522,7 +527,7 @@ void CCFCompiler::Parse(CString& line)
 			{
 				if (! ExecuteOpcode(opcode))
 				{
-					printf("%s: unsupported opcode %d\n", source, opcode);
+					wprintf(_T("%s: unsupported opcode %d\n"), (LPCTSTR)source, opcode);
 				}
 			}
 			else 
@@ -543,7 +548,7 @@ void CCFCompiler::Parse(CString& line)
 			{
 				if (!ExecuteOpcode(opcode))
 				{
-					printf("%s: unsupported opcode %d\n", source, opcode);
+					wprintf(_T("%s: unsupported opcode %d\n"), (LPCTSTR)source, opcode);
 				}
 			}
 			continue;
@@ -559,7 +564,7 @@ void CCFCompiler::Parse(CString& line)
 			}
 			else
 			{
-				printf("%s: cannot execute '%s'!\n", source, word);
+				wprintf(_T("%s: cannot execute '%s'!\n"), (LPCTSTR)source, (LPCTSTR)word);
 			}
 			continue;
 		}
@@ -593,7 +598,7 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
-		printf("%s: '%s'??\n", source, word);
+		wprintf(_T("%s: '%s'??\n"), (LPCTSTR)source, (LPCTSTR)word);
 	}
 }
 
@@ -632,7 +637,7 @@ void DisOut(FILE *fp, CString& line, CString& desc, int wid = 24)
 	}
 
 	CW2A out(line);
-	fprintf(fp, "%s\n", out);
+	fprintf(fp, "%s\n", (char *)out);
 }
 
 void CCFCompiler::GetWordName(CELL loc, CString& name)

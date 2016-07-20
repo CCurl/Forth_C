@@ -6,9 +6,39 @@
 #include "..\PCForth\Defines.h"
 #include "CFCompiler.h"
 
+void GetArg(TCHAR *prefix, int argc, TCHAR *argv[], CString& out)
+{
+	CString match = prefix;
+	int len = match.GetLength();
+	for (int i = 1; i < argc; i++)
+	{
+		CString arg = argv[i];
+		if (arg.Left(len).CompareNoCase(match) == 0)
+		{
+			out = arg.Mid(len, 999);
+			return;
+		}
+	}
+	out.Empty();
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	CString iFn, oFn;
+	GetArg(_T("-i:"), argc, argv, iFn);
+	GetArg(_T("-o:"), argc, argv, oFn);
+
+	if (iFn.IsEmpty())
+	{
+		iFn = "..\\source-int.txt";
+	}
+
+	if (oFn.IsEmpty())
+	{
+		oFn = "..\\dis-int.txt";
+	}
+
 	CCFCompiler comp;
-	comp.Compile(_T("..\\source.txt"), _T("..\\dis.txt"));
+	comp.Compile(iFn, oFn);
 	return 0;
 }

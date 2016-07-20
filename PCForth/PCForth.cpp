@@ -283,7 +283,7 @@ int run()
 				{
 					*pBuf = NULL;
 				}
-				arg2 = strlen(pBuf);
+				arg2 = (CELL)strlen(pBuf);
 				// Strip off any trailing newline
 				if ((arg2 > 0) && (pBuf[arg2 - 1] == '\n'))
 				{
