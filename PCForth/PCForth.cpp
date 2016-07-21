@@ -60,6 +60,7 @@ int run()
 	rsp_init = (CELL *)&the_mem[RSP_INIT];
 	DSP = dsp_init;
 	RSP = rsp_init;
+	PC = 0;
 
 	while (true)
 	{
@@ -431,7 +432,7 @@ char *GetNextNum(char *cp, CELL& val)
 }
 
 // ------------------------------------------------------------------------------------------
-int bios_init(char *arg)
+bool bios_init(char *arg)
 {
 	PC = 0;
 
@@ -459,14 +460,13 @@ int bios_init(char *arg)
 			}
 		}
 		fclose(fp);
-		PC = 0;
+		return true;
 	}
 	else
 	{
 		printf("Error opening '%s'!", arg);
-		PC = 1;
 	}
-	return PC;
+	return false;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -490,11 +490,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 	}
 
-	int initOK = bios_init(arg);
-	if (initOK != 0)
+	if (bios_init(arg))
 	{
-		return initOK;
+		return run();
 	}
-
-	return run();
+	return 1;
 }
