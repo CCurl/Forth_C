@@ -449,7 +449,7 @@ int bios_init(char *arg)
 	{
 		while (fgets(buf, sizeof(buf), fp) == buf)
 		{
-			buf[strlen(buf - 1)] = (char)NULL;
+			buf[strlen(buf)-1] = (char)NULL;
 			char *cp = GetNextNum(buf, PC);
 			while ((*cp) && (PC >= 0))
 			{
