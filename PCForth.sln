@@ -8,10 +8,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		dis-int.txt = dis-int.txt
 		dis-sep.txt = dis-sep.txt
 		forth.bat = forth.bat
+		go-int.bat = go-int.bat
+		go-sep.bat = go-sep.bat
 		go.bat = go.bat
 		README.md = README.md
 		source-int.txt = source-int.txt
 		source-sep.txt = source-sep.txt
+		source.txt = source.txt
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PCF-Comp-Integrated", "PCF-Comp-Integrated\PCF-Comp-Integrated.vcxproj", "{8CEAE5AC-F224-4035-B67A-413C6FE4A69B}"

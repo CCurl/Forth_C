@@ -16,27 +16,20 @@ void GetArg(TCHAR *prefix, int argc, TCHAR *argv[], CString& out)
 		if (arg.Left(len).CompareNoCase(match) == 0)
 		{
 			out = arg.Mid(len, 999);
-			return;
+			break;
 		}
 	}
-	out.Empty();
 }
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	CString iFn, oFn;
+
+	iFn = "..\\source-int.txt";
+	oFn = "..\\dis-int.txt";
+
 	GetArg(_T("-i:"), argc, argv, iFn);
 	GetArg(_T("-o:"), argc, argv, oFn);
-
-	if (iFn.IsEmpty())
-	{
-		iFn = "..\\source-int.txt";
-	}
-
-	if (oFn.IsEmpty())
-	{
-		oFn = "..\\dis-int.txt";
-	}
 
 	CCFCompiler comp;
 	comp.Compile(iFn, oFn);

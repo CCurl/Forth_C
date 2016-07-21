@@ -435,14 +435,14 @@ int bios_init(char *arg)
 {
 	PC = 0;
 
-	char buf[128], fn[256];
-	sprintf_s(fn, ".\\dis-%s.txt", arg);
-
+	char buf[128];
 	FILE *fp = NULL;
-	fopen_s(&fp, fn, "rt");
+	
+	fopen_s(&fp, arg, "rt");
 	if (!fp)
 	{
-		sprintf_s(fn, "..\\dis-%s.txt", arg);
+		char fn[256];
+		sprintf_s(fn, "..\\%s", arg);
 		fopen_s(&fp, fn, "rt");
 	}
 	if (fp)
@@ -451,7 +451,6 @@ int bios_init(char *arg)
 		{
 			buf[strlen(buf - 1)] = (char)NULL;
 			char *cp = GetNextNum(buf, PC);
-			// printf("%s ", cp);
 			while ((*cp) && (PC >= 0))
 			{
 				CELL num;
@@ -464,7 +463,7 @@ int bios_init(char *arg)
 	}
 	else
 	{
-		printf("Error opening '%s'!", fn);
+		printf("Error opening '%s'!", arg);
 		PC = 1;
 	}
 	return PC;
@@ -479,7 +478,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	memset(the_mem, NULL, (MEM_SZ*sizeof(BYTE)));
 
 	char arg[64];
-	sprintf_s(arg, sizeof(arg), "sep");
+	sprintf_s(arg, "dis-sep.txt");
+
 	if (argc > 1)
 	{
 		TCHAR *xxx = argv[1];
