@@ -27,9 +27,6 @@
     <ClInclude Include="CFCompiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\PCForth\Defines.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>

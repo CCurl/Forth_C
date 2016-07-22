@@ -80,7 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CFComp-Shared.h" />
-    <ClInclude Include="..\PCForth\Defines.h" />
     <ClInclude Include="..\Shared.h" />
     <ClInclude Include="CFCompiler.h" />
     <ClInclude Include="stdafx.h" />
