@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include <atlstr.h>
-#include "..\PCForth\Defines.h"
 #include "CFCompiler.h"
 
 typedef struct {

@@ -8,16 +8,11 @@
 #include <conio.h>
 #include <ctype.h>
 
-#include "Defines.h"
-
+#include "..\Shared.h"
 
 // ------------------------------------------------------------------------------------------
 // The VM
 // ------------------------------------------------------------------------------------------
-
-#define ONE_KB (1024)
-#define ONE_MB (ONE_KB * ONE_KB)
-#define MEM_SZ 8*ONE_KB
 
 typedef unsigned char BYTE;
 

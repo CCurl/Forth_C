@@ -27,7 +27,10 @@
     <ClInclude Include="CFCompiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\PCForth\Defines.h">
+    <ClInclude Include="..\CFComp-Shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -41,5 +44,10 @@
     <ClCompile Include="CFCompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\CFComp-Shared.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include <atlstr.h>
-#include "..\PCForth\Defines.h"
 #include "CFCompiler.h"
 
 void GetArg(TCHAR *prefix, int argc, TCHAR *argv[], CString& out)

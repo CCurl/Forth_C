@@ -1,13 +1,6 @@
 #pragma once
 
-#define MEM_SZ 8192
-
-
-typedef struct {
-	CString asm_instr;
-	BYTE opcode;
-	CString forth_prim;
-} OPCODE_T;
+#include "..\CFComp-Shared.h"
 
 class CCFCompiler
 {

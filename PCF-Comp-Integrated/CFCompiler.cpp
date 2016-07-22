@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include <atlstr.h>
-#include "..\PCForth\Defines.h"
 #include "CFCompiler.h"
+
+#include "..\CFComp-Shared.inc"
 
 typedef struct {
 	CELL prev, next, XT;
@@ -10,55 +11,7 @@ typedef struct {
 	char name[30];
 } DICT_T;
 
-OPCODE_T opcodes[] = {
-	{ _T("RESET"), RESET, _T("RESET") }
-	, { _T("PUSH"), LITERAL, _T("") }
-	, { _T("CPUSH"), CLITERAL, _T("") }
-	, { _T("FETCH"), FETCH, _T("@") }
-	, { _T("STORE"), STORE, _T("!") }
-	, { _T("SWAP"), SWAP, _T("SWAP") }
-	, { _T("DROP"), DROP, _T("DROP") }
-	, { _T("DUP"), DUP, _T("DUP") }
-	, { _T("OVER"), OVER, _T("OVER") }
-	, { _T("JMP"), JMP, _T("JMP") }
-	, { _T("JMPZ"), JMPZ, _T("JMPZ") }
-	, { _T("JMPNZ"), JMPNZ, _T("JMPNZ") }
-	, { _T("CALL"), CALL, _T("") }
-	, { _T("RET"), RET, _T("LEAVE") }
-	, { _T("COMPARE"), COMPARE, _T("COMPARE") }
-	, { _T("CFETCH"), CFETCH, _T("C@") }
-	, { _T("CSTORE"), CSTORE, _T("C!") }
-	, { _T("ADD"), ADD, _T("+") }
-	, { _T("SUB"), SUB, _T("-") }
-	, { _T("MUL"), MUL, _T("*") }
-	, { _T("DIV"), DIV, _T("/") }
-	, { _T("LT"), LT, _T("<") }
-	, { _T("EQ"), EQ, _T("=") }
-	, { _T("GT"), GT, _T(">") }
-	, { _T("DICTP"), DICTP, _T("DICTP") }
-	, { _T("EMIT"), EMIT, _T("EMIT") }
-	, { _T("ZTYPE"), ZTYPE, _T("ZTYPE") }
-	, { _T("FOPEN"), FOPEN, _T("FOPEN") }
-	, { _T("FREAD"), FREAD, _T("FREAD") }
-	, { _T("FREADLINE"), FREADLINE, _T("FREADLINE") }
-	, { _T("FWRITE"), FWRITE, _T("FWRITE") }
-	, { _T("FCLOSE"), FCLOSE, _T("FCLOSE") }
-	, { _T("SLITERAL"), SLITERAL, _T("") }
-	, { _T("DTOR"), DTOR, _T(">R") }
-	, { _T("RFETCH"), RFETCH, _T("R@") }
-	, { _T("RTOD"), RTOD, _T("R>") }
-	, { _T("ONEPLUS"), ONEPLUS, _T("1+") }
-	, { _T("PICK"), PICK, _T("PICK") }
-	, { _T("DEPTH"), DEPTH, _T("DEPTH") }
-	, { _T("LSHIFT"), LSHIFT, _T("<<") }
-	, { _T("RSHIFT"), RSHIFT, _T(">>") }
-	, { _T("AND"), AND, _T("AND") }
-	, { _T("OR"), OR, _T("OR") }
-	, { _T("GETCH"), GETCH, _T("GETCH") }
-	, { _T("BREAK"), BREAK, _T("BREAK") }
-	, { _T("BYE"), BYE, _T("BYE") }
-	, { _T(""), 0, _T("") }
-};
+extern OPCODE_T opcodes[];
 
 CCFCompiler::CCFCompiler()
 {

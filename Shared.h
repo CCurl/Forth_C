@@ -1,7 +1,8 @@
 #pragma once
 
+// ************************************************************************************************
 // The VM's instruction set
-
+// ************************************************************************************************
 #define LITERAL    1
 #define FETCH      2
 #define STORE      3
@@ -48,6 +49,9 @@
 #define BREAK    253
 #define RESET    254
 #define BYE      255
+// ************************************************************************************************
+// ************************************************************************************************
+// ************************************************************************************************
 
 typedef short CELL;				// Use long for a 32-bit implementation, short for a 16-bit
 #define CELL_SZ sizeof(CELL)
@@ -63,3 +67,7 @@ typedef unsigned char BYTE;
 #define ADDR_LAST  20
 #define ADDR_STATE 24
 #define ADDR_BASE  28
+
+#define ONE_KB (1024)
+#define ONE_MB (ONE_KB * ONE_KB)
+#define MEM_SZ 8*ONE_KB
