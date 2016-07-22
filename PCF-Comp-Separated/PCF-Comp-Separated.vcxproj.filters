@@ -33,6 +33,9 @@
     <ClInclude Include="..\Shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\CFComp-Shared.inc">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -44,10 +47,5 @@
     <ClCompile Include="CFCompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\CFComp-Shared.inc">
-      <Filter>Header Files</Filter>
-    </None>
   </ItemGroup>
 </Project>
