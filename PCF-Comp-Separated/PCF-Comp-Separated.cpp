@@ -24,8 +24,8 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	CString iFn, oFn;
 
-	iFn = "..\\source-sep.txt";
-	oFn = "..\\dis-sep.txt";
+	iFn = "source-sep.txt";
+	oFn = "dis-sep.txt";
 
 	GetArg(_T("-i:"), argc, argv, iFn);
 	GetArg(_T("-o:"), argc, argv, oFn);
