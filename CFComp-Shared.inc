@@ -12,6 +12,9 @@ OPCODE_T opcodes[] = {
 	, { _T("JMP"), JMP, _T("JMP") }
 	, { _T("JMPZ"), JMPZ, _T("JMPZ") }
 	, { _T("JMPNZ"), JMPNZ, _T("JMPNZ") }
+	, { _T("BRANCH"), BRANCH, _T("BRANCH") }
+	, { _T("BRANCHZ"), BRANCHZ, _T("BRANCHZ") }
+	, { _T("BRANCHNZ"), BRANCHNZ, _T("BRANCHNZ") }
 	, { _T("CALL"), CALL, _T("") }
 	, { _T("RET"), RET, _T("LEAVE") }
 	, { _T("COMPARE"), COMPARE, _T("COMPARE") }

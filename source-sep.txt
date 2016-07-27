@@ -11,10 +11,10 @@
 
 \ The compiler/dis-assembler is hard-coded to put these values here ...
 : CELL 7 C@ ;
-: (HERE)   16 ;
+: DP   16 ;
 : (LAST)   20 ;
 
-: HERE (HERE) @ ;
+: HERE DP @ ;
 : LAST (LAST) @ ;
 
 : CELLS CELL * ; \ ( num1 -- num2 )
@@ -34,12 +34,10 @@
 : TUCK SWAP OVER ;
 : NIP  SWAP DROP ;
 
-: ,  (HERE) TUCK @ TUCK  ! CELL + SWAP ! ;
-: C, (HERE) TUCK @ TUCK C! 1+     SWAP ! ;
+: ,  DP TUCK @ TUCK  ! CELL + SWAP ! ;
+: C, DP TUCK @ TUCK C! 1+     SWAP ! ;
 
-: (var) HERE 4 + 1 C, , <asm> CPUSH RET </asm> C, 0 , ;
-
-: !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ; IMMEDIATE
+: !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, ELSE ! THEN ; IMMEDIATE
 : C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ; IMMEDIATE
 \ : !  <asm> STORE  </asm> ; INLINE
 \ : C! <asm> CSTORE </asm> ; INLINE
@@ -139,6 +137,12 @@
 
 : @+!  TUCK @  + SWAP ! ;  \ ( num addr -- )
 : C@+! TUCK C@ + SWAP C! ; \ ( num addr -- )
+
+: ++ DUP @ 1+ SWAP ! ; \ ( addr -- )
+: C++ DUP C@ 1+ SWAP C! ; \ ( addr -- )
+
+: -- DUP @ 1 - SWAP ! ; \ ( addr -- )
+: C-- DUP C@ 1 - SWAP C! ; \ ( addr -- )
 
 : ?DUP DUP IF DUP THEN ;
 
@@ -398,7 +402,7 @@
 	AGAIN
 ;
 
-: bye BYE ;
+: bye CRLF BYE ;
 
 : strlen \ ( addr -- num )
 	0 >R
@@ -473,7 +477,7 @@
 ; IMMEDIATE
 
 : .FL. \ Forgets the last word
-	LAST CELL + @ (HERE) ! 
+	LAST CELL + @ DP ! 
 	LAST @ (LAST) ! 
 ;
 
@@ -483,8 +487,6 @@
 ;
 
 : OK ?COMPILING 0 = IF S" OK" COUNT TYPE .S THEN CRLF ;
-
-: mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput BL AGAIN ;
 
 : z DUP BL HEX. DUP C@ BL HEX. 1+ ;
 
@@ -499,13 +501,16 @@
 	THEN 
 ;
 
+: (var) HERE 4 + 1 C, , <asm> CPUSH RET </asm> C, 0 , ;
 : VARIABLE (:) (var) ;
+: ALLOT HERE + DP ! ;
 
-: ALLOT HERE + (HERE) ! ;
-: c++ DUP C@ 1+ SWAP C! ; \ ( addr -- )
-: c? C@ . ; \ ( addr -- )
-: ct COUNT TYPE ;
-: ba DUP c++ DUP C@ + C! ; \ ( ch addr -- )
-: zt DUP C@ + 1+ 0 SWAP C! ; \ ( addr -- )
+: ? @ . ; \ ( addr -- )
+: C? C@ . ; \ ( addr -- )
 
+: CT COUNT TYPE ;
+: bufAppend DUP C++ DUP C@ + C! ; \ ( ch addr -- )
+: nullTerm DUP C@ + 1+ 0 SWAP C! ; \ ( addr -- )
+
+: mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput BL AGAIN ;
 : main HELLO mainLoop ;

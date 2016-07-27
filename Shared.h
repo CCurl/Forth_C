@@ -46,6 +46,9 @@
 #define RSHIFT    41
 #define AND       42
 #define OR		  43
+#define BRANCH    44
+#define BRANCHZ   45
+#define BRANCHNZ  46
 #define BREAK    253
 #define RESET    254
 #define BYE      255

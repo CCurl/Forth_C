@@ -139,6 +139,37 @@ int run()
 			}
 			break;
 
+		case BRANCH:
+			arg1 = GETAT(PC);
+			PC += arg1;
+			break;
+
+		case BRANCHZ:
+			arg1 = GETAT(PC);
+			if (pop() == 0)
+			{
+				arg1 = GETAT(PC);
+				PC += arg1;
+			}
+			else
+			{
+				PC += CELL_SZ;
+			}
+			break;
+
+		case BRANCHNZ:
+			arg1 = GETAT(PC);
+			if (pop() == 0)
+			{
+				arg1 = GETAT(PC);
+				PC += arg1;
+			}
+			else
+			{
+				PC += CELL_SZ;
+			}
+			break;
+
 		case CALL:
 			arg1 = GETAT(PC);
 			PC += CELL_SZ;

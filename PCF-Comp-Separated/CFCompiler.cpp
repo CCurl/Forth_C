@@ -428,7 +428,7 @@ void CCFCompiler::Parse(CString& line)
 		{
 			if (word == "IF")
 			{
-				CComma(JMPZ);
+				CComma(BRANCHZ);
 				Push(HERE);
 				Comma(0);
 				MakeTailJmpUnSafe();
@@ -438,12 +438,12 @@ void CCFCompiler::Parse(CString& line)
 			if (word == "ELSE")
 			{
 				CELL tmp = Pop();
-				CComma(JMP);
+				CComma(BRANCH);
 				Push(HERE);
 				Comma(0);
-				SetAt(tmp, HERE);
-				//CELL offset = HERE - tmp;
-				//SetAt(tmp, offset);
+				//SetAt(tmp, HERE);
+				CELL offset = HERE - tmp;
+				SetAt(tmp, offset);
 				MakeTailJmpUnSafe();
 				continue;
 			}
@@ -451,9 +451,9 @@ void CCFCompiler::Parse(CString& line)
 			if (word == "THEN")
 			{
 				CELL tmp = Pop();
-				SetAt(tmp, HERE);
-				//CELL offset = HERE - tmp;
-				//SetAt(tmp, offset);
+				//SetAt(tmp, HERE);
+				CELL offset = HERE - tmp;
+				SetAt(tmp, offset);
 				MakeTailJmpUnSafe();
 				continue;
 			}
@@ -467,33 +467,36 @@ void CCFCompiler::Parse(CString& line)
 
 			if (word == "AGAIN")
 			{
-				CComma(JMP);
-				Comma(Pop());
-				//CELL tgt = Pop();
-				//CELL offset = tgt - HERE;
-				//Comma(offset);
+				//CComma(JMP);
+				//Comma(Pop());
+				CComma(BRANCH);
+				CELL tgt = Pop();
+				CELL offset = tgt - HERE;
+				Comma(offset);
 				MakeTailJmpUnSafe();
 				continue;
 			}
 
 			if (word == "WHILE")
 			{
-				CComma(JMPNZ);
-				Comma(Pop());
-				//CELL tgt = Pop();
-				//CELL offset = tgt - HERE;
-				//Comma(offset);
+				//CComma(JMPNZ);
+				//Comma(Pop());
+				CComma(BRANCHNZ);
+				CELL tgt = Pop();
+				CELL offset = tgt - HERE;
+				Comma(offset);
 				MakeTailJmpUnSafe();
 				continue;
 			}
 
 			if (word == "UNTIL")
 			{
-				CComma(JMPZ);
-				Comma(Pop());
-				//CELL tgt = Pop();
-				//CELL offset = tgt - HERE;
-				//Comma(offset);
+				//CComma(JMPZ);
+				//Comma(Pop());
+				CComma(BRANCHZ);
+				CELL tgt = Pop();
+				CELL offset = tgt - HERE;
+				Comma(offset);
 				MakeTailJmpUnSafe();
 				continue;
 			}
@@ -714,6 +717,30 @@ CELL CCFCompiler::Dis1(CELL PC, FILE *fp)
 		CELL arg = GetAt(PC);
 		DisRange(line, PC, CELL_SZ);
 		desc.Format(_T("JMPNZ %0*x"), CELL_WD, arg);
+		PC += CELL_SZ;
+	}
+
+	else if (op == BRANCH)
+	{
+		CELL arg = GetAt(PC);
+		DisRange(line, PC, CELL_SZ);
+		desc.Format(_T("BRANCH %0*x"), CELL_WD, arg);
+		PC += CELL_SZ;
+	}
+
+	else if (op == BRANCHZ)
+	{
+		CELL arg = GetAt(PC);
+		DisRange(line, PC, CELL_SZ);
+		desc.Format(_T("BRANCHZ %0*x"), CELL_WD, arg);
+		PC += CELL_SZ;
+	}
+
+	else if (op == BRANCHNZ)
+	{
+		CELL arg = GetAt(PC);
+		DisRange(line, PC, CELL_SZ);
+		desc.Format(_T("BRANCHNZ %0*x"), CELL_WD, arg);
 		PC += CELL_SZ;
 	}
 
