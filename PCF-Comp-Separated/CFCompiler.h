@@ -2,6 +2,13 @@
 
 #include "..\CFComp-Shared.h"
 
+typedef struct {
+	CELL next, XT;
+	BYTE flags;
+	BYTE len;
+	char name[30];
+} DICT_T;
+
 class CCFCompiler
 {
 public:
@@ -15,7 +22,7 @@ public:
 	bool ExecuteOpcode(BYTE opcode);
 	BYTE FindAsm(CString& word);
 	BYTE FindForthPrim(CString& word);
-	CELL FindWord(CString& word);
+	DICT_T *FindWord(CString& word);
 	OPCODE_T *FindOpcode(BYTE opcode);
 	BOOL MakeNumber(CString& word, CELL& the_num);
 	void SetAt(CELL loc, CELL num);
@@ -29,6 +36,9 @@ public:
 	void DisRange(CString& line, CELL loc, CELL num);
 	CELL DisDict(CELL PC, FILE *fp);
 	void GetWordName(CELL loc, CString& name);
+	bool IsTailJmpSafe();
+	void MakeTailJmpSafe();
+	void MakeTailJmpUnSafe();
 
 	BYTE the_memory[MEM_SZ];
 	CELL HERE, LAST, STATE;

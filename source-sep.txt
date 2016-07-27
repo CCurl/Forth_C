@@ -41,9 +41,16 @@
 
 : !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, <asm> RET </asm> THEN ! ; IMMEDIATE
 : C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ; IMMEDIATE
+\ : !  <asm> STORE  </asm> ; INLINE
+\ : C! <asm> CSTORE </asm> ; INLINE
 
 : @  ?COMPILING IF <asm> CPUSH FETCH  </asm> C, <asm> RET </asm> THEN @ ; IMMEDIATE
 : C@ ?COMPILING IF <asm> CPUSH CFETCH </asm> C, <asm> RET </asm> THEN C@ ; IMMEDIATE
+\ : @  <asm> FETCH  </asm> ; INLINE
+\ : C@ <asm> CFETCH </asm> ; INLINE
+
+: $ FETCH ; INLINE
+: TEST BASE $ DROP ;
 
 : + ?COMPILING IF <asm> CPUSH ADD </asm> C, <asm> RET </asm> THEN + ; IMMEDIATE
 : - ?COMPILING IF <asm> CPUSH SUB </asm> C, <asm> RET </asm> THEN - ; IMMEDIATE

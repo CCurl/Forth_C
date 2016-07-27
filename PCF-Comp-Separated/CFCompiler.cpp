@@ -2,14 +2,13 @@
 #include <atlstr.h>
 #include "CFCompiler.h"
 
-typedef struct {
-	CELL next, XT;
-	BYTE flags;
-	BYTE len;
-	char name[30];
-} DICT_T;
+// Values for the flags bit field
+#define IS_IMMEDIATE 0x01
+#define IS_INLINE    0x02
 
 #include "..\CFComp-Shared.inc"
+
+bool isTailJmpSafe;
 
 CCFCompiler::CCFCompiler()
 {
@@ -55,14 +54,14 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 		return;
 	}
 
-	CELL start_here = FindWord(CString(_T("main")));
-	if (start_here <= 0)
+	DICT_T *dp = FindWord(CString(_T("main")));
+	if (dp == NULL)
 	{
-		start_here = GetAt(LAST + 4);
+		dp = (DICT_T *)&the_memory[LAST];
 	}
 
-	SetAt(0, JMP);
-	SetAt(1, start_here);
+	the_memory[0] = JMP;
+	SetAt(1, dp->XT);
 	the_memory[ADDR_CELL] = CELL_SZ;
 	SetAt(ADDR_LAST, LAST);
 	SetAt(ADDR_HERE, HERE);
@@ -134,7 +133,7 @@ BYTE CCFCompiler::FindForthPrim(CString& word)
 	return 0;
 }
 
-CELL CCFCompiler::FindWord(CString& word)
+DICT_T *CCFCompiler::FindWord(CString& word)
 {
 	CW2A wd(word);
 	DICT_T *dp = (DICT_T *)(&the_memory[LAST]);
@@ -142,7 +141,7 @@ CELL CCFCompiler::FindWord(CString& word)
 	{
 		if (strcmp(wd, dp->name) == 0)
 		{
-			return dp->XT;
+			return dp;
 		}
 		dp = (DICT_T *)(&the_memory[dp->next]);
 	}
@@ -259,6 +258,29 @@ void CCFCompiler::GetWord(CString& line, CString& word)
 	}
 }
 
+bool CCFCompiler::IsTailJmpSafe()
+{
+	//DICT_T *dp = (DICT_T *)&the_memory[LAST];
+	//bool ret = (dp->flags & IS_TAILJMP_SAFE) != 0;
+	//if (ret)
+	//	return true;
+	return isTailJmpSafe;
+}
+
+void CCFCompiler::MakeTailJmpSafe()
+{
+	//DICT_T *dp = (DICT_T *)&the_memory[LAST];
+	//dp->flags |= IS_TAILJMP_SAFE;
+	isTailJmpSafe = true;
+}
+
+void CCFCompiler::MakeTailJmpUnSafe()
+{
+	//DICT_T *dp = (DICT_T *)&the_memory[LAST];
+	//dp->flags &= (~IS_TAILJMP_SAFE);
+	isTailJmpSafe = false;
+}
+
 void CCFCompiler::Parse(CString& line)
 {
 	CString source = line;
@@ -321,7 +343,14 @@ void CCFCompiler::Parse(CString& line)
 		if (word == _T("IMMEDIATE"))
 		{
 			DICT_T *dp = (DICT_T *)&the_memory[LAST];
-			dp->flags = 0x01;
+			dp->flags |= IS_IMMEDIATE;
+			continue;
+		}
+
+		if (word == _T("INLINE"))
+		{
+			DICT_T *dp = (DICT_T *)&the_memory[LAST];
+			dp->flags |= IS_INLINE;
 			continue;
 		}
 
@@ -382,8 +411,15 @@ void CCFCompiler::Parse(CString& line)
 
 		if (word == ";")
 		{
+			if (IsTailJmpSafe() && (the_memory[HERE-CELL_SZ-1] == CALL))
+			{
+				the_memory[HERE-CELL_SZ-1] = JMP;
+			}
+			else
+			{
+				CComma(RET);
+			}
 			STATE = 0;
-			CComma(RET);
 			continue;
 		}
 		
@@ -395,6 +431,7 @@ void CCFCompiler::Parse(CString& line)
 				CComma(JMPZ);
 				Push(HERE);
 				Comma(0);
+				MakeTailJmpUnSafe();
 				continue;
 			}
 
@@ -405,6 +442,9 @@ void CCFCompiler::Parse(CString& line)
 				Push(HERE);
 				Comma(0);
 				SetAt(tmp, HERE);
+				//CELL offset = HERE - tmp;
+				//SetAt(tmp, offset);
+				MakeTailJmpUnSafe();
 				continue;
 			}
 
@@ -412,12 +452,16 @@ void CCFCompiler::Parse(CString& line)
 			{
 				CELL tmp = Pop();
 				SetAt(tmp, HERE);
+				//CELL offset = HERE - tmp;
+				//SetAt(tmp, offset);
+				MakeTailJmpUnSafe();
 				continue;
 			}
 
 			if (word == "BEGIN")
 			{
 				Push(HERE);
+				MakeTailJmpUnSafe();
 				continue;
 			}
 
@@ -425,6 +469,10 @@ void CCFCompiler::Parse(CString& line)
 			{
 				CComma(JMP);
 				Comma(Pop());
+				//CELL tgt = Pop();
+				//CELL offset = tgt - HERE;
+				//Comma(offset);
+				MakeTailJmpUnSafe();
 				continue;
 			}
 
@@ -432,6 +480,10 @@ void CCFCompiler::Parse(CString& line)
 			{
 				CComma(JMPNZ);
 				Comma(Pop());
+				//CELL tgt = Pop();
+				//CELL offset = tgt - HERE;
+				//Comma(offset);
+				MakeTailJmpUnSafe();
 				continue;
 			}
 
@@ -439,6 +491,10 @@ void CCFCompiler::Parse(CString& line)
 			{
 				CComma(JMPZ);
 				Comma(Pop());
+				//CELL tgt = Pop();
+				//CELL offset = tgt - HERE;
+				//Comma(offset);
+				MakeTailJmpUnSafe();
 				continue;
 			}
 
@@ -505,13 +561,31 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
-		CELL XT = FindWord(word);
-		if (0 < XT)
+		MakeTailJmpUnSafe();
+
+		DICT_T *dp = FindWord(word);
+		if (dp != NULL)
 		{
 			if (STATE == 1)
 			{
-				CComma(CALL);
-				Comma(XT);
+				if (dp->flags & IS_INLINE)
+				{
+					// Skip the DICTP instruction
+					// Can only handle single BYTE INLINE words right now
+					CELL start = dp->XT + 3;
+					CELL end = start;
+					for (CELL i = start; i <= end; i++)
+					{
+						BYTE b = the_memory[i];
+						CComma(b);
+					}
+				}
+				else
+				{
+					CComma(CALL);
+					Comma(dp->XT);
+					MakeTailJmpSafe();
+				}
 			}
 			else
 			{
