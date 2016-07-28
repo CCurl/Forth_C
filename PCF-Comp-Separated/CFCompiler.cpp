@@ -378,6 +378,12 @@ void CCFCompiler::Parse(CString& line)
 			continue;
 		}
 
+		if (word == _T(".CELL"))
+		{
+			Push(CELL_SZ);
+			continue;
+		}
+
 		if (word == _T(".LITERAL"))
 		{
 			CComma(LITERAL);
@@ -574,13 +580,20 @@ void CCFCompiler::Parse(CString& line)
 				if (dp->flags & IS_INLINE)
 				{
 					// Skip the DICTP instruction
-					// Can only handle single BYTE INLINE words right now
-					CELL start = dp->XT + 3;
-					CELL end = start;
-					for (CELL i = start; i <= end; i++)
+					CELL addr = dp->XT + CELL_SZ + 1;
+
+					// Copy bytes until the first RET
+					while (true)
 					{
-						BYTE b = the_memory[i];
-						CComma(b);
+						BYTE b = the_memory[addr++];
+						if (b != RET)
+						{
+							CComma(b);
+						}
+						else
+						{
+							break;
+						}
 					}
 				}
 				else

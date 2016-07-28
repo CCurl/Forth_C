@@ -10,89 +10,95 @@
 .ORG 32
 
 \ The compiler/dis-assembler is hard-coded to put these values here ...
-: CELL 7 C@ ;
-: DP   16 ;
-: (LAST)   20 ;
+: CELL   7 C@ ; INLINE
+: DP       16 ; INLINE
+: (LAST)   20 ; INLINE
 
-: HERE DP @ ;
-: LAST (LAST) @ ;
+: HERE DP @ ; INLINE
+: LAST (LAST) @ ; INLINE
 
 : CELLS CELL * ; \ ( num1 -- num2 )
 
-: >IN   <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
-: STATE <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
-: BASE  <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
-: isNeg <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+: >IN   <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+: STATE <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+: BASE  <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+: isNeg <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 
-\ : STDIN <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+\ : STDIN <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 \ : INPUT-FP <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+
+: !  <asm> STORE  </asm> ; INLINE
+: C! <asm> CSTORE </asm> ; INLINE
+
+: @  <asm> FETCH  </asm> ; INLINE
+: C@ <asm> CFETCH </asm> ; INLINE
+
+: + <asm> ADD </asm> ; INLINE
+: - <asm> SUB </asm> ; INLINE
+: * <asm> MUL </asm> ; INLINE
+: / <asm> DIV </asm> ; INLINE
+
+: 1+ <asm> ONEPLUS </asm> ; INLINE
+: 1- 1 - ; INLINE
+
+: << <asm> LSHIFT </asm> ; INLINE
+: >> <asm> RSHIFT </asm> ; INLINE
+
+: AND <asm> AND </asm> ; INLINE
+: OR  <asm> OR  </asm> ; INLINE
+
+: >R <asm> DTOR   </asm> ; INLINE
+: R@ <asm> RFETCH </asm> ; INLINE
+: R> <asm> RTOD   </asm> ; INLINE
+
+: < <asm> LT </asm> ; INLINE
+: = <asm> EQ </asm> ; INLINE
+: > <asm> GT </asm> ; INLINE
+
+: DUP  <asm> DUP  </asm> ; INLINE
+: SWAP <asm> SWAP </asm> ; INLINE
+: DROP <asm> DROP </asm> ; INLINE
+: OVER <asm> OVER </asm> ; INLINE
+: PICK <asm> PICK </asm> ; INLINE
+
+: DEPTH <asm> DEPTH </asm> ; INLINE
+: RESET <asm> RESET </asm> ; INLINE
+: BREAK <asm> BREAK </asm> ; INLINE
+: BYE   <asm> BYE   </asm> ; INLINE
+
+: EMIT  <asm> EMIT  </asm> ; INLINE
+: ZTYPE <asm> ZTYPE </asm> ; INLINE
+: GETCH <asm> GETCH </asm> ; INLINE
+
+: FOPEN     <asm> FOPEN     </asm> ; INLINE
+: FREAD     <asm> FREAD     </asm> ; INLINE
+: FREADLINE <asm> FREADLINE </asm> ; INLINE
+: FWRITE    <asm> FWRITE    </asm> ; INLINE
+: FCLOSE    <asm> FCLOSE    </asm> ; INLINE
+
+: COMPARE <asm> COMPARE </asm> ; INLINE
+: LEAVE <asm> RET </asm> ; INLINE
+
+: TUCK  SWAP OVER ; INLINE
+: NIP   SWAP DROP ; INLINE
+: ROT   >R SWAP R> SWAP ;
+: -ROT  SWAP >R SWAP R> ;
+
+: ++ DUP @ 1+ SWAP ! ; \ ( addr -- )
+: C++ DUP C@ 1+ SWAP C! ; \ ( addr -- )
+
+: -- DUP @ 1- SWAP ! ; \ ( addr -- )
+: C-- DUP C@ 1- SWAP C! ; \ ( addr -- )
+
+: +!  TUCK @  + SWAP !  ;
+: C+! TUCK C@ + SWAP C! ;
+
+: ,  HERE !  CELL DP +! ;        \ : ,  DP TUCK @ TUCK  ! CELL + SWAP ! ;
+: C, HERE C! DP ++      ;        \ : C, DP TUCK @ TUCK C! 1+     SWAP ! ;
 
 : ?COMPILING STATE @ ;
 : [ 0 STATE ! ; IMMEDIATE
 : ] 1 STATE ! ; IMMEDIATE
-
-: TUCK SWAP OVER ;
-: NIP  SWAP DROP ;
-
-: ,  DP TUCK @ TUCK  ! CELL + SWAP ! ;
-: C, DP TUCK @ TUCK C! 1+     SWAP ! ;
-
-: !  ?COMPILING IF <asm> CPUSH STORE  </asm> C, ELSE ! THEN ; IMMEDIATE
-: C! ?COMPILING IF <asm> CPUSH CSTORE </asm> C, <asm> RET </asm> THEN C! ; IMMEDIATE
-\ : !  <asm> STORE  </asm> ; INLINE
-\ : C! <asm> CSTORE </asm> ; INLINE
-
-: @  ?COMPILING IF <asm> CPUSH FETCH  </asm> C, <asm> RET </asm> THEN @ ; IMMEDIATE
-: C@ ?COMPILING IF <asm> CPUSH CFETCH </asm> C, <asm> RET </asm> THEN C@ ; IMMEDIATE
-\ : @  <asm> FETCH  </asm> ; INLINE
-\ : C@ <asm> CFETCH </asm> ; INLINE
-
-: + ?COMPILING IF <asm> CPUSH ADD </asm> C, <asm> RET </asm> THEN + ; IMMEDIATE
-: - ?COMPILING IF <asm> CPUSH SUB </asm> C, <asm> RET </asm> THEN - ; IMMEDIATE
-: * ?COMPILING IF <asm> CPUSH MUL </asm> C, <asm> RET </asm> THEN * ; IMMEDIATE
-: / ?COMPILING IF <asm> CPUSH DIV </asm> C, <asm> RET </asm> THEN / ; IMMEDIATE
-
-: << ?COMPILING IF <asm> CPUSH LSHIFT </asm> C, <asm> RET </asm> THEN << ; IMMEDIATE
-: >> ?COMPILING IF <asm> CPUSH RSHIFT </asm> C, <asm> RET </asm> THEN >> ; IMMEDIATE
-
-: AND ?COMPILING IF <asm> CPUSH AND </asm> C, <asm> RET </asm> THEN AND ; IMMEDIATE
-: OR  ?COMPILING IF <asm> CPUSH OR  </asm> C, <asm> RET </asm> THEN OR ; IMMEDIATE
-
-: >R ?COMPILING IF <asm> CPUSH DTOR   </asm> C, <asm> RET </asm> THEN >R ; IMMEDIATE
-: R@ ?COMPILING IF <asm> CPUSH RFETCH </asm> C, <asm> RET </asm> THEN R@ ; IMMEDIATE
-: R> ?COMPILING IF <asm> CPUSH RTOD   </asm> C, <asm> RET </asm> THEN R> ; IMMEDIATE
-
-: < ?COMPILING IF <asm> CPUSH LT </asm> C, <asm> RET </asm> THEN < ; IMMEDIATE
-: = ?COMPILING IF <asm> CPUSH EQ </asm> C, <asm> RET </asm> THEN = ; IMMEDIATE
-: > ?COMPILING IF <asm> CPUSH GT </asm> C, <asm> RET </asm> THEN > ; IMMEDIATE
-
-: DUP  ?COMPILING IF <asm> CPUSH DUP  </asm> C, <asm> RET </asm> THEN DUP ; IMMEDIATE
-: SWAP ?COMPILING IF <asm> CPUSH SWAP </asm> C, <asm> RET </asm> THEN SWAP ; IMMEDIATE
-: DROP ?COMPILING IF <asm> CPUSH DROP </asm> C, <asm> RET </asm> THEN DROP ; IMMEDIATE
-: OVER ?COMPILING IF <asm> CPUSH OVER </asm> C, <asm> RET </asm> THEN OVER ; IMMEDIATE
-: PICK ?COMPILING IF <asm> CPUSH PICK </asm> C, <asm> RET </asm> THEN PICK ; IMMEDIATE
-
-:  ROT >R SWAP R> SWAP ;
-: -ROT SWAP >R SWAP R> ;
-
-: DEPTH ?COMPILING IF <asm> CPUSH DEPTH </asm> C, <asm> RET </asm> THEN DEPTH ; IMMEDIATE
-: RESET ?COMPILING IF <asm> CPUSH RESET </asm> C, <asm> RET </asm> THEN RESET ; IMMEDIATE
-: BREAK ?COMPILING IF <asm> CPUSH BREAK </asm> C, <asm> RET </asm> THEN BREAK ; IMMEDIATE
-: BYE   ?COMPILING IF <asm> CPUSH BYE   </asm> C, <asm> RET </asm> THEN BYE ; IMMEDIATE
-
-: EMIT  ?COMPILING IF <asm> CPUSH EMIT  </asm> C, <asm> RET </asm> THEN EMIT ; IMMEDIATE
-: ZTYPE ?COMPILING IF <asm> CPUSH ZTYPE </asm> C, <asm> RET </asm> THEN ZTYPE ; IMMEDIATE
-: GETCH ?COMPILING IF <asm> CPUSH GETCH </asm> C, <asm> RET </asm> THEN GETCH ; IMMEDIATE
-
-: FOPEN ?COMPILING IF <asm> CPUSH FOPEN </asm> C, <asm> RET </asm> THEN FOPEN ; IMMEDIATE
-: FREAD ?COMPILING IF <asm> CPUSH FREAD </asm> C, <asm> RET </asm> THEN FREAD ; IMMEDIATE
-: FREADLINE ?COMPILING IF <asm> CPUSH FREADLINE </asm> C, <asm> RET </asm> THEN FREADLINE ; IMMEDIATE
-: FWRITE ?COMPILING IF <asm> CPUSH FWRITE </asm> C, <asm> RET </asm> THEN FWRITE ; IMMEDIATE
-: FCLOSE ?COMPILING IF <asm> CPUSH FCLOSE </asm> C, <asm> RET </asm> THEN FCLOSE ; IMMEDIATE
-
-: COMPARE ?COMPILING IF <asm> CPUSH COMPARE </asm> C, <asm> RET </asm> THEN COMPARE ; IMMEDIATE
-
-: 1+ ?COMPILING IF <asm> CPUSH ONEPLUS </asm> C, <asm> RET </asm> THEN 1+ ; IMMEDIATE
 
 : IF   ?COMPILING IF <asm> CPUSH JMPZ </asm> C, HERE 0 , THEN ; IMMEDIATE
 : ELSE ?COMPILING IF <asm> CPUSH JMP  </asm> C, HERE SWAP 0 , HERE SWAP ! THEN ; IMMEDIATE
@@ -103,11 +109,13 @@
 : WHILE ?COMPILING IF <asm> CPUSH JMPNZ </asm> C, , THEN ; IMMEDIATE
 : UNTIL ?COMPILING IF <asm> CPUSH JMPZ  </asm> C, , THEN ; IMMEDIATE
 
-: LEAVE ?COMPILING IF <asm> CPUSH RET </asm> C, THEN ; IMMEDIATE
+: 0= 0 =  ; INLINE
+: <> = 0= ; INLINE
+: <= > 0= ; INLINE
+: >= < 0= ; INLINE
 
-: <> = 0 = ; 
-: <= > 0 = ; 
-: >= < 0 = ;
+: 2DUP  OVER OVER ; INLINE
+: 2DROP DROP DROP ; INLINE
 
 : CRLF 13 EMIT 10 EMIT ;
 : BL 32 EMIT ;
@@ -115,15 +123,15 @@
 \	BEGIN 
 \		DUP C@ DUP 
 \		IF EMIT 1+ 
-\		ELSE DROP DROP LEAVE 
+\		ELSE 2DROP LEAVE 
 \		THEN 
 \	AGAIN 
 \ ;
 
 : BETWEEN \ ( num min max -- bool )
 	2 PICK 
-	< IF DROP DROP 0 LEAVE THEN
-	< 0 =
+	< IF 2DROP 0 LEAVE THEN
+	< 0=
 ;
 
 : TYPE DROP ZTYPE ; \ ( addr num -- )
@@ -131,15 +139,6 @@
 
 : PAD LAST 200 - ;
 : getInput PAD 128 0 FREADLINE DROP PAD ; \ ( -- addr )
-
-: @+!  TUCK @  + SWAP ! ;  \ ( num addr -- )
-: C@+! TUCK C@ + SWAP C! ; \ ( num addr -- )
-
-: ++ DUP @ 1+ SWAP ! ; \ ( addr -- )
-: C++ DUP C@ 1+ SWAP C! ; \ ( addr -- )
-
-: -- DUP @ 1 - SWAP ! ; \ ( addr -- )
-: C-- DUP C@ 1 - SWAP C! ; \ ( addr -- )
 
 : ?DUP DUP IF DUP THEN ;
 
@@ -191,7 +190,7 @@
 : NEXT>DICT ;
 : XT>DICT     CELL - ;
 : FLAGS>DICT  2 CELLS - ;
-: NAME>DICT   1 - 2 CELLS - ;
+: NAME>DICT   1- 2 CELLS - ;
 
 : DICT.GetXT DICT>XT @ ;
 : DICT.GetFLAGS DICT>FLAGS C@ ;
@@ -201,8 +200,11 @@
 : FLAG_IMMEDIATE 1 ;
 : FLAG_INLINE    2 ;
 
-: DICT.GetIMMEDIATE DICT.GetFLAGS FLAG_IMMEDIATE AND ;
-: DICT.GetINLINE    DICT.GetFLAGS FLAG_INLINE    AND ;
+: FLAGS.ISIMMEDIATE? FLAG_IMMEDIATE AND ;
+: FLAGS.ISINLINE?    FLAG_INLINE    AND ;
+
+: DICT.GetIMMEDIATE DICT.GetFLAGS FLAGS.ISIMMEDIATE? ;
+: DICT.GetINLINE    DICT.GetFLAGS FLAGS.ISINLINE? ;
 
 : findInDict \ ( addr -- XT IMM bool )
 	LAST >R
@@ -212,11 +214,11 @@
 			\ addr is a null-termnated string with no count byte
 			DICT>NAME 1+ OVER COMPARE
 			IF
-				DROP R@ DICT.GetXT R> DICT.GetIMMEDIATE 1
+				DROP R@ DICT.GetXT R> DICT.GetFLAGS 1
 				LEAVE
 			THEN
 		ELSE
-			DROP DROP R> 0 0 LEAVE
+			2DROP R> 0 0 LEAVE
 		THEN
 		R> @ >R
 	AGAIN
@@ -246,7 +248,7 @@
 		DUP C@
 		DUP 0 = \ end of word?
 		IF 
-			DROP DROP R> 
+			2DROP R> 
 			isNeg C@ IF NEGATE THEN
 			1 LEAVE
 		THEN
@@ -262,7 +264,7 @@
 ;
 
 : /MOD \ ( num1 num2 -- num3 mod )
-	OVER OVER / >R R@ * - R> SWAP
+	2DUP / >R R@ * - R> SWAP
 ;
 
 : (.)  \ ( num -- )
@@ -296,8 +298,8 @@
 : DECIMAL. BASE @ SWAP DECIMAL (.) BASE ! ;
 : BINARY.  BASE @ SWAP BINARY  (.) BASE ! ;
 
-: MIN OVER OVER > IF SWAP THEN DROP ; 
-: MAX OVER OVER < IF SWAP THEN DROP ; 
+: MIN 2DUP > IF SWAP THEN DROP ; 
+: MAX 2DUP < IF SWAP THEN DROP ; 
 
 : .S 
 	BL DEPTH 0 < 
@@ -305,11 +307,11 @@
 	DEPTH 0 =
 	IF 40 EMIT 237 EMIT 41 EMIT LEAVE THEN
 	40 EMIT
-	DEPTH 1 - >R
+	DEPTH 1- >R
 	BEGIN 
 		R@ PICK . R@ 
 		IF
-			R> 1 - >R
+			R> 1- >R
 		ELSE
 			R> DROP BL 41 EMIT LEAVE
 		THEN
@@ -332,22 +334,43 @@
 
 : EXECUTE R> DROP >R ; \ ( addr -- )
 
+: Copy.INLINE \ ( XT -- )
+	\ Skip over the DICTP
+	1+ CELL +
+	\ Copy bytes up until the first RET
+	BEGIN
+		DUP C@ 
+		DUP <asm> CPUSH RET </asm> =
+		IF
+			2DROP LEAVE
+		ELSE
+			C, 1+
+		THEN
+	AGAIN
+;
+
 : executeWord  \ ( addr -- )
-	>R R@ findInDict \ ( addr -- XT IMM found )
+	>R R@ findInDict \ ( addr -- XT FLAGS found )
 	IF
 		R> DROP
 		?COMPILING
 		IF
-			IF \ Immediate?
-				EXECUTE
+			DUP FLAGS.ISIMMEDIATE? \ Immediate?
+			IF
+				DROP EXECUTE
 			ELSE
-				<asm> CPUSH CALL </asm> C, ,
+				FLAGS.ISINLINE? 
+				IF
+					Copy.INLINE
+				ELSE
+					<asm> CPUSH CALL </asm> C, ,
+				THEN
 			THEN
 		ELSE
 			DROP EXECUTE
 		THEN
 	ELSE \ word not found
-		DROP DROP \ discard IMM and XT place holders
+		2DROP \ discard IMM and XT place holders
 		R@ isNumber? \ ( addr -- num bool )
 		IF
 			?COMPILING
@@ -401,8 +424,8 @@
 			\ .S
 			Pad C@ 0 >
 			IF 
-				-1 Pad C@+!
-				-1 >In @+!
+				Pad C--
+				>In --
 				DUP EMIT BL EMIT
 			ELSE
 				DROP
@@ -412,8 +435,8 @@
 			IF
 				DUP EMIT
 				>In @ C! 
-				1 >In @+!
-				1 Pad C@+!
+				>In ++
+				Pad C++
 			ELSE
 				DROP
 			THEN
@@ -445,7 +468,7 @@
 		IF					\ to from ch
 			2 PICK C!		\ to from
 			SWAP 1+ SWAP 1+
-			1 R@ C@+!
+			R@ C++
 		ELSE				\ to from ch
 			ROT C! DROP
 			R> DROP
@@ -521,7 +544,7 @@
 	THEN 
 ;
 
-: (var) HERE 4 + 1 C, , <asm> CPUSH RET </asm> C, 0 , ;
+: (var) HERE 2 + CELL + <asm> CPUSH PUSH </asm> C, , <asm> CPUSH RET </asm> C, 0 , ;
 : VARIABLE (:) (var) ;
 : ALLOT HERE + DP ! ;
 
