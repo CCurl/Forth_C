@@ -47,9 +47,6 @@
 \ : @  <asm> FETCH  </asm> ; INLINE
 \ : C@ <asm> CFETCH </asm> ; INLINE
 
-: $ FETCH ; INLINE
-: TEST BASE $ DROP ;
-
 : + ?COMPILING IF <asm> CPUSH ADD </asm> C, <asm> RET </asm> THEN + ; IMMEDIATE
 : - ?COMPILING IF <asm> CPUSH SUB </asm> C, <asm> RET </asm> THEN - ; IMMEDIATE
 : * ?COMPILING IF <asm> CPUSH MUL </asm> C, <asm> RET </asm> THEN * ; IMMEDIATE
@@ -186,14 +183,36 @@
 	AGAIN
 ;
 
+: DICT>NEXT ;
+: DICT>XT     CELL + ;
+: DICT>FLAGS  2 CELLS + ;
+: DICT>NAME   DICT>FLAGS 1+ ;
+
+: NEXT>DICT ;
+: XT>DICT     CELL - ;
+: FLAGS>DICT  2 CELLS - ;
+: NAME>DICT   1 - 2 CELLS - ;
+
+: DICT.GetXT DICT>XT @ ;
+: DICT.GetFLAGS DICT>FLAGS C@ ;
+
+: DICTP>NAME 1+ @ DICT>NAME ;
+
+: FLAG_IMMEDIATE 1 ;
+: FLAG_INLINE    2 ;
+
+: DICT.GetIMMEDIATE DICT.GetFLAGS FLAG_IMMEDIATE AND ;
+: DICT.GetINLINE    DICT.GetFLAGS FLAG_INLINE    AND ;
+
 : findInDict \ ( addr -- XT IMM bool )
 	LAST >R
 	BEGIN
 		R@ DUP
 		IF
-			2 CELLS 2 + + OVER COMPARE
+			\ addr is a null-termnated string with no count byte
+			DICT>NAME 1+ OVER COMPARE
 			IF
-				DROP R@ CELL + @ R> 2 CELLS + C@ 1
+				DROP R@ DICT.GetXT R> DICT.GetIMMEDIATE 1
 				LEAVE
 			THEN
 		ELSE
@@ -305,7 +324,7 @@
 			DROP CRLF LEAVE
 		THEN
 		\ DUP 40 EMIT HEX. 41 EMIT BL \ DEBUG
-		DUP 2 CELLS 1+ + 
+		DUP DICT>NAME
 		COUNT TYPE BL
 		@
 	AGAIN
@@ -402,7 +421,7 @@
 	AGAIN
 ;
 
-: bye CRLF BYE ;
+: bye BYE ;
 
 : strlen \ ( addr -- num )
 	0 >R
@@ -446,7 +465,8 @@
 	R> (LAST) !
 ;
 
-: IMMEDIATE 1 LAST 2 CELLS + C! ;
+: IMMEDIATE LAST DICT>FLAGS DUP C@ FLAG_IMMEDIATE OR SWAP C! ;
+: INLINE    LAST DICT>FLAGS DUP C@ FLAG_INLINE    OR SWAP C! ;
 
 : (:) \ ( -- )
 	>IN @ skipWS >IN ! 
