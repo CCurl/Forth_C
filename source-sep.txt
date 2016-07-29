@@ -79,6 +79,7 @@
 : COMPARE <asm> COMPARE </asm> ; INLINE
 : LEAVE <asm> RET </asm> ; INLINE
 
+: RDROP R> DROP   ; INLINE
 : TUCK  SWAP OVER ; INLINE
 : NIP   SWAP DROP ; INLINE
 : ROT   >R SWAP R> SWAP ;
@@ -118,7 +119,8 @@
 : 2DROP DROP DROP ; INLINE
 
 : CRLF 13 EMIT 10 EMIT ;
-: BL 32 EMIT ;
+: BL 32 EMIT ; INLINE
+
 \ : ZTYPE 
 \	BEGIN 
 \		DUP C@ DUP 
@@ -236,7 +238,8 @@
 	0
 ;
 
-: NEGATE 0 SWAP - ; \ ( num1 -- num2 )
+: NEGATE 0 SWAP - ;
+: ABS DUP 0 < IF NEGATE THEN ;
 
 : isNumber? \ ( addr -- num bool )
 	\ find out if it is negative
@@ -313,13 +316,13 @@
 		IF
 			R> 1- >R
 		ELSE
-			R> DROP BL 41 EMIT LEAVE
+			RDROP BL 41 EMIT LEAVE
 		THEN
 	AGAIN
 ;
 
 : WORDS \ ( -- )
-	BL LAST
+	LAST
 	BEGIN
 		DUP @ 0 =
 		IF
@@ -332,7 +335,7 @@
 	AGAIN
 ;
 
-: EXECUTE R> DROP >R ; \ ( addr -- )
+: EXECUTE RDROP >R ; \ ( addr -- )
 
 : Copy.INLINE \ ( XT -- )
 	\ Skip over the DICTP
@@ -352,7 +355,7 @@
 : executeWord  \ ( addr -- )
 	>R R@ findInDict \ ( addr -- XT FLAGS found )
 	IF
-		R> DROP
+		RDROP
 		?COMPILING
 		IF
 			DUP FLAGS.ISIMMEDIATE? \ Immediate?
@@ -388,7 +391,7 @@
 			DROP
 			BL R@ ZTYPE S" ??" COUNT TYPE RESET \ TODO: error
 		THEN
-		R> DROP
+		RDROP
 	THEN
 ;
 
@@ -417,7 +420,7 @@
 	BEGIN
 		0 >In @ C!
 		GETCH DUP 13 =
-		IF DROP Pad LEAVE THEN
+		IF DROP Pad BL LEAVE THEN
 
 		DUP 8 = 
 		IF
@@ -471,7 +474,7 @@
 			R@ C++
 		ELSE				\ to from ch
 			ROT C! DROP
-			R> DROP
+			RDROP
 			LEAVE
 		THEN
 	AGAIN
@@ -519,13 +522,17 @@
 	THEN
 ; IMMEDIATE
 
-: .FL. \ Forgets the last word
+: LAST? LAST DICT>NAME COUNT TYPE ;
+
+: (FL) \ Forgets the last word
 	LAST CELL + @ DP ! 
 	LAST @ (LAST) ! 
 ;
 
+: .fl (FL) LAST? ;
+
 : resetState ?COMPILING 
-	IF .FL. THEN 
+	IF (FL) THEN 
 	0 STATE ! DECIMAL 
 ;
 
@@ -557,3 +564,9 @@
 
 : mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput BL AGAIN ;
 : main HELLO mainLoop ;
+
+: ascii. DUP HEX. BL DUP DECIMAL. BL DUP EMIT ;
+: ascii BEGIN CRLF ascii. 1+ 2DUP > WHILE 2DROP ;
+
+: t0 0 BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
+: t1 0 BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;

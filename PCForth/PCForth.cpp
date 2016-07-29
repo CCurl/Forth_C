@@ -159,7 +159,7 @@ int run()
 
 		case BRANCHNZ:
 			arg1 = GETAT(PC);
-			if (pop() == 0)
+			if (pop() != 0)
 			{
 				arg1 = GETAT(PC);
 				PC += arg1;
