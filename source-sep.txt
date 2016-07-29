@@ -121,6 +121,8 @@
 : CRLF 13 EMIT 10 EMIT ;
 : BL 32 EMIT ; INLINE
 
+: ON 1 SWAP ! ; : OFF 0 SWAP ! ;
+
 \ : ZTYPE 
 \	BEGIN 
 \		DUP C@ DUP 
@@ -510,13 +512,14 @@
 	THEN
 ;
 
-: : (:) 1 STATE ! ;
+: : (:) STATE ON ;
+: :NONAME HERE STATE OFF ;
 
 : ; \ ( -- )
 	?COMPILING 
 	IF
 		<asm> CPUSH RET </asm> C,
-		0 STATE !
+		STATE OFF
 	ELSE
 		RESET
 	THEN
@@ -533,7 +536,7 @@
 
 : resetState ?COMPILING 
 	IF (FL) THEN 
-	0 STATE ! DECIMAL 
+	STATE OFF DECIMAL 
 ;
 
 : OK ?COMPILING 0 = IF S" OK" COUNT TYPE .S THEN CRLF ;
