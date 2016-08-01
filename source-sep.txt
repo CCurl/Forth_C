@@ -296,7 +296,6 @@
 	AGAIN
 ;
 
-
 : . BL (.) ;
 
 : HEX.     BASE @ SWAP HEX     (.) BASE ! ;
@@ -341,7 +340,9 @@
 
 : Copy.INLINE \ ( XT -- )
 	\ Skip over the DICTP
-	1+ CELL +
+	DUP C@ <asm> CPUSH DICTP </asm> =
+	IF 1+ CELL + THEN
+
 	\ Copy bytes up until the first RET
 	BEGIN
 		DUP C@ 
@@ -391,7 +392,7 @@
 			THEN
 		ELSE
 			DROP
-			BL R@ ZTYPE S" ??" COUNT TYPE RESET \ TODO: error
+			R@ ZTYPE S" ??" COUNT TYPE RESET \ TODO: error
 		THEN
 		RDROP
 	THEN
@@ -513,7 +514,7 @@
 ;
 
 : : (:) STATE ON ;
-: :NONAME HERE STATE OFF ;
+: :NONAME HERE STATE ON ;
 
 : ; \ ( -- )
 	?COMPILING 
@@ -543,14 +544,11 @@
 
 : z DUP BL HEX. DUP C@ BL HEX. 1+ ;
 
-: hi S" Hello" COUNT TYPE ;
-: there S" , Chris." COUNT TYPE ;
-
 : HELLO >IN @
 	IF 
 		S"  Reset. " COUNT TYPE
 	ELSE
-		hi there CRLF
+		S" Hello." COUNT TYPE CRLF
 	THEN 
 ;
 
@@ -569,7 +567,7 @@
 : main HELLO mainLoop ;
 
 : ascii. DUP HEX. BL DUP DECIMAL. BL DUP EMIT ;
-: ascii BEGIN CRLF ascii. 1+ 2DUP > WHILE 2DROP ;
+: ascii 2DUP < IF SWAP THEN BEGIN CRLF ascii. 1+ 2DUP > WHILE 2DROP ;
 
 : t0 0 BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
 : t1 0 BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
