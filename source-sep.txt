@@ -43,6 +43,8 @@
 
 : << <asm> LSHIFT </asm> ; INLINE
 : >> <asm> RSHIFT </asm> ; INLINE
+: 2* 1 << ; INLINE 
+: 2/ 1 >> ; INLINE
 
 : AND <asm> AND </asm> ; INLINE
 : OR  <asm> OR  </asm> ; INLINE
@@ -267,6 +269,8 @@
 		THEN
 	AGAIN
 ;
+
+: MOD 2DUP / * - ;
 
 : /MOD \ ( num1 num2 -- num3 mod )
 	2DUP / >R R@ * - R> SWAP
@@ -573,3 +577,9 @@
 
 : t0 0 BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
 : t1 0 BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
+
+\ some simple pseudo floating point words
+: fpb <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+: >FP SWAP fpb @ * + ;
+: FP> fpb @ /MOD ;
+: FP. FP> SWAP . 46 EMIT (.) ;
