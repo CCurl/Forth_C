@@ -56,12 +56,15 @@
 // ************************************************************************************************
 // ************************************************************************************************
 
-typedef short CELL;				// Use long for a 32-bit implementation, short for a 16-bit
-#define CELL_SZ sizeof(CELL)
 typedef unsigned char BYTE;
+typedef long CELL;				// Use long for a 32-bit implementation, short for a 16-bit
+#define CELL_SZ sizeof(CELL)
 
 #define DSTACK_SZ CELL_SZ * 64
 #define RSTACK_SZ CELL_SZ * 64
+
+#define STACK_BUF_CELLS 2
+#define STACK_BUF_SZ (STACK_BUF_CELLS * CELL_SZ)
 
 #define ADDR_CELL   7
 #define ADDR_SP     8
@@ -73,4 +76,10 @@ typedef unsigned char BYTE;
 
 #define ONE_KB (1024)
 #define ONE_MB (ONE_KB * ONE_KB)
-#define MEM_SZ 8*ONE_KB
+#define MEM_SZ (16*ONE_KB)
+
+#define RSP_BASE (MEM_SZ - RSTACK_SZ)				// Start address of the return stack
+#define RSP_INIT (MEM_SZ - STACK_BUF_SZ)			// Initial value of the return stack pointer
+
+#define DSP_BASE (MEM_SZ - RSTACK_SZ - DSTACK_SZ)	// Start address of the data stack
+#define DSP_INIT (DSP_BASE + STACK_BUF_SZ)			// Initial value of the data stack pointer

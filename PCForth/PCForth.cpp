@@ -27,9 +27,6 @@ CELL arg1, arg2, arg3;
 CELL *RSP = NULL; // the return stack pointer
 CELL *DSP = NULL; // the data stack pointer
 
-CELL RSP_INIT = MEM_SZ - CELL_SZ;								// Initial value of the return stack pointer
-CELL DSP_INIT = MEM_SZ - RSTACK_SZ - DSTACK_SZ + (CELL_SZ * 4);	// Initial value of the data stack pointer
-
 #define GETAT(loc) *(CELL *)(&the_mem[loc])
 #define SETAT(loc, val) *(CELL *)(&the_mem[loc]) = val
 

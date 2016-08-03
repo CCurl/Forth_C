@@ -415,7 +415,7 @@
 ;
 
 : Pad LAST 200 - ;
-: >In <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
+: >In <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 \ : >In Pad CELL - ;
 
 : getLine \ ( -- addr )
@@ -559,6 +559,8 @@
 : ? @ . ; \ ( addr -- )
 : C? C@ . ; \ ( addr -- )
 
+: FREE LAST HERE - ; : FREE? FREE . ;
+
 : CT COUNT TYPE ;
 : bufAppend DUP C++ DUP C@ + C! ; \ ( ch addr -- )
 : nullTerm DUP C@ + 1+ 0 SWAP C! ; \ ( addr -- )
@@ -566,8 +568,8 @@
 : mainLoop resetState BEGIN OK getLine 1+ >IN ! executeInput BL AGAIN ;
 : main HELLO mainLoop ;
 
-: ascii. DUP HEX. BL DUP DECIMAL. BL DUP EMIT ;
-: ascii 2DUP < IF SWAP THEN BEGIN CRLF ascii. 1+ 2DUP > WHILE 2DROP ;
+: ascii. DUP HEX. BL DUP DECIMAL. BL EMIT ;
+: ascii 2DUP < IF SWAP THEN BEGIN CRLF DUP ascii. 1+ 2DUP > WHILE 2DROP ;
 
 : t0 0 BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
 : t1 0 BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;

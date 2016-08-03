@@ -23,13 +23,13 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 {
 	SP = 0;
 	HERE = 0;
-	LAST = MEM_SZ - (DSTACK_SZ + RSTACK_SZ) - sizeof(int);
+	LAST = DSP_BASE - CELL_SZ;
 	STATE = 0;
 	line_no = 0;
 	memset(the_memory, 0x00, sizeof(the_memory));
 	SetAt(LAST, 0);
-	SetAt(ADDR_SP, LAST  + (CELL_SZ*4));
-	SetAt(ADDR_RSP, GetAt(ADDR_SP) + DSTACK_SZ);
+	SetAt(ADDR_SP, DSP_INIT);
+	SetAt(ADDR_RSP, RSP_INIT);
 
 	CW2A source(m_source);
 	CW2A output(m_output);
