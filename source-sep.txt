@@ -306,6 +306,12 @@
 : DECIMAL. BASE @ SWAP DECIMAL (.) BASE ! ;
 : BINARY.  BASE @ SWAP BINARY  (.) BASE ! ;
 
+\ some simple pseudo floating point words
+: fpb <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+: >FP SWAP fpb @ * + ;
+: FP> fpb @ /MOD ;
+: FP. FP> SWAP . 46 EMIT (.) ;
+
 : MIN 2DUP > IF SWAP THEN DROP ; 
 : MAX 2DUP < IF SWAP THEN DROP ; 
 
@@ -552,6 +558,7 @@
 	IF 
 		S"  Reset. " COUNT TYPE
 	ELSE
+		100 fpb !
 		S" Hello." COUNT TYPE CRLF
 	THEN 
 ;
@@ -578,8 +585,3 @@
 : t0 0 BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
 : t1 0 BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
 
-\ some simple pseudo floating point words
-: fpb <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
-: >FP SWAP fpb @ * + ;
-: FP> fpb @ /MOD ;
-: FP. FP> SWAP . 46 EMIT (.) ;
