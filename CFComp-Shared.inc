@@ -18,6 +18,7 @@ OPCODE_T opcodes[] = {
 	, { _T("CALL"), CALL, _T("") }
 	, { _T("RET"), RET, _T("LEAVE") }
 	, { _T("COMPARE"), COMPARE, _T("COMPARE") }
+	, { _T("COMPAREI"), COMPAREI, _T("COMPAREI") }
 	, { _T("CFETCH"), CFETCH, _T("C@") }
 	, { _T("CSTORE"), CSTORE, _T("C!") }
 	, { _T("ADD"), ADD, _T("+") }

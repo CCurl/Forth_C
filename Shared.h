@@ -49,6 +49,7 @@
 #define BRANCH    44
 #define BRANCHZ   45
 #define BRANCHNZ  46
+#define COMPAREI  47	// ( addr1 addr2 -- bool )
 #define BREAK    253
 #define RESET    254
 #define BYE      255

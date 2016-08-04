@@ -79,7 +79,7 @@
 : FCLOSE    <asm> FCLOSE    </asm> ; INLINE
 
 : COMPARE <asm> COMPARE </asm> ; INLINE
-: LEAVE <asm> RET </asm> ; INLINE
+: COMPAREI <asm> COMPAREI </asm> ; INLINE
 
 : RDROP R> DROP   ; INLINE
 : TUCK  SWAP OVER ; INLINE
@@ -102,6 +102,8 @@
 : ?COMPILING STATE @ ;
 : [ 0 STATE ! ; IMMEDIATE
 : ] 1 STATE ! ; IMMEDIATE
+
+: LEAVE ?COMPILING IF <asm> CPUSH RET </asm> C, THEN ; IMMEDIATE
 
 : IF   ?COMPILING IF <asm> CPUSH JMPZ </asm> C, HERE 0 , THEN ; IMMEDIATE
 : ELSE ?COMPILING IF <asm> CPUSH JMP  </asm> C, HERE SWAP 0 , HERE SWAP ! THEN ; IMMEDIATE
@@ -218,7 +220,7 @@
 		R@ DUP
 		IF
 			\ addr is a null-termnated string with no count byte
-			DICT>NAME 1+ OVER COMPARE
+			DICT>NAME 1+ OVER COMPAREI
 			IF
 				DROP R@ DICT.GetXT R> DICT.GetFLAGS 1
 				LEAVE
@@ -426,7 +428,6 @@
 
 : Pad LAST 200 - ;
 : >In <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
-\ : >In Pad CELL - ;
 
 : getLine \ ( -- addr )
 	0 Pad DUP 1+ >In ! C!
@@ -462,16 +463,14 @@
 
 : bye BYE ;
 
-: strlen \ ( addr -- num )
-	0 >R
+: strlen 0 SWAP 
 	BEGIN
-		DUP C@
+		TUCK C@ DUP
 		IF
-			R> 1+ >R 1+
-		ELSE
-			DROP R> LEAVE
+			DROP 1+ SWAP 1+ 1
 		THEN
-	AGAIN
+	WHILE
+	NIP
 ;
 
 : strcpy2c \ ( from to -- ) from is NOT counted, to is to get count byte
@@ -494,7 +493,6 @@
 ;
 
 : Define-Word \ ( addr -- )
-	\ 91 EMIT DUP ZTYPE 45 EMIT LAST (.) 45 EMIT HERE (.) 93 EMIT \ DEBUG
 	LAST OVER strlen 2 CELLS 3 + + - 
 	DUP >R >R					\ Save new LAST
 	LAST R@  !  R> CELL + >R	\ NEXT
@@ -563,9 +561,11 @@
 	THEN 
 ;
 
-: (var) HERE 2 + CELL + <asm> CPUSH PUSH </asm> C, , <asm> CPUSH RET </asm> C, 0 , ;
-: VARIABLE (:) (var) ;
 : ALLOT HERE + DP ! ;
+
+: (const) <asm> CPUSH PUSH </asm> C, , <asm> CPUSH RET </asm> C, ;
+: CONSTANT (:) (const) INLINE ;
+: VARIABLE (:) HERE 2 + CELL + (const) 0 , INLINE ;
 
 : ? @ . ; \ ( addr -- )
 : C? C@ . ; \ ( addr -- )
@@ -584,4 +584,3 @@
 
 : t0 0 BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
 : t1 0 BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
-

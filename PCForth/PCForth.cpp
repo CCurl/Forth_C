@@ -189,6 +189,17 @@ int run()
 			}
 			break;
 
+		case COMPAREI:
+			arg2 = pop();
+			arg1 = pop();
+			{
+				char *cp1 = (char *)&the_mem[arg1];
+				char *cp2 = (char *)&the_mem[arg2];
+				arg3 = _strcmpi(cp1, cp2) ? 0 : 1;
+				push(arg3);
+			}
+			break;
+
 		case SLITERAL:
 			arg1 = PC++;
 			arg2 = the_mem[PC++];
