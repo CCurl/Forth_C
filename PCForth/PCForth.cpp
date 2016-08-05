@@ -2,12 +2,13 @@
 //
 
 #include "stdafx.h"
+//#include <windows.h>
 #include <string.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <conio.h>
 #include <ctype.h>
-
+//#include <windows.h>
 #include "..\Shared.h"
 
 // ------------------------------------------------------------------------------------------
@@ -508,6 +509,12 @@ bool bios_init(char *arg)
 // ------------------------------------------------------------------------------------------
 int _tmain(int argc, _TCHAR* argv[])
 {
+	//HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	//DWORD dwMode = 0;
+	//GetConsoleMode(hOut, &dwMode);
+	//dwMode |= 0x04;
+	//SetConsoleMode(hOut, dwMode);
+
 	the_mem = (BYTE *)malloc(MEM_SZ);
 	memset(the_mem, NULL, (MEM_SZ*sizeof(BYTE)));
 

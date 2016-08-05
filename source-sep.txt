@@ -350,21 +350,69 @@
 
 : EXECUTE RDROP >R ; \ ( addr -- )
 
+: Copy.INLINE.Num \ ( start num -- )
+	SWAP >R
+	0
+	BEGIN
+		DUP R> DUP C@ C, 1+ >R
+		1+ 2DUP >
+	WHILE
+	2DROP RDROP
+;
+
+\ ( addr1 -- addr2 )
+: find.ret
+	BEGIN
+		DUP C@ 
+		<asm> CPUSH RET </asm> =
+		IF
+			LEAVE
+		THEN
+		1+
+	AGAIN
+;
+
+: (inline) \ ( from to -- )
+	2DUP < IF SWAP THEN
+	BEGIN
+		DUP C@ C,
+		1+ 2DUP >
+	WHILE
+	2DROP
+;
+
+: DOES>
+	R> DUP find.ret
+	DUP >R
+	1+
+	(inline)
+;
+
 : Copy.INLINE \ ( XT -- )
 	\ Skip over the DICTP
 	DUP C@ <asm> CPUSH DICTP </asm> =
-	IF 1+ CELL + THEN
+	IF 
+		1+ CELL +
+	THEN
 
-	\ Copy bytes up until the first RET
+	DUP find.ret
+	(inline)
+;
+
+: strlen 0 SWAP 
 	BEGIN
-		DUP C@ 
-		DUP <asm> CPUSH RET </asm> =
+		TUCK C@ DUP
 		IF
-			2DROP LEAVE
-		ELSE
-			C, 1+
+			DROP 1+ SWAP 1+ 1
 		THEN
-	AGAIN
+	WHILE
+	NIP
+;
+
+: cstr, \ ( start -- )
+	DUP C@ 
+	OVER + 1+ 1+
+	(inline)
 ;
 
 : executeWord  \ ( addr -- )
@@ -463,16 +511,6 @@
 
 : bye BYE ;
 
-: strlen 0 SWAP 
-	BEGIN
-		TUCK C@ DUP
-		IF
-			DROP 1+ SWAP 1+ 1
-		THEN
-	WHILE
-	NIP
-;
-
 : strcpy2c \ ( from to -- ) from is NOT counted, to is to get count byte
 	\ 65 EMIT OVER . DUP . \ DEBUG
 	DUP >R					\ from to
@@ -505,7 +543,7 @@
 : IMMEDIATE LAST DICT>FLAGS DUP C@ FLAG_IMMEDIATE OR SWAP C! ;
 : INLINE    LAST DICT>FLAGS DUP C@ FLAG_INLINE    OR SWAP C! ;
 
-: (:) \ ( -- )
+: CREATE-NAME \ ( -- )
 	>IN @ skipWS >IN ! 
 	>IN @ C@ 
 	IF
@@ -521,7 +559,7 @@
 	THEN
 ;
 
-: : (:) STATE ON ;
+: : CREATE-NAME STATE ON ;
 : :NONAME HERE STATE ON ;
 
 : ; \ ( -- )
@@ -550,7 +588,7 @@
 
 : OK ?COMPILING 0 = IF S" OK" COUNT TYPE .S THEN CRLF ;
 
-: z DUP BL HEX. DUP C@ BL HEX. 1+ ;
+: z DUP BL DECIMAL. DUP BL HEX. DUP C@ BL HEX. 1+ ;
 
 : HELLO >IN @
 	IF 
@@ -564,8 +602,8 @@
 : ALLOT HERE + DP ! ;
 
 : (const) <asm> CPUSH PUSH </asm> C, , <asm> CPUSH RET </asm> C, ;
-: CONSTANT (:) (const) INLINE ;
-: VARIABLE (:) HERE 2 + CELL + (const) 0 , INLINE ;
+: CONSTANT CREATE-NAME (const) INLINE ;
+: VARIABLE CREATE-NAME HERE 2 + CELL + (const) 0 , INLINE ;
 
 : ? @ . ; \ ( addr -- )
 : C? C@ . ; \ ( addr -- )
@@ -582,5 +620,5 @@
 : ascii. DUP HEX. BL DUP DECIMAL. BL EMIT ;
 : ascii 2DUP < IF SWAP THEN BEGIN CRLF DUP ascii. 1+ 2DUP > WHILE 2DROP ;
 
-: t0 0 BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
-: t1 0 BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
+: t0 2DUP < IF SWAP THEN BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
+: t1 2DUP < IF SWAP THEN BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
