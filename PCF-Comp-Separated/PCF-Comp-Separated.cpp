@@ -5,6 +5,8 @@
 #include <atlstr.h>
 #include "CFCompiler.h"
 
+extern BYTE *the_memory;
+
 void GetArg(TCHAR *prefix, int argc, TCHAR *argv[], CString& out)
 {
 	CString match = prefix;
@@ -22,6 +24,9 @@ void GetArg(TCHAR *prefix, int argc, TCHAR *argv[], CString& out)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	the_memory = (BYTE *)malloc(MEM_SZ);
+	memset(the_memory, NULL, MEM_SZ);
+
 	CString iFn, oFn;
 
 	iFn = "source-sep.txt";
@@ -32,5 +37,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	CCFCompiler comp;
 	comp.Compile(iFn, oFn);
+	free(the_memory);
 	return 0;
 }

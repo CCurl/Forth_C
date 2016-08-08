@@ -20,6 +20,7 @@ public:
 	void DefineWord(CString& word, BYTE flags);
 	void Parse(CString& line);
 	bool ExecuteOpcode(BYTE opcode);
+	CELL ExecuteXT(CELL XT);
 	BYTE FindAsm(CString& word);
 	BYTE FindForthPrim(CString& word);
 	DICT_T *FindWord(CString& word);
@@ -29,8 +30,9 @@ public:
 	CELL GetAt(CELL loc);
 	void Comma(CELL num);
 	void CComma(BYTE num);
-	void Push(CELL val) { stack[++SP] = val; }
-	CELL Pop() { return stack[SP--]; }
+	// int xHERE();
+	//void Push(CELL val) { stack[++SP] = val; }
+	//CELL Pop() { return stack[SP--]; }
 	void Dis(FILE *fp);
 	CELL Dis1(CELL PC, FILE *fp);
 	void DisRange(CString& line, CELL loc, CELL num);
@@ -40,8 +42,7 @@ public:
 	void MakeTailJmpSafe();
 	void MakeTailJmpUnSafe();
 
-	BYTE the_memory[MEM_SZ];
 	CELL HERE, LAST, STATE;
-	CELL stack[256], SP;
+	//CELL stack[256], SP;
 	CELL line_no;
 };

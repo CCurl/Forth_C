@@ -72,8 +72,6 @@ typedef long CELL;				// Use long for a 32-bit implementation, short for a 16-bi
 #define ADDR_RSP   12
 #define ADDR_HERE  16
 #define ADDR_LAST  20
-#define ADDR_STATE 24
-#define ADDR_BASE  28
 
 #define ONE_KB (1024)
 #define ONE_MB (ONE_KB * ONE_KB)
@@ -84,3 +82,17 @@ typedef long CELL;				// Use long for a 32-bit implementation, short for a 16-bi
 
 #define DSP_BASE (MEM_SZ - RSTACK_SZ - DSTACK_SZ)	// Start address of the data stack
 #define DSP_INIT (DSP_BASE + STACK_BUF_SZ)			// Initial value of the data stack pointer
+
+#define GETAT(loc) *(CELL *)(&the_memory[loc])
+#define SETAT(loc, val) *(CELL *)(&the_memory[loc]) = val
+
+#define GETTOS() *(DSP)
+#define GET2ND() *(DSP-1)
+#define SETTOS(val) *(DSP) = (val)
+#define SET2ND(val) *(DSP-1) = (val)
+
+#define push(val) *(++DSP) = (CELL)(val)
+#define pop() *(DSP--)
+
+#define rpush(val) *(--RSP) = (CELL)(val)
+#define rpop() *(RSP++)

@@ -35,5 +35,8 @@
     <ClCompile Include="PCForth.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PCForthVM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

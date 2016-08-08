@@ -23,6 +23,9 @@
 : STATE <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : BASE  <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : isNeg <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+: isPostpone <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+
+10 BASE ! 0 STATE !
 
 \ : STDIN <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 \ : INPUT-FP <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
@@ -421,15 +424,20 @@
 		RDROP
 		?COMPILING
 		IF
-			DUP FLAGS.ISIMMEDIATE? \ Immediate?
+			isPostpone @ 
 			IF
-				DROP EXECUTE
+				isPostpone OFF
 			ELSE
-				FLAGS.ISINLINE? 
+				DUP FLAGS.ISIMMEDIATE? \ Immediate?
 				IF
-					Copy.INLINE
+					DROP EXECUTE
 				ELSE
-					<asm> CPUSH CALL </asm> C, ,
+					FLAGS.ISINLINE? 
+					IF
+						Copy.INLINE
+					ELSE
+						<asm> CPUSH CALL </asm> C, ,
+					THEN
 				THEN
 			THEN
 		ELSE
@@ -608,7 +616,7 @@
 : ? @ . ; \ ( addr -- )
 : C? C@ . ; \ ( addr -- )
 
-: FREE LAST HERE - ; : FREE? FREE . ;
+: FREE LAST HERE - ; : FREE? FREE . S"  bytes free." COUNT TYPE ;
 
 : CT COUNT TYPE ;
 : bufAppend DUP C++ DUP C@ + C! ; \ ( ch addr -- )
@@ -622,3 +630,4 @@
 
 : t0 2DUP < IF SWAP THEN BEGIN DUP . 1+ 2DUP > WHILE 2DROP ;
 : t1 2DUP < IF SWAP THEN BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
+LAST . HERE . FREE? CRLF

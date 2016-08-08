@@ -86,6 +86,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\PCForth\PCForthVM.cpp" />
     <ClCompile Include="CFCompiler.cpp" />
     <ClCompile Include="PCF-Comp-Separated.cpp" />
     <ClCompile Include="stdafx.cpp" />

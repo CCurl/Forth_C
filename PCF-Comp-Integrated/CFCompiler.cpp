@@ -63,8 +63,6 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	the_memory[ADDR_CELL] = CELL_SZ;
 	SetAt(ADDR_LAST, LAST);
 	SetAt(ADDR_HERE, HERE);
-	SetAt(ADDR_BASE, 10);
-	SetAt(ADDR_STATE, 0);
 
 	FILE *fp_out = NULL;
 	fopen_s(&fp_out, output, "wt");

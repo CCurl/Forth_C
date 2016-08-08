@@ -9,9 +9,21 @@
 #include "..\CFComp-Shared.inc"
 
 bool isTailJmpSafe;
+extern BYTE *the_memory;
+extern void init_vm();
+extern CELL cpu_loop();
+extern void cpu_step();
+extern CELL PC;
+extern CELL *DSP, *RSP;
+extern bool isEmbedded;
+extern bool isBYE;
 
 CCFCompiler::CCFCompiler()
 {
+	init_vm();
+	the_memory[ADDR_CELL] = CELL_SZ;
+	the_memory[0] = RET;
+	isEmbedded = true;
 }
 
 
@@ -21,12 +33,10 @@ CCFCompiler::~CCFCompiler()
 
 void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 {
-	SP = 0;
 	HERE = 0;
 	LAST = DSP_BASE - CELL_SZ;
 	STATE = 0;
 	line_no = 0;
-	memset(the_memory, 0x00, sizeof(the_memory));
 	SetAt(LAST, 0);
 	SetAt(ADDR_SP, DSP_INIT);
 	SetAt(ADDR_RSP, RSP_INIT);
@@ -65,8 +75,6 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	the_memory[ADDR_CELL] = CELL_SZ;
 	SetAt(ADDR_LAST, LAST);
 	SetAt(ADDR_HERE, HERE);
-	SetAt(ADDR_BASE, 10);
-	SetAt(ADDR_STATE, 0);
 
 	FILE *fp_out = NULL;
 	fopen_s(&fp_out, output, "wt");
@@ -96,17 +104,24 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 
 bool CCFCompiler::ExecuteOpcode(BYTE opcode)
 {
-	CELL arg1, arg2, arg3;
-	switch (opcode)
-	{
-	case ADD:
-		arg2 = Pop();
-		arg1 = Pop();
-		arg3 = arg1+arg2;
-		Push(arg3);
-		return true;
-	}
-	return false;
+	PC = HERE + 10;
+	the_memory[PC] = opcode;
+	cpu_step();
+	return (PC > 0);
+}
+
+CELL CCFCompiler::ExecuteXT(CELL XT)
+{
+	SetAt(ADDR_LAST, LAST);
+	SetAt(ADDR_HERE, HERE);
+
+	PC = XT;
+	isBYE = false;
+	CELL ret = cpu_loop();
+
+	LAST = GetAt(ADDR_LAST);
+	HERE = GetAt(ADDR_HERE);
+	return ret;
 }
 
 BYTE CCFCompiler::FindAsm(CString& word)
@@ -351,91 +366,89 @@ void CCFCompiler::Parse(CString& line)
 		{
 			DICT_T *dp = (DICT_T *)&the_memory[LAST];
 			dp->flags |= IS_INLINE;
+			if (IsTailJmpSafe() && (the_memory[HERE - CELL_SZ - 1] == JMP))
+			{
+				the_memory[HERE - CELL_SZ - 1] = CALL;
+				CComma(RET);
+			}
+			else
+			{
+				CComma(RET);
+			}
 			continue;
 		}
 
 		if (word == _T("<asm>"))
 		{
-			Push(STATE);
+			push(STATE);
 			STATE = 2;
 			continue;
 		}
 
 		if (word == _T("</asm>"))
 		{
-			STATE = Pop();
+			STATE = pop();
 			continue;
 		}
 
 		if (word == _T(".HERE"))
 		{
-			Push(HERE);
+			push(HERE);
 			if (STATE == 1)
 			{
 				CComma(LITERAL);
-				Comma(Pop());
+				Comma(pop());
 			}
 			continue;
 		}
 
 		if (word == _T(".CELL"))
 		{
-			Push(CELL_SZ);
+			push(CELL_SZ);
 			continue;
 		}
 
 		if (word == _T(".LITERAL"))
 		{
 			CComma(LITERAL);
-			Comma(Pop());
+			Comma(pop());
 			continue;
 		}
 
 		if (word == _T(".CLITERAL"))
 		{
 			CComma(CLITERAL);
-			CComma((BYTE)Pop());
+			CComma((BYTE)pop());
 			continue;
 		}
 
 		if (word == _T(".COMMA"))
 		{
-			Comma(Pop());
+			Comma(pop());
 			continue;
 		}
 
-		//if (word == _T(":!"))
-		//{
-		//	STATE = 1;
-		//	GetWord(line, word);
-		//	parsed.AppendFormat(_T(" %s"), word);
-		//	DefineWord(word, 1);
-		//	CComma(DICTP);
-		//	Comma(LAST);
-		//	continue;
-		//}
-
-		if (word == ";")
-		{
-			if (IsTailJmpSafe() && (the_memory[HERE-CELL_SZ-1] == CALL))
-			{
-				the_memory[HERE-CELL_SZ-1] = JMP;
-			}
-			else
-			{
-				CComma(RET);
-			}
-			STATE = 0;
-			continue;
-		}
-		
 		// These words are only for : definitions
 		if (STATE == 1)
 		{
+			if (word == ";")
+			{
+				if (IsTailJmpSafe() && (the_memory[HERE - CELL_SZ - 1] == CALL))
+				{
+					the_memory[HERE - CELL_SZ - 1] = JMP;
+				}
+				else
+				{
+					CComma(RET);
+				}
+				STATE = 0;
+				continue;
+			}
+
 			if (word == "IF")
 			{
 				CComma(BRANCHZ);
-				Push(HERE);
+				push(HERE);
 				Comma(0);
 				MakeTailJmpUnSafe();
 				continue;
@@ -443,9 +456,9 @@ void CCFCompiler::Parse(CString& line)
 
 			if (word == "ELSE")
 			{
-				CELL tmp = Pop();
+				CELL tmp = pop();
 				CComma(BRANCH);
-				Push(HERE);
+				push(HERE);
 				Comma(0);
 				//SetAt(tmp, HERE);
 				CELL offset = HERE - tmp;
@@ -456,7 +469,7 @@ void CCFCompiler::Parse(CString& line)
 
 			if (word == "THEN")
 			{
-				CELL tmp = Pop();
+				CELL tmp = pop();
 				//SetAt(tmp, HERE);
 				CELL offset = HERE - tmp;
 				SetAt(tmp, offset);
@@ -466,7 +479,7 @@ void CCFCompiler::Parse(CString& line)
 
 			if (word == "BEGIN")
 			{
-				Push(HERE);
+				push(HERE);
 				MakeTailJmpUnSafe();
 				continue;
 			}
@@ -476,7 +489,7 @@ void CCFCompiler::Parse(CString& line)
 				//CComma(JMP);
 				//Comma(Pop());
 				CComma(BRANCH);
-				CELL tgt = Pop();
+				CELL tgt = pop();
 				CELL offset = tgt - HERE;
 				Comma(offset);
 				MakeTailJmpUnSafe();
@@ -488,7 +501,7 @@ void CCFCompiler::Parse(CString& line)
 				//CComma(JMPNZ);
 				//Comma(Pop());
 				CComma(BRANCHNZ);
-				CELL tgt = Pop();
+				CELL tgt = pop();
 				CELL offset = tgt - HERE;
 				Comma(offset);
 				MakeTailJmpUnSafe();
@@ -500,7 +513,7 @@ void CCFCompiler::Parse(CString& line)
 				//CComma(JMPZ);
 				//Comma(Pop());
 				CComma(BRANCHZ);
-				CELL tgt = Pop();
+				CELL tgt = pop();
 				CELL offset = tgt - HERE;
 				Comma(offset);
 				MakeTailJmpUnSafe();
@@ -605,7 +618,8 @@ void CCFCompiler::Parse(CString& line)
 			}
 			else
 			{
-				wprintf(_T("%s: cannot execute '%s'!\n"), (LPCTSTR)source, (LPCTSTR)word);
+				ExecuteXT(dp->XT);
+				//wprintf(_T("%s: cannot execute '%s'!\n"), (LPCTSTR)source, (LPCTSTR)word);
 			}
 			continue;
 		}
@@ -615,7 +629,7 @@ void CCFCompiler::Parse(CString& line)
 		{
 			if (STATE == 0)
 			{
-				Push(num);
+				push(num);
 				continue;
 			}
 			else if (STATE == 1)
@@ -633,7 +647,7 @@ void CCFCompiler::Parse(CString& line)
 			}
 			else
 			{
-				Push(num);
+				push(num);
 				continue;
 			}
 			continue;
