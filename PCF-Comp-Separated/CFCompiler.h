@@ -42,7 +42,5 @@ public:
 	void MakeTailJmpSafe();
 	void MakeTailJmpUnSafe();
 
-	CELL HERE, LAST, STATE;
-	//CELL stack[256], SP;
 	CELL line_no;
 };

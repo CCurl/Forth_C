@@ -68,10 +68,9 @@ typedef long CELL;				// Use long for a 32-bit implementation, short for a 16-bi
 #define STACK_BUF_SZ (STACK_BUF_CELLS * CELL_SZ)
 
 #define ADDR_CELL   7
-#define ADDR_SP     8
-#define ADDR_RSP   12
 #define ADDR_HERE  16
 #define ADDR_LAST  20
+#define ADDR_BASE  24
 
 #define ONE_KB (1024)
 #define ONE_MB (ONE_KB * ONE_KB)

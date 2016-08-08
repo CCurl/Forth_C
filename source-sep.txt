@@ -9,10 +9,12 @@
 
 .ORG 32
 
+\ don't inline anything with a 12 in it ... that is RET
 \ The compiler/dis-assembler is hard-coded to put these values here ...
 : CELL   7 C@ ; INLINE
 : DP       16 ; INLINE
 : (LAST)   20 ; INLINE
+: BASE     24 ; INLINE
 
 : HERE DP @ ; INLINE
 : LAST (LAST) @ ; INLINE
@@ -21,11 +23,11 @@
 
 : >IN   <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : STATE <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
-: BASE  <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : isNeg <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : isPostpone <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 
-10 BASE ! 0 STATE !
+\ 16 BASE ! \ 0 STATE !
+\ 0a BASE !
 
 \ : STDIN <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 \ : INPUT-FP <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
@@ -615,6 +617,8 @@
 
 : ? @ . ; \ ( addr -- )
 : C? C@ . ; \ ( addr -- )
+
+\ HEX AAbb . DECIMAL
 
 : FREE LAST HERE - ; : FREE? FREE . S"  bytes free." COUNT TYPE ;
 

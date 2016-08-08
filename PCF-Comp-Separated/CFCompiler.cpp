@@ -18,6 +18,9 @@ extern CELL *DSP, *RSP;
 extern bool isEmbedded;
 extern bool isBYE;
 
+CELL HERE, LAST, STATE;
+CELL BASE = 10;
+
 CCFCompiler::CCFCompiler()
 {
 	init_vm();
@@ -38,8 +41,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	STATE = 0;
 	line_no = 0;
 	SetAt(LAST, 0);
-	SetAt(ADDR_SP, DSP_INIT);
-	SetAt(ADDR_RSP, RSP_INIT);
+	SetAt(ADDR_BASE, BASE);
 
 	CW2A source(m_source);
 	CW2A output(m_output);
@@ -75,6 +77,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	the_memory[ADDR_CELL] = CELL_SZ;
 	SetAt(ADDR_LAST, LAST);
 	SetAt(ADDR_HERE, HERE);
+	SetAt(ADDR_BASE, BASE);
 
 	FILE *fp_out = NULL;
 	fopen_s(&fp_out, output, "wt");
@@ -106,7 +109,17 @@ bool CCFCompiler::ExecuteOpcode(BYTE opcode)
 {
 	PC = HERE + 10;
 	the_memory[PC] = opcode;
+
+	SetAt(ADDR_LAST, LAST);
+	SetAt(ADDR_HERE, HERE);
+	SetAt(ADDR_BASE, BASE);
+
 	cpu_step();
+
+	LAST = GetAt(ADDR_LAST);
+	HERE = GetAt(ADDR_HERE);
+	BASE = GetAt(ADDR_BASE);
+
 	return (PC > 0);
 }
 
@@ -114,6 +127,7 @@ CELL CCFCompiler::ExecuteXT(CELL XT)
 {
 	SetAt(ADDR_LAST, LAST);
 	SetAt(ADDR_HERE, HERE);
+	SetAt(ADDR_BASE, BASE);
 
 	PC = XT;
 	isBYE = false;
@@ -121,6 +135,7 @@ CELL CCFCompiler::ExecuteXT(CELL XT)
 
 	LAST = GetAt(ADDR_LAST);
 	HERE = GetAt(ADDR_HERE);
+	BASE = GetAt(ADDR_BASE);
 	return ret;
 }
 
@@ -176,32 +191,52 @@ OPCODE_T *CCFCompiler::FindOpcode(BYTE opcode)
 	return NULL;
 }
 
-BOOL IsNumeric(char *w)
+BOOL CCFCompiler::MakeNumber(CString& word, CELL& the_num)
 {
+	CW2A tw(word);
+	bool is_neg = false;
+	the_num = 0;
+	char *w = tw;
+
 	// One leading minus sign is OK
 	if (*w == '-')
 	{
+		is_neg = true;
 		w++;
 	}
 
 	while (*w)
 	{
-		if ((*w < '0') || (*w > '9'))
-			return 0;
-		w++;
-	}
-	return 1;
-}
+		char ch = *(w++);
+		CELL digit = -1;
+		if (('0' <= ch) && (ch <= '9'))
+		{
+			digit = ch - '0';
+		}
 
-BOOL CCFCompiler::MakeNumber(CString& word, CELL& the_num)
-{
-	CW2A w(word);
-	if (IsNumeric(w))
-	{
-		the_num = (CELL)atol(w);
-		return 1;
+		if (BASE == 16)
+		{
+			if (('A' <= ch) && (ch <= 'F'))
+			{
+				digit = (ch - 'A') + 10;
+			}
+			if (('a' <= ch) && (ch <= 'f'))
+			{
+				digit = (ch - 'a') + 10;
+			}
+		}
+		if (digit < 0)
+		{
+			return false;
+		}
+		the_num = (the_num * BASE) + digit;
 	}
-	return 0;
+
+	if (is_neg)
+	{
+		the_num = -the_num;
+	}
+	return true;
 }
 
 void CCFCompiler::DefineWord(CString& word, BYTE flags)
@@ -369,10 +404,6 @@ void CCFCompiler::Parse(CString& line)
 			if (IsTailJmpSafe() && (the_memory[HERE - CELL_SZ - 1] == JMP))
 			{
 				the_memory[HERE - CELL_SZ - 1] = CALL;
-				CComma(RET);
-			}
-			else
-			{
 				CComma(RET);
 			}
 			continue;

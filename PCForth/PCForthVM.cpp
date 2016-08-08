@@ -370,8 +370,7 @@ void cpu_step()
 		break;
 
 	case ONEPLUS:
-		arg1 = GETTOS();
-		SETTOS(arg1 + 1);
+		(*DSP)++;
 		break;
 
 	case DEPTH:
