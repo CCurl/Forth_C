@@ -293,16 +293,16 @@
 
 	0 SWAP
 	BEGIN
-		DUP 0 = 
+		DUP
 		IF
-			\ TODO spit out the string
-			DROP
-			R> IF 45 EMIT THEN
-			BEGIN DUP IF EMIT ELSE DROP LEAVE THEN AGAIN
-		ELSE
 			BASE @ /MOD 
 			48 OVER 9 > IF 7 + THEN
 			+ SWAP
+		ELSE
+			\ spit out the string
+			DROP
+			R> IF 45 EMIT THEN
+			BEGIN DUP IF EMIT ELSE DROP LEAVE THEN AGAIN
 		THEN
 	AGAIN
 ;
