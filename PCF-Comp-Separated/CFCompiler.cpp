@@ -24,7 +24,6 @@ CELL BASE = 10;
 CCFCompiler::CCFCompiler()
 {
 	init_vm();
-	the_memory[ADDR_CELL] = CELL_SZ;
 	the_memory[0] = RET;
 	isEmbedded = true;
 }
@@ -40,7 +39,9 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	LAST = DSP_BASE - CELL_SZ;
 	STATE = 0;
 	line_no = 0;
+
 	SetAt(LAST, 0);
+	the_memory[ADDR_CELL] = CELL_SZ;
 	SetAt(ADDR_BASE, BASE);
 
 	CW2A source(m_source);
@@ -74,10 +75,8 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 
 	the_memory[0] = JMP;
 	SetAt(1, dp->XT);
-	the_memory[ADDR_CELL] = CELL_SZ;
-	SetAt(ADDR_LAST, LAST);
-	SetAt(ADDR_HERE, HERE);
-	SetAt(ADDR_BASE, BASE);
+
+	SyncMem(true);
 
 	FILE *fp_out = NULL;
 	fopen_s(&fp_out, output, "wt");
@@ -87,22 +86,29 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 		fclose(fp_out);
 	}
 
-	//fopen_s(&fp_out, output, "wt");
-	//if (fp_out)
-	//{
-	//	for (int i = 0; i < HERE; i++)
-	//	{
-	//		fprintf(fp_out, "%08lx %02x\n", i, the_memory[i]);
-	//	}
+	fp_out = NULL;
+	fopen_s(&fp_out, "vm_image.bin", "wb");
+	if (fp_out)
+	{
+		fwrite(the_memory, sizeof(BYTE), MEM_SZ, fp_out);
+		fclose(fp_out);
+	}
+}
 
-	//	for (int i = LAST; i < MEM_SZ; i++)
-	//	{
-	//		fprintf(fp_out, "%08lx %02x\n", i, the_memory[i]);
-	//	}
-	//	fclose(fp_out);
-	//	fp_out = NULL;
-	//}
-
+void CCFCompiler::SyncMem(bool isSet)
+{
+	if (isSet)
+	{
+		SetAt(ADDR_LAST, LAST);
+		SetAt(ADDR_HERE, HERE);
+		SetAt(ADDR_BASE, BASE);
+	}
+	else
+	{
+		LAST = GetAt(ADDR_LAST);
+		HERE = GetAt(ADDR_HERE);
+		BASE = GetAt(ADDR_BASE);
+	}
 }
 
 bool CCFCompiler::ExecuteOpcode(BYTE opcode)
@@ -110,32 +116,21 @@ bool CCFCompiler::ExecuteOpcode(BYTE opcode)
 	PC = HERE + 10;
 	the_memory[PC] = opcode;
 
-	SetAt(ADDR_LAST, LAST);
-	SetAt(ADDR_HERE, HERE);
-	SetAt(ADDR_BASE, BASE);
-
+	SyncMem(true);
 	cpu_step();
-
-	LAST = GetAt(ADDR_LAST);
-	HERE = GetAt(ADDR_HERE);
-	BASE = GetAt(ADDR_BASE);
+	SyncMem(false);
 
 	return (PC > 0);
 }
 
 CELL CCFCompiler::ExecuteXT(CELL XT)
 {
-	SetAt(ADDR_LAST, LAST);
-	SetAt(ADDR_HERE, HERE);
-	SetAt(ADDR_BASE, BASE);
-
+	SyncMem(true);
 	PC = XT;
 	isBYE = false;
 	CELL ret = cpu_loop();
+	SyncMem(false);
 
-	LAST = GetAt(ADDR_LAST);
-	HERE = GetAt(ADDR_HERE);
-	BASE = GetAt(ADDR_BASE);
 	return ret;
 }
 
@@ -310,24 +305,16 @@ void CCFCompiler::GetWord(CString& line, CString& word)
 
 bool CCFCompiler::IsTailJmpSafe()
 {
-	//DICT_T *dp = (DICT_T *)&the_memory[LAST];
-	//bool ret = (dp->flags & IS_TAILJMP_SAFE) != 0;
-	//if (ret)
-	//	return true;
 	return isTailJmpSafe;
 }
 
 void CCFCompiler::MakeTailJmpSafe()
 {
-	//DICT_T *dp = (DICT_T *)&the_memory[LAST];
-	//dp->flags |= IS_TAILJMP_SAFE;
 	isTailJmpSafe = true;
 }
 
 void CCFCompiler::MakeTailJmpUnSafe()
 {
-	//DICT_T *dp = (DICT_T *)&the_memory[LAST];
-	//dp->flags &= (~IS_TAILJMP_SAFE);
 	isTailJmpSafe = false;
 }
 
@@ -361,17 +348,6 @@ void CCFCompiler::Parse(CString& line)
 			}
 			continue;
 		}
-
-		//if (word == ".CELL")
-		//{
-		//	GetWord(line, word);
-		//	CELL cell_sz = 2;
-		//	if (MakeNumber(word, cell_sz))
-		//	{
-		//		the_memory[ADDR_CELL] = (BYTE)cell_sz;
-		//	}
-		//	continue;
-		//}
 
 		if ((STATE < 0) || (STATE > 2))
 		{
@@ -411,14 +387,13 @@ void CCFCompiler::Parse(CString& line)
 
 		if (word == _T("<asm>"))
 		{
-			push(STATE);
 			STATE = 2;
 			continue;
 		}
 
 		if (word == _T("</asm>"))
 		{
-			STATE = pop();
+			STATE = 1;
 			continue;
 		}
 

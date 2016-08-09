@@ -30,9 +30,7 @@ public:
 	CELL GetAt(CELL loc);
 	void Comma(CELL num);
 	void CComma(BYTE num);
-	// int xHERE();
-	//void Push(CELL val) { stack[++SP] = val; }
-	//CELL Pop() { return stack[SP--]; }
+	void SyncMem(bool isSet);
 	void Dis(FILE *fp);
 	CELL Dis1(CELL PC, FILE *fp);
 	void DisRange(CString& line, CELL loc, CELL num);

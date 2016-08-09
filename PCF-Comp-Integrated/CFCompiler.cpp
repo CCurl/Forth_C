@@ -31,8 +31,6 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	line_no = 0;
 	memset(the_memory, 0x00, sizeof(the_memory));
 	SetAt(LAST, 0);
-	SetAt(ADDR_SP, LAST  + (CELL_SZ*4));
-	SetAt(ADDR_RSP, GetAt(ADDR_SP) + DSTACK_SZ);
 
 	CW2A source(m_source);
 	CW2A output(m_output);

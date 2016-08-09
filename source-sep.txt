@@ -26,9 +26,6 @@
 : isNeg <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : isPostpone <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 
-\ 16 BASE ! \ 0 STATE !
-\ 0a BASE !
-
 \ : STDIN <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 \ : INPUT-FP <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
 
@@ -92,17 +89,17 @@
 : ROT   >R SWAP R> SWAP ;
 : -ROT  SWAP >R SWAP R> ;
 
-: ++ DUP @ 1+ SWAP ! ; \ ( addr -- )
+: ++  DUP @  1+ SWAP ! ;  \ ( addr -- )
 : C++ DUP C@ 1+ SWAP C! ; \ ( addr -- )
 
-: -- DUP @ 1- SWAP ! ; \ ( addr -- )
+: --  DUP @  1- SWAP ! ;  \ ( addr -- )
 : C-- DUP C@ 1- SWAP C! ; \ ( addr -- )
 
 : +!  TUCK @  + SWAP !  ;
 : C+! TUCK C@ + SWAP C! ;
 
-: ,  HERE !  CELL DP +! ;        \ : ,  DP TUCK @ TUCK  ! CELL + SWAP ! ;
-: C, HERE C! DP ++      ;        \ : C, DP TUCK @ TUCK C! 1+     SWAP ! ;
+: ,  HERE !  CELL DP +! ;
+: C, HERE C!      DP ++ ;
 
 : ?COMPILING STATE @ ;
 : [ 0 STATE ! ; IMMEDIATE
@@ -132,15 +129,6 @@
 
 : ON 1 SWAP ! ; : OFF 0 SWAP ! ;
 
-\ : ZTYPE 
-\	BEGIN 
-\		DUP C@ DUP 
-\		IF EMIT 1+ 
-\		ELSE 2DROP LEAVE 
-\		THEN 
-\	AGAIN 
-\ ;
-
 : BETWEEN \ ( num min max -- bool )
 	2 PICK 
 	< IF 2DROP 0 LEAVE THEN
@@ -159,11 +147,6 @@
 : DECIMAL 10 BASE ! ;
 : OCTAL    8 BASE ! ;
 : BINARY   2 BASE ! ;
-
-\ NB: This algorithm is designed for ZERO delimited strings. But
-\ since the counted strings in this implementation are also ZERO 
-\ delimited, this algorithm works for them too. For counted strings 
-\ with no ZERO delimiter, a different word would need to be written.
 
 : skipWS \ ( addr1 -- addr2 )
 	BEGIN
@@ -209,6 +192,15 @@
 : DICT.GetFLAGS DICT>FLAGS C@ ;
 
 : DICTP>NAME 1+ @ DICT>NAME ;
+
+: XT.GetDICTP \ ( XT -- dictp )
+	DUP C@ <asm> CPUSH DICTP </asm> = 
+	IF
+		1+ @
+	ELSE
+		DROP RESET
+	THEN
+;
 
 : FLAG_IMMEDIATE 1 ;
 : FLAG_INLINE    2 ;
@@ -355,16 +347,6 @@
 
 : EXECUTE RDROP >R ; \ ( addr -- )
 
-: Copy.INLINE.Num \ ( start num -- )
-	SWAP >R
-	0
-	BEGIN
-		DUP R> DUP C@ C, 1+ >R
-		1+ 2DUP >
-	WHILE
-	2DROP RDROP
-;
-
 \ ( addr1 -- addr2 )
 : find.ret
 	BEGIN
@@ -420,6 +402,34 @@
 	(inline)
 ;
 
+: [COMPILE] \ ( XT flags -- )
+	DUP FLAGS.ISIMMEDIATE? \ Immediate?
+	IF
+		DROP EXECUTE
+	ELSE
+		FLAGS.ISINLINE? 
+		IF
+			Copy.INLINE
+		ELSE
+			<asm> CPUSH CALL </asm> C, ,
+		THEN
+	THEN
+;
+
+: POSTPONE.rt
+	R@ @ DICT.GetXT
+	R@ @ DICT.GetFLAGS
+	R> CELL + >R
+	[COMPILE]
+;
+
+LAST DICT.GetXT
+: POSTPONE  \ compile call to POSTPONE.rt
+	<asm> CPUSH CALL </asm> C,
+	<asm> PUSH , </asm> ,
+	isPostpone ON
+; IMMEDIATE
+
 : executeWord  \ ( addr -- )
 	>R R@ findInDict \ ( addr -- XT FLAGS found )
 	IF
@@ -428,18 +438,14 @@
 		IF
 			isPostpone @ 
 			IF
+				DROP XT.GetDICTP ,
 				isPostpone OFF
 			ELSE
 				DUP FLAGS.ISIMMEDIATE? \ Immediate?
 				IF
 					DROP EXECUTE
 				ELSE
-					FLAGS.ISINLINE? 
-					IF
-						Copy.INLINE
-					ELSE
-						<asm> CPUSH CALL </asm> C, ,
-					THEN
+					[COMPILE]
 				THEN
 			THEN
 		ELSE
