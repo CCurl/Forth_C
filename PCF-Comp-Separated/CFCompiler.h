@@ -15,7 +15,7 @@ public:
 	CCFCompiler();
 	~CCFCompiler();
 
-	void Compile(LPCTSTR m_source, LPCTSTR m_output);
+	void Compile(LPCTSTR m_source, LPCTSTR m_output, LPCTSTR m_binary);
 	void GetWord(CString& line, CString& word);
 	void DefineWord(CString& word, BYTE flags);
 	void Parse(CString& line);

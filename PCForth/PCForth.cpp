@@ -63,10 +63,35 @@ char *GetNextNum(char *cp, CELL& val)
 }
 
 // ------------------------------------------------------------------------------------------
+bool boot_load(char *arg)
+{
+	int num_read = 0;
+	FILE *fp = NULL;
+
+	fopen_s(&fp, arg, "rb");
+	if (!fp)
+	{
+		char fn[256];
+		sprintf_s(fn, "..\\%s", arg);
+		fopen_s(&fp, fn, "rb");
+	}
+	if (fp)
+	{
+		num_read = fread(the_memory, sizeof(BYTE), MEM_SZ, fp);
+		fclose(fp);
+	}
+	else
+	{
+		printf("boot_load(): error opening '%s'!", arg);
+	}
+
+	return (num_read == MEM_SZ);
+}
+
+// ------------------------------------------------------------------------------------------
 bool bios_init(char *arg)
 {
-	init_vm();
-	PC = 0;
+	CELL addr = 0;
 
 	char buf[128];
 	FILE *fp = NULL;
@@ -83,12 +108,12 @@ bool bios_init(char *arg)
 		while (fgets(buf, sizeof(buf), fp) == buf)
 		{
 			buf[strlen(buf)-1] = (char)NULL;
-			char *cp = GetNextNum(buf, PC);
-			while ((*cp) && (PC >= 0))
+			char *cp = GetNextNum(buf, addr);
+			while ((*cp) && (addr >= 0))
 			{
 				CELL num;
 				cp = GetNextNum(cp, num);
-				the_memory[PC++] = (BYTE)num;
+				the_memory[addr++] = (BYTE)num;
 			}
 		}
 		fclose(fp);
@@ -96,7 +121,7 @@ bool bios_init(char *arg)
 	}
 	else
 	{
-		printf("Error opening '%s'!", arg);
+		printf("bios_init(): error opening '%s'!", arg);
 	}
 	return false;
 }
@@ -117,6 +142,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	char arg[64];
 	sprintf_s(arg, "dis-sep.txt");
+	bool isBinary = false, isOK = false;
 
 	if (argc > 1)
 	{
@@ -126,12 +152,30 @@ int _tmain(int argc, _TCHAR* argv[])
 			xxx += 3;
 			sprintf_s(arg, sizeof(arg), "%S", xxx);
 		}
+
+		else if ((xxx[0] == '-') && (xxx[1] == 'b') && (xxx[2] == ':'))
+		{
+			xxx += 3;
+			sprintf_s(arg, sizeof(arg), "%S", xxx);
+			isBinary = true;
+		}
 	}
 
-	if (bios_init(arg))
+	init_vm();
+	if (isBinary)
+	{
+		isOK = boot_load(arg);
+	}
+	else
+	{
+		isOK = bios_init(arg);
+	}
+
+	if (isOK)
 	{
 		PC = 0;
 		return cpu_loop();
 	}
+
 	return 1;
 }

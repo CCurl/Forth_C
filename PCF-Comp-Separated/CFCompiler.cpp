@@ -33,7 +33,7 @@ CCFCompiler::~CCFCompiler()
 {
 }
 
-void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
+void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output, LPCTSTR m_binary)
 {
 	HERE = 0;
 	LAST = DSP_BASE - CELL_SZ;
@@ -46,6 +46,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 
 	CW2A source(m_source);
 	CW2A output(m_output);
+	CW2A binary(m_binary);
 	FILE *fp_in = NULL;
 	fopen_s(&fp_in, source, "rt");
 
@@ -87,7 +88,7 @@ void CCFCompiler::Compile(LPCTSTR m_source, LPCTSTR m_output)
 	}
 
 	fp_out = NULL;
-	fopen_s(&fp_out, "vm_image.bin", "wb");
+	fopen_s(&fp_out, binary, "wb");
 	if (fp_out)
 	{
 		fwrite(the_memory, sizeof(BYTE), MEM_SZ, fp_out);

@@ -1,6 +1,6 @@
 @echo off
-Release\PCF-Comp-Separated.exe -i:source-sep.txt -o:dis-sep.txt
+Release\PCF-Comp-Separated.exe -i:sep-src.txt -o:sep-dis.txt -b:sep-img.bin
+Release\PCForth.exe -b:sep-img.bin
+
 REM Release\PCF-Comp-Integrated.exe -i:source-int.txt -o:dis-int.txt
-REM cd ..
-Release\PCForth.exe -i:dis-sep.txt
 REM Release\PCForth.exe -i:dis-int.txt

@@ -27,16 +27,18 @@ int _tmain(int argc, _TCHAR* argv[])
 	the_memory = (BYTE *)malloc(MEM_SZ);
 	memset(the_memory, NULL, MEM_SZ);
 
-	CString iFn, oFn;
+	CString iFn, oFn, bFn;
 
 	iFn = "source-sep.txt";
 	oFn = "dis-sep.txt";
+	bFn = "vm_image.bin";
 
 	GetArg(_T("-i:"), argc, argv, iFn);
 	GetArg(_T("-o:"), argc, argv, oFn);
+	GetArg(_T("-b:"), argc, argv, bFn);
 
 	CCFCompiler comp;
-	comp.Compile(iFn, oFn);
+	comp.Compile(iFn, oFn, bFn);
 	free(the_memory);
 	return 0;
 }
