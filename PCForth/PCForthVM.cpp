@@ -338,7 +338,7 @@ void cpu_step()
 		arg2 = pop();
 		arg1 = pop();
 		{
-			BYTE *pBuf = (BYTE *)&the_memory[arg1 + 1];
+			BYTE *pBuf = (BYTE *)&the_memory[arg1];
 			int num = fwrite(pBuf, sizeof(BYTE), arg2, arg3 == 0 ? stdin : (FILE *)arg3);
 			push(num);
 		}

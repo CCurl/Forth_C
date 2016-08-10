@@ -643,3 +643,17 @@ LAST DICT.GetXT
 : t1 2DUP < IF SWAP THEN BEGIN 1+ DUP . 2DUP > WHILE 2DROP ;
 : fn S" img-4th.bin" ;
 LAST . HERE . FREE? CRLF
+
+\ variable fp
+\ : img-save 
+\    fn 1 fopen 0= 
+\    if
+\        fp ! 
+\        0 mem_sz fp @ fwrite .
+\        fp @ fclose 
+\        fp off
+\    else
+\        reset
+\    then
+\    ;
+\ img-save

@@ -10,11 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		go-int.bat = go-int.bat
 		go-sep.bat = go-sep.bat
 		go.bat = go.bat
+		img-4th.bin = img-4th.bin
 		README.md = README.md
 		sep-dis.txt = sep-dis.txt
 		sep-img.bin = sep-img.bin
-		source-int.txt = source-int.txt
 		sep-src.txt = sep-src.txt
+		source-int.txt = source-int.txt
 		source.txt = source.txt
 	EndProjectSection
 EndProject
