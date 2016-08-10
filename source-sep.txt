@@ -24,7 +24,6 @@
 : >IN   <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : STATE <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 : isNeg <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
-: isPostpone <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 
 \ : STDIN <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
 \ : INPUT-FP <asm> .HERE 4 + .LITERAL </asm> ; 0 .COMMA
@@ -305,12 +304,6 @@
 : DECIMAL. BASE @ SWAP DECIMAL (.) BASE ! ;
 : BINARY.  BASE @ SWAP BINARY  (.) BASE ! ;
 
-\ some simple pseudo floating point words
-: fpb <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
-: >FP SWAP fpb @ * + ;
-: FP> fpb @ /MOD ;
-: FP. FP> SWAP . 46 EMIT (.) ;
-
 : MIN 2DUP > IF SWAP THEN DROP ; 
 : MAX 2DUP < IF SWAP THEN DROP ; 
 
@@ -416,6 +409,8 @@
 	THEN
 ;
 
+: isPostpone <asm> .HERE 2 + .CELL + .LITERAL </asm> ; 0 .COMMA
+
 : POSTPONE.rt
 	R@ @ DICT.GetXT
 	R@ @ DICT.GetFLAGS
@@ -457,14 +452,18 @@ LAST DICT.GetXT
 		IF
 			?COMPILING
 			IF
-				DUP 0 255 BETWEEN
+				isPostpone @ 
 				IF
-					<asm> CPUSH CPUSH </asm> C, C,
+					RESET	\ POSTPONE for literals not implemented yet
+					isPostpone OFF
 				ELSE
-					<asm> CPUSH PUSH </asm> C, ,
+					DUP 0 255 BETWEEN
+					IF
+						<asm> CPUSH CPUSH </asm> C, C,
+					ELSE
+						<asm> CPUSH PUSH </asm> C, ,
+					THEN
 				THEN
-			\ ELSE
-				\ 65 + EMIT \ DEBUG
 			THEN
 		ELSE
 			DROP
@@ -599,7 +598,9 @@ LAST DICT.GetXT
 
 : resetState ?COMPILING 
 	IF (FL) THEN 
-	STATE OFF DECIMAL 
+	STATE OFF
+	isPostpone OFF
+	DECIMAL
 ;
 
 : OK ?COMPILING 0 = IF S" OK" COUNT TYPE .S THEN CRLF ;
@@ -610,7 +611,6 @@ LAST DICT.GetXT
 	IF 
 		S"  Reset. " COUNT TYPE
 	ELSE
-		100 fpb !
 		S" Hello." COUNT TYPE CRLF
 	THEN 
 ;
