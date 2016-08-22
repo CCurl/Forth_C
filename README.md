@@ -5,9 +5,9 @@ that end, the VM has less than 50 instructions, which make up the VM's opcodes a
 primitives. See "Shared.h" for that list of built-in functionality. The run() function in "PCForth.cpp"
 is the implementation of the virtual CPU loop.
 
-To get the initial code image into the VM, I created a simple, Forth-like assembler. It generates an 
-in-memory image of the VM's desired initial state from the -i:<fn> file. It also disassembles the VM 
-into a file named by -o:<fn>. A casual inspection of the disassembly will show that the entire system is 
+To get the initial code image into the VM, I created a simple, Forth-like compiler/assembler. It generates 
+an in-memory image of the VM's desired initial state from the -i:<fn> file. It also creates a listing file 
+in the file named by -o:<fn>. A casual inspection of the disassembly will show that the entire system is 
 just a Forth dictionary.
 
 There are 2 versions of the compiler: one with the dictionary and code separated, the other with them 
